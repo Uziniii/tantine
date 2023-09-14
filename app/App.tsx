@@ -5,9 +5,14 @@ import { trpc } from './utils/trpc';
 import { httpBatchLink } from '@trpc/client';
 import superjson from "superjson";
 import Constants from "expo-constants";
-import IndexPage from './src/IndexPage';
+import Register from './src/Security/Register/Register';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { manifest2 } = Constants;
+
+let host = manifest2 !== null
+  ? manifest2?.extra?.expoGo?.debuggerHost?.split(":").shift()
+  : process.env.IP
 
 export default function App() {
   const [queryClient] = useState(() => new QueryClient());
@@ -15,7 +20,16 @@ export default function App() {
     trpc.createClient({
       links: [
         httpBatchLink<any>({
-          url: `http://${manifest2?.extra?.expoGo?.debuggerHost?.split(":").shift() }:3000`,
+          url: `http://${host}:3000`,
+          async headers() {
+            const token = await AsyncStorage.getItem("token")
+
+            if (!token) return {}
+
+            return {
+              Authorization: `Bearer ${token}`
+            } as any
+          },
         }),
       ],
       transformer: superjson
@@ -25,7 +39,7 @@ export default function App() {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <IndexPage />
+        <Register />
         <StatusBar style="auto" />
       </QueryClientProvider>
     </trpc.Provider>
