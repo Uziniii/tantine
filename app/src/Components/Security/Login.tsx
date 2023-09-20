@@ -1,4 +1,4 @@
-import { trpc } from '../../../utils/trpc';
+import { trpc } from '../../utils/trpc';
 import { useState } from 'react';
 import { StyleSheet, View, TextInput, Pressable, Text } from 'react-native';
 
