@@ -10,6 +10,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { FText } from './src/FText';
+import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
 
 const { manifest2 } = Constants;
 
@@ -45,14 +47,27 @@ export default function App() {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <NavigationContainer>
-          <Stack.Navigator>
-
-          </Stack.Navigator>
-          <View style={{ backgroundColor: "#F0F0F5", width: "100%" }}>
-            <Register />
-          </View>
-        </NavigationContainer>
+        <View style={{ backgroundColor: "#F0F0F5", width: "100%" }}>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="register">
+              <Stack.Screen
+                name="register"
+                component={Register}
+                options={{
+                  headerTitleAlign: "center",
+                  headerTitle() {
+                    return <FText
+                      font={[ Montserrat_700Bold, "Montserrat_700Bold" ]}
+                      $size={"24px"}
+                    >
+                      S'enregistrer
+                    </FText>
+                  },
+                }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </View>
         <StatusBar style="auto" />
       </QueryClientProvider>
     </trpc.Provider>

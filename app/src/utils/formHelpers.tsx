@@ -1,21 +1,20 @@
-import { InputModeOptions, StyleSheet, Text, TextInput } from "react-native"
+import { InputModeOptions } from "react-native"
 import { Action, InputsReducerState } from "../hooks/inputsReducer"
+import { FText } from "../FText"
+import { styled } from "styled-components/native"
 
 export const showError = (error: { error?: string } | undefined) => {
   return error?.error
-  ? <Text>{error.error}</Text>
+  ? <FText>{error.error}</FText>
   : <></>
 }
 
-const styles = StyleSheet.create({
-  input: {
-    width: '80%',
-    height: 35,
-    paddingLeft: 5,
-    borderWidth: 2,
-    borderColor: 'black'
-  }
-})
+const TextInput = styled.TextInput`
+  width: 80%;
+  padding: 8px;
+  border: 2px solid #DADBDD;
+  border-radius: 8px;
+`
 
 type set = (action: Action) => void
 
@@ -39,7 +38,6 @@ export const renderInput = ({
   parser: any
 }) => {
   return <TextInput
-    style={styles.input}
     onChangeText={(e) => setInputs({
       key: state,
       input: e,

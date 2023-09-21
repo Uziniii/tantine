@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import z from "zod"
 import { renderInput, showError } from "../../utils/formHelpers"
 import { useInputsReducer } from '../../hooks/inputsReducer';
+import { FText } from '../../FText';
 
 export default function Register() {
   const createUser = trpc.user.create.useMutation({
@@ -28,7 +29,6 @@ export default function Register() {
 
   return (
     <View style={styles.form}>
-      <Text style={styles.form__title}>S'enregistrer</Text>
       {renderInput({
         setInputs,
         inputs,
@@ -89,11 +89,16 @@ export default function Register() {
       {showError(inputs.passwordConfirm)}
 
       <Pressable style={styles.button} onPress={() => sendRegisterData()}>
-        <Text>S'enregistrer</Text>
+        <FText $color='white' $size={16}>S'enregistrer</FText>
       </Pressable>
 
       <View style={styles.container__waccount}>
-        <Text>Vous avez déja un compte ?<Pressable onPress={() => sendRegisterData()}><Text style={styles.button__waccount}>Se connecter</Text></Pressable>  </Text>
+        <Text>
+          Vous avez déja un compte ?
+          <Pressable onPress={() => sendRegisterData()}>
+            <Text style={styles.button__waccount}>Se connecter</Text>
+          </Pressable>
+        </Text>
       </View>
     </View>
   );
@@ -108,40 +113,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  form__title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-  },
-
-  input: {
-    width: '80%',
-    height: 35,
-    paddingLeft: 5,
-    borderWidth: 2,
-    borderColor: 'black'
-  },
-
   button: {
     width: '80%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingLeft: 5,
-    borderWidth: 2,
-    height: 35
+    height: 35,
+    backgroundColor: "#575BFD",
+    borderRadius: 8,
   },
-
   container__waccount: {
     backgroundColor: '#F0F0F5',
     position: 'absolute',
     bottom: 0,
     paddingBottom: 25
   },
-
   button__waccount: {
     color: 'red',
     paddingLeft: 5
   }
-
 });

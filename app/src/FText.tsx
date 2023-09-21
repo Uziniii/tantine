@@ -1,28 +1,33 @@
 import { useFonts, Montserrat_400Regular } from "@expo-google-fonts/montserrat";
-import { Text } from "react-native";
+import styled from "styled-components/native"
 
 interface Props extends React.PropsWithChildren {
-  fontSize?: number;
   font?: [number, string];
 }
 
+const CustomText = styled.Text<{ $color?: string, $size?: number | string }>`
+  color: ${props => props.$color || "black"};
+  font-size: ${props => props.$size || "16px"};
+`
+
 export function FText ({
   children,
-  fontSize,
-  font: fontProps
-}: Props) {
+  font: fontProps,
+  $color,
+  $size
+}: Props & typeof CustomText.defaultProps) {
   const font: [number, string] = [
     fontProps?.[0] || Montserrat_400Regular,
     fontProps?.[1] || "Montserrat_400Regular"
   ]
 
   const [fontsLoaded, fontError] = useFonts({
-    [font[0]]: font[0]
+    [font[1]]: font[0]
   })
 
   if (!fontsLoaded && !fontError) return null
 
-  return <Text style={{ fontFamily: font[1], fontSize: fontSize || 16 }}>
+  return <CustomText {...{ $color, $size }} style={{ fontFamily: font[1] }}>
     {children}
-  </Text>
+  </CustomText>
 }
