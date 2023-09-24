@@ -1,35 +1,47 @@
 import { trpc } from '../../utils/trpc';
 import { useState } from 'react';
-import { StyleSheet, View, TextInput, Pressable, Text } from 'react-native';
+import { StyleSheet, View, TextInput, Pressable, Text, Keyboard } from 'react-native';
+import { renderInput, showError } from '../../utils/formHelpers';
+import { useInputsReducer } from '../../hooks/inputsReducer';
+import z from "zod";
+import { FText } from '../../Components/FText';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 export default function Register() {
   const createUser = trpc.user.create.useMutation()
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [inputs, setInputs] = useInputsReducer()
 
   const sendLoginData = () => {
     console.log('login');
   }
 
-  return (
+  return <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.form}>
-      <Text style={styles.form__title}>S'enregistrer</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={setEmail}
-        inputMode='email'
-        value={email}
-        placeholder={'Adresse email'}
-      />
+      <FText style={styles.form__title}>S'enregistrer</FText>
 
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        secureTextEntry={true}
-        placeholder={'Mot de passe'}
-      />
+      {renderInput({
+        setInputs,
+        inputs,
+        parser: z.string()
+          .email({ message: "L'email n'est pas correct" }),
+        state: "email",
+        placeholder: "Adresse email",
+        inputMode: "email",
+        maxLength: 200
+      })}
+      {showError(inputs.email)}
+
+      {renderInput({
+        setInputs,
+        inputs,
+        parser: z.string(),
+        state: "password",
+        placeholder: "Mot de passe",
+        secureTextEntry: true,
+        maxLength: 200,
+      })}
+      {showError(inputs.password)}
 
       <Pressable style={styles.button} onPress={() => sendLoginData()}>
         <Text>Se connecter</Text>
@@ -39,7 +51,7 @@ export default function Register() {
         <Text>Vous n'avez pas de compte ?<Pressable onPress={() => sendLoginData()}><Text style={styles.button__waccount}>S'enregistrer</Text></Pressable>  </Text>
       </View>
     </View>
-  );
+  </TouchableWithoutFeedback>
 }
 
 const styles = StyleSheet.create({

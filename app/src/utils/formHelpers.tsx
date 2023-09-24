@@ -1,6 +1,6 @@
 import { InputModeOptions } from "react-native"
 import { Action, InputsReducerState } from "../hooks/inputsReducer"
-import { FText } from "../FText"
+import { FText } from "../Components/FText"
 import { styled } from "styled-components/native"
 
 export const showError = (error: { error?: string } | undefined) => {
@@ -14,6 +14,9 @@ const TextInput = styled.TextInput`
   padding: 8px;
   border: 2px solid #DADBDD;
   border-radius: 8px;
+  ::placeholder {
+    color: #DADBDD;
+  }
 `
 
 type set = (action: Action) => void

@@ -5,7 +5,7 @@ interface Props extends React.PropsWithChildren {
   font?: [number, string];
 }
 
-const CustomText = styled.Text<{ $color?: string, $size?: number | string }>`
+const CustomText = styled.Text<{ $color?: string, $size?: string }>`
   color: ${props => props.$color || "black"};
   font-size: ${props => props.$size || "16px"};
 `

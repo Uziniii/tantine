@@ -1,12 +1,38 @@
 import { trpc } from '../../utils/trpc';
-import { StyleSheet, View, TextInput, Pressable, Text } from 'react-native';
+import { StyleSheet, View, TextInput, Pressable, Text, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import z from "zod"
 import { renderInput, showError } from "../../utils/formHelpers"
 import { useInputsReducer } from '../../hooks/inputsReducer';
-import { FText } from '../../FText';
+import { FText } from '../../Components/FText';
+import styled from "styled-components/native"
+import { NavigationProp } from '@react-navigation/native';
 
-export default function Register() {
+const LoginWiew = styled.View`
+  background: #F0F0F5;
+  position: absolute;
+  bottom: 0;
+  padding-bottom: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+const RegisterButton = styled.Pressable`
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #575BFD;
+  border-radius: 8px;
+  padding: 12px 0;
+`
+
+interface Props {
+  navigation: NavigationProp<any>;
+}
+
+export default function Register({ navigation }: Props) {
   const createUser = trpc.user.create.useMutation({
     async onSuccess(data) {
       console.log(data);
@@ -27,7 +53,7 @@ export default function Register() {
     // })
   }
 
-  return (
+  return <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.form}>
       {renderInput({
         setInputs,
@@ -88,20 +114,20 @@ export default function Register() {
       })}
       {showError(inputs.passwordConfirm)}
 
-      <Pressable style={styles.button} onPress={() => sendRegisterData()}>
-        <FText $color='white' $size={16}>S'enregistrer</FText>
-      </Pressable>
+      <RegisterButton onPress={() => sendRegisterData()}>
+        <FText $color='white'>S'enregistrer</FText>
+      </RegisterButton>
 
-      <View style={styles.container__waccount}>
-        <Text>
-          Vous avez déja un compte ?
-          <Pressable onPress={() => sendRegisterData()}>
-            <Text style={styles.button__waccount}>Se connecter</Text>
-          </Pressable>
-        </Text>
-      </View>
+      <LoginWiew>
+        <FText $size='18px'>
+          Vous avez déja un compte ? 
+        </FText>
+        <Pressable onPress={() => navigation.navigate("login")}>
+          <FText $size='18px' $color='#575BFD'>Se connecter</FText>
+        </Pressable>
+      </LoginWiew>
     </View>
-  );
+  </TouchableWithoutFeedback>
 }
 
 const styles = StyleSheet.create({
@@ -112,21 +138,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  button: {
-    width: '80%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 35,
-    backgroundColor: "#575BFD",
-    borderRadius: 8,
-  },
-  container__waccount: {
-    backgroundColor: '#F0F0F5',
-    position: 'absolute',
-    bottom: 0,
-    paddingBottom: 25
   },
   button__waccount: {
     color: 'red',

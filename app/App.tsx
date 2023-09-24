@@ -5,23 +5,31 @@ import { trpc } from './src/utils/trpc';
 import { httpBatchLink } from '@trpc/client';
 import superjson from "superjson";
 import Constants from "expo-constants";
-import Register from './src/Components/Security/Register';
+import Register from './src/Page/Security/Register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { FText } from './src/FText';
+import { FText } from './src/Components/FText';
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
+import * as Linking from 'expo-linking';
+import Home from './src/Page/Home';
 
 const { manifest2 } = Constants;
 
 let host = manifest2 !== null
   ? manifest2?.extra?.expoGo?.debuggerHost?.split(":").shift()
   : process.env.IP
+console.log(host);
 
 const Stack = createNativeStackNavigator();
 
+const prefix = Linking.createURL('/');
+
 export default function App() {
+  const linking = {
+    prefixes: [prefix],
+  };
+
   const [login, setLogin] = useState(false)
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() =>
@@ -47,8 +55,7 @@ export default function App() {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <View style={{ backgroundColor: "#F0F0F5", width: "100%" }}>
-          <NavigationContainer>
+          <NavigationContainer linking={linking}>
             <Stack.Navigator initialRouteName="register">
               <Stack.Screen
                 name="register"
@@ -67,7 +74,6 @@ export default function App() {
               />
             </Stack.Navigator>
           </NavigationContainer>
-        </View>
         <StatusBar style="auto" />
       </QueryClientProvider>
     </trpc.Provider>
