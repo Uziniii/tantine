@@ -1,36 +1,63 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { trpc } from './src/utils/trpc';
 import { httpBatchLink } from '@trpc/client';
 import superjson from "superjson";
 import Constants from "expo-constants";
-import Register from './src/Page/Security/Register';
+import Register from './src/Page/Auth/Register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { FText } from './src/Components/FText';
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
 import * as Linking from 'expo-linking';
-import Home from './src/Page/Home';
+import Login from './src/Page/Auth/Login';
+import { GestureHandlerRootView, TouchableOpacity } from 'react-native-gesture-handler';
+import Chat from './src/Page/Chat';
+import { store, useAppDispatch, useAppSelector } from './src/store/store';
+import { setLogin } from './src/store/slices/loginSlice';
+import { Provider } from 'react-redux';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { FontAwesome, Feather } from '@expo/vector-icons'; 
+import Settings from './src/Page/Settings';
+import { View } from 'react-native';
+import Search from './src/Page/Search';
+
+export default function App() {
+  return <GestureHandlerRootView style={{ flex: 1 }}>
+    <Provider store={store}>
+      <Base />
+    </Provider>
+  </GestureHandlerRootView>
+}
 
 const { manifest2 } = Constants;
 
 let host = manifest2 !== null
   ? manifest2?.extra?.expoGo?.debuggerHost?.split(":").shift()
   : process.env.IP
-console.log(host);
 
 const Stack = createNativeStackNavigator();
 
 const prefix = Linking.createURL('/');
 
-export default function App() {
+function Base() {
   const linking = {
     prefixes: [prefix],
   };
 
-  const [login, setLogin] = useState(false)
+  const login = useAppSelector(state => state.login)
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    AsyncStorage.getItem("token").then(token => {
+      if (token) {
+        dispatch(setLogin(true))
+      }
+    })
+  }, [])
+
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() =>
     trpc.createClient({
@@ -52,30 +79,143 @@ export default function App() {
     }),
   );
 
-  return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-          <NavigationContainer linking={linking}>
-            <Stack.Navigator initialRouteName="register">
-              <Stack.Screen
-                name="register"
-                component={Register}
-                options={{
-                  headerTitleAlign: "center",
-                  headerTitle() {
-                    return <FText
-                      font={[ Montserrat_700Bold, "Montserrat_700Bold" ]}
-                      $size={"24px"}
-                    >
-                      S'enregistrer
-                    </FText>
-                  },
-                }}
-              />
-            </Stack.Navigator>
-          </NavigationContainer>
-        <StatusBar style="auto" />
-      </QueryClientProvider>
-    </trpc.Provider>
-  );
+  return <trpc.Provider client={trpcClient} queryClient={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      {login 
+        ? <NavigationContainer linking={linking}>
+          <Stack.Navigator initialRouteName='home'>
+            <Stack.Screen
+              name='home'
+              component={Home}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name='search'
+              component={Search}
+              options={{
+                presentation: "modal",
+              }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+        : <NavigationContainer linking={linking}> 
+          <Stack.Navigator initialRouteName={"register"}>
+            {AuthRoute()}
+          </Stack.Navigator>
+        </NavigationContainer>
+      }
+      <StatusBar style="auto" />
+    </QueryClientProvider>
+  </trpc.Provider>
+}
+
+const Tab = createBottomTabNavigator();
+
+function Home () {
+  return <Tab.Navigator screenOptions={{
+    tabBarStyle: {
+      height: '10%',
+      paddingBottom: 16,
+    },
+  }}>
+    {AllRoute()}
+  </Tab.Navigator>
+}
+
+function AllRoute() {
+  return [
+    <Tab.Screen
+      name="chat"
+      key={"chat"}
+      component={Chat}
+      options={{
+        tabBarIcon(props) {
+          return <FontAwesome  name="comments" size={30} color={props.color} />
+        },
+        tabBarLabel(props) {
+          return <FText $color={props.color} $size='12px'>Discussions</FText>
+        },
+        headerTitleAlign: "center",
+        headerTitle() {
+          return <FText
+            font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+            $size={"24px"}
+          >
+            Discussions
+          </FText>
+        },
+        headerRight(props) {
+          const navigation = useNavigation()
+
+          return <View style={{ width: "100%", flex: 1, alignItems: "center", justifyContent: "center" }}>
+            <TouchableOpacity onPress={() => navigation.navigate("search" as never)}>
+              <Feather name="edit" size={24} color={"#007aff"}/>
+            </TouchableOpacity>
+          </View>
+        },
+      }}
+    />,
+    <Tab.Screen
+      name='settings'
+      key={"settings"}
+      component={Settings}
+      options={{
+        tabBarIcon(props) {
+          return <FontAwesome name="gear" size={30} color={props.color} />
+        },
+        tabBarLabel(props) {
+          return <FText $color={props.color} $size='12px'>Réglage</FText>
+        },
+        headerTitle() {
+          return <FText
+            font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+            $size={"24px"}
+          >
+            Réglages
+          </FText>
+        },
+      }}
+    />
+  ]
+}
+
+function AuthRoute() {
+  return [
+    <Stack.Screen
+      name="register"
+      key={"register"}
+      component={Register}
+
+      options={{
+        headerTitleAlign: "center",
+        headerTitle() {
+          return <FText
+            font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+            $size={"24px"}
+          >
+            S'enregistrer
+          </FText>
+        },
+      }}
+    />,
+    <Stack.Screen
+      name="login"
+      key={"login"}
+      component={Login}
+      options={{
+        headerBackTitleVisible: false,
+        headerTitleAlign: "center",
+        headerTitle() {
+          return <FText
+            font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+            $size={"24px"}
+          >
+            Se connecter
+          </FText>
+        },
+      }}
+    />
+  ]
 }

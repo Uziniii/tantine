@@ -9,10 +9,10 @@ export const showError = (error: { error?: string } | undefined) => {
   : <></>
 }
 
-const TextInput = styled.TextInput`
-  width: 80%;
+const TextInput = styled.TextInput<{ $width?: string, $borderColor?: string }>`
+  width: ${props => props.$width || "100%"};
   padding: 8px;
-  border: 2px solid #DADBDD;
+  border: 2px solid ${props => props.$borderColor || "#DADBDD"};
   border-radius: 8px;
   ::placeholder {
     color: #DADBDD;
@@ -20,6 +20,17 @@ const TextInput = styled.TextInput`
 `
 
 type set = (action: Action) => void
+
+interface Props {
+  setInputs: set,
+  inputs: InputsReducerState,
+  state: string,
+  placeholder: string,
+  maxLength: number,
+  secureTextEntry?: boolean,
+  inputMode?: InputModeOptions,
+  parser: any
+}
 
 export const renderInput = ({
   setInputs,
@@ -29,27 +40,30 @@ export const renderInput = ({
   maxLength,
   secureTextEntry,
   inputMode,
-  parser
-}: {
-  setInputs: set,
-  inputs: InputsReducerState,
-  state: string,
-  placeholder: string,
-  maxLength: number,
-  secureTextEntry?: boolean,
-  inputMode?: InputModeOptions,
-  parser: any
-}) => {
+  parser,
+  onFocus,
+  onChangeText,
+  $width,
+}: Props & typeof TextInput.defaultProps) => {
   return <TextInput
-    onChangeText={(e) => setInputs({
-      key: state,
-      input: e,
-      parser
-    })}
+    onChangeText={(e) => {
+      if (onChangeText) onChangeText(e)
+      
+      setInputs({
+        key: state,
+        input: e,
+        parser
+      })
+    }}
     value={inputs[state]?.input || ""}
     placeholder={placeholder}
     maxLength={maxLength}
     secureTextEntry={secureTextEntry}
     inputMode={inputMode}
+    onFocus={onFocus}
+    {...{
+      $width,
+      $borderColor: inputs[state]?.error ? "red" : undefined
+    }}
   />
 }

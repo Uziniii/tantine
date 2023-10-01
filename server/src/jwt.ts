@@ -1,5 +1,20 @@
 import jwt from "jsonwebtoken"
 
-export function generateAccessToken(id: string) {
-  return jwt.sign(id, process.env.SECRET);
+export interface Payload {
+  id: number;
+  email: string;
+  name: string;
+  surname: string;
+}
+
+export function generateAccessToken(payload: Payload, hashedPassword: string) {
+  return jwt.sign(payload, process.env.SECRET + "." + hashedPassword);
+}
+
+export function verifyJwtToken(token: string, hashedPassword: string) {
+  if (jwt.verify(token, process.env.SECRET + "." + hashedPassword)) {
+    return true;
+  }
+
+  return false;
 }

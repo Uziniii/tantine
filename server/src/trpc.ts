@@ -1,12 +1,42 @@
 import { prisma } from './db';
-import { initTRPC } from "@trpc/server";
+import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import type { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone"
+import { Payload, verifyJwtToken } from './jwt';
+import { decode } from 'jsonwebtoken';
 
-export const createContext = async (opts: CreateHTTPContextOptions) => {
+export const createContext = async ({ req, res }: CreateHTTPContextOptions) => {
+  async function getUserFromHeader() {
+    if (req.headers.authorization) {
+      const token = req.headers.authorization.split(" ")[1];
+      
+      const user = decode(token) as Payload;
+
+      const dbUser = await prisma.user.findUnique({
+        where: {
+          id: user.id
+        },
+        select: {
+          hashedPassword: true
+        }
+      })
+
+      if (!dbUser || !verifyJwtToken(token, dbUser.hashedPassword)) {
+        return null
+      }
+
+      return user;
+    }
+
+    return null;
+  }
+
+  const user = await getUserFromHeader();
+
   return {
     prisma,
+    user,
   };
 };
 
@@ -34,3 +64,18 @@ const t = initTRPC.context<typeof createContext>().create({
  */
 export const router = t.router;
 export const publicProcedure = t.procedure;
+
+const userIsAuthed = t.middleware(({ ctx, next }) => {
+  if (ctx.user === null) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      prisma,
+      user: ctx.user,
+    },
+  });
+});
+
+export const protectedProcedure = t.procedure.use(userIsAuthed);

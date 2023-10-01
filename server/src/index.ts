@@ -1,21 +1,25 @@
-import { createContext, publicProcedure, router } from "./trpc";
+import { createContext, protectedProcedure, publicProcedure, router } from "./trpc";
 import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import { z } from "zod";
 import cors from "cors"
 import dotenv from "dotenv"
 import { userRouter } from "./router/user";
+import { channelRouter } from "./router/channel";
 
 dotenv.config()
 
 const appRouter = router({
-  test: publicProcedure
+  test: protectedProcedure
     .input(z.undefined())
-    .query(async ({ ctx: { prisma } }) => {
+    .query(async ({ ctx: { prisma, user } }) => {
+      console.log(user);
+
       return {
-        count: await prisma.user.count()
-      }
+        count: await prisma.user.count(),
+      };
     }),
-  user: userRouter
+  user: userRouter,
+  channel: channelRouter,
 });
 
 // Export type router type signature,

@@ -1,0 +1,44 @@
+import { TouchableOpacity } from "react-native-gesture-handler";
+import styled from "styled-components/native"
+
+export const BottomContainer = styled.View`
+  position: absolute;
+  bottom: 0;
+  padding-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const Button = styled(TouchableOpacity)`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #575bfd;
+  border-radius: 8px;
+  padding: 12px 0;
+`;
+
+export const InputGroup = styled.View`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const Container = styled.View`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const Form = styled.View`
+  gap: 16px;
+  width: 80%;
+  display: flex;
+`;
