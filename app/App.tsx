@@ -101,7 +101,12 @@ function Base() {
           </Stack.Navigator>
         </NavigationContainer>
         : <NavigationContainer linking={linking}> 
-          <Stack.Navigator initialRouteName={"register"}>
+          <Stack.Navigator 
+            screenOptions={{
+              animation: "slide_from_right"
+            }} 
+            initialRouteName={"register"}
+          >
             {AuthRoute()}
           </Stack.Navigator>
         </NavigationContainer>
