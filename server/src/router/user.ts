@@ -122,6 +122,9 @@ export const userRouter = router({
                   contains: input,
                 },
             }],
+            NOT: {
+              id: ctx.user.id,
+            },
           },
           select: {
             id: true,

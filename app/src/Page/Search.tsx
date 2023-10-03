@@ -1,53 +1,41 @@
 import { NavigationProp } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Keyboard, Platform, TouchableWithoutFeedback, View } from "react-native";
+import { Keyboard, Platform, View } from "react-native";
 import debounce from "lodash.debounce";
 import { trpc } from "../utils/trpc";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { FText } from "../Components/FText";
 import styled from "styled-components/native"
 import { FontAwesome } from '@expo/vector-icons'; 
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { useAppDispatch } from "../store/store";
 import { addUsers } from "../store/slices/usersSlice";
+import { addChannel } from "../store/slices/channelSlice";
+import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "./css/user.css";
 
 interface Props {
   navigation: NavigationProp<any>
 }
 
-const UserContainer = styled(TouchableOpacity)`
-  display: flex;
-  flex-direction: row;
-  padding: 10px;
-  border-bottom-width: 1px;
+const AndroidSearchBar = styled.TextInput`
+  font-size: 18px;
+  max-width: 70%;
+  width: 70%;
   border-bottom-color: #ccc;
+  border-bottom-width: 1px;
 `
 
-const InfoContainer = styled.View`
+const AndroidSearchBarContainer = styled.View`
   display: flex;
-  flex-direction: column;
-`
-
-const ProfilePictureContainer = styled.View`
-  margin-right: 10px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50px;
-  background-color: #ccc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
-
-const Group = styled.View`
   flex-direction: row;
-  align-items: center;
+  align-items: start;
+  width: 100%;
 `
 
 export default function Search({ navigation }: Props) {
   const [showTitle, setShowTitle] = useState(true)
   const [search, setSearch] = useState("")
+  const [isSearchEmpty, setIsSearchEmpty] = useState(true)
 
   const users = trpc.user.search.useQuery(search, {
     enabled: search.length > 1,
@@ -57,16 +45,39 @@ export default function Search({ navigation }: Props) {
   const dispatch = useAppDispatch()
 
   const createChannel = trpc.channel.create.useMutation({
-    onSuccess(data, variables, context) {
+    onSuccess(data) {
       dispatch(addUsers(data.users))
-
       
+      if (data.type === "group") {
+        dispatch(addChannel({
+          id: data.id,
+          type: data.type,
+          users: data.users.map(user => user.id),
+          title: data.title,
+          description: data.description,
+          authorId: data.authorId,
+        }))
+      } else {
+        dispatch(addChannel({
+          id: data.id,
+          type: data.type,
+          users: data.users.map(user => user.id),
+        }))
+      }
+
+      navigation.navigate("chat", {
+        screen: "channel",
+        params: {
+          id: data.id,
+        }
+      })
     },
   })
 
   const debouncedResults = useMemo(() => {
     return debounce(setSearch, 300);
   }, []);
+
   useEffect(() => {
     return () => {
       debouncedResults.cancel();
@@ -75,19 +86,36 @@ export default function Search({ navigation }: Props) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerSearchBarOptions: {
+      headerSearchBarOptions: Platform.OS === "ios" ? {
         placeholder: "Rechercher",
-        headerTransparent: true,
         onChangeText: ({ nativeEvent: { text } }: { nativeEvent: { text: string } }) => {
           debouncedResults(text)
         },
         onOpen: () => setShowTitle(false),
         onClose: () => setShowTitle(true),
         onSearchButtonPress: () => Keyboard.dismiss(),
-      },
+      }: undefined,
       headerTitle: () => {
-        if (!showTitle) return <></>
+        if (!showTitle) {
+          if (Platform.OS === "android") {
+            return <AndroidSearchBarContainer>
+              <AndroidSearchBar
+                autoFocus={true}
+                placeholder="Rechercher"
+                onChangeText={text => {
+                  debouncedResults(text)
+                  setIsSearchEmpty(text === "")
+                }}
+                onEndEditing={() => {
+                  if (isSearchEmpty) setShowTitle(true)
+                }}
+              />
+            </AndroidSearchBarContainer>
+          }
 
+          return <></>
+        }
+        
         return <FText
           font={[Montserrat_700Bold, "Montserrat_700Bold"]}
           $size='24px'
@@ -95,34 +123,37 @@ export default function Search({ navigation }: Props) {
           Rechercher
         </FText>
       },
+      headerRight: Platform.OS === "android" ? () => {
+        if (!showTitle) return <></>
+
+        return <TouchableOpacity onPress={() => setShowTitle(false)}>
+          <FontAwesome name="search" size={24}/>
+        </TouchableOpacity>
+      } : undefined,
     });
-  }, [navigation, showTitle]);
+  }, [navigation, showTitle, isSearchEmpty]);
   
   const startChat = (id: number) => {
     createChannel.mutate(id)
   }
 
-  return <TouchableWithoutFeedback onPress={Keyboard.dismiss}> 
-    <SafeAreaView style={{ paddingTop: 8, flex: 1 }}>
-      <FlatList
-        style={{ bottom: Platform.OS === "android" ? 48 : 0 }}
-        data={users.data}
-        renderItem={({ item }) => {
-          return <UserContainer onPress={() => startChat(item.id)}>
-            <ProfilePictureContainer>
-              <FontAwesome name="user" size={24}/>
-            </ProfilePictureContainer>
-            <InfoContainer>
-              <Group>
-                <FText>{item.surname} </FText>
-                <FText>{item.name}</FText>
-              </Group>
-              <FText>{item.email}</FText>
-            </InfoContainer>
-          </UserContainer>
-        }}
-        keyExtractor={item => item.id.toString()}
-      />
-    </SafeAreaView>
-  </TouchableWithoutFeedback>
+  return <FlatList
+    contentInsetAdjustmentBehavior="automatic"
+    data={isSearchEmpty ? [] : users.data}
+    renderItem={({ item }) => {
+      return <UserContainer onPress={() => startChat(item.id)}>
+        <ProfilePictureContainer>
+          <FontAwesome name="user" size={24}/>
+        </ProfilePictureContainer>
+        <InfoContainer>
+          <Group>
+            <FText>{item.surname} </FText>
+            <FText>{item.name}</FText>
+          </Group>
+          <FText>{item.email}</FText>
+        </InfoContainer>
+      </UserContainer>
+    }}
+    keyExtractor={item => item.id.toString()}
+  />
 }

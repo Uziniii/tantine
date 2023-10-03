@@ -21,8 +21,11 @@ import { Provider } from 'react-redux';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome, Feather } from '@expo/vector-icons'; 
 import Settings from './src/Page/Settings';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import Search from './src/Page/Search';
+import { set } from './src/store/slices/meSlice';
+import jwtDecode from 'jwt-decode';
+import Channel from './src/Page/Channel';
 
 export default function App() {
   return <GestureHandlerRootView style={{ flex: 1 }}>
@@ -54,6 +57,7 @@ function Base() {
     AsyncStorage.getItem("token").then(token => {
       if (token) {
         dispatch(setLogin(true))
+        dispatch(set(jwtDecode(token)))
       }
     })
   }, [])
@@ -83,7 +87,9 @@ function Base() {
     <QueryClientProvider client={queryClient}>
       {login 
         ? <NavigationContainer linking={linking}>
-          <Stack.Navigator initialRouteName='home'>
+          <Stack.Navigator
+            initialRouteName='home'
+          >
             <Stack.Screen
               name='home'
               component={Home}
@@ -96,6 +102,14 @@ function Base() {
               component={Search}
               options={{
                 presentation: "modal",
+                animation: Platform.OS === "android" ? "slide_from_right" : "default",
+              }}
+            />
+            <Stack.Screen
+              name="channel"
+              component={Channel}
+              options={{
+                animation: Platform.OS === "android" ? "slide_from_right" : "default"
               }}
             />
           </Stack.Navigator>
@@ -103,7 +117,8 @@ function Base() {
         : <NavigationContainer linking={linking}> 
           <Stack.Navigator 
             screenOptions={{
-              animation: "slide_from_right"
+              animation: "slide_from_right",
+              statusBarTranslucent: false,
             }} 
             initialRouteName={"register"}
           >
@@ -160,6 +175,7 @@ function AllRoute() {
             </TouchableOpacity>
           </View>
         },
+        // headerShown: false
       }}
     />,
     <Tab.Screen

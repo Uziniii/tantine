@@ -6,7 +6,7 @@ import { renderInput, showError } from "../../utils/formHelpers"
 import { useInputsReducer } from '../../hooks/inputsReducer';
 import { FText } from '../../Components/FText';
 import { NavigationProp } from '@react-navigation/native';
-import { Container, Form, InputGroup, BottomContainer, Button } from "./Auth.css"
+import { Container, Form, InputGroup, BottomContainer, Button } from "../css/auth.css"
 import { useState } from 'react';
 import { useAppDispatch } from '../../store/store';
 import { setLogin } from '../../store/slices/loginSlice';

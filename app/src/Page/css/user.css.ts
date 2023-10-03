@@ -1,0 +1,31 @@
+import { TouchableOpacity } from "react-native-gesture-handler";
+import styled from "styled-components/native"
+
+export const UserContainer = styled(TouchableOpacity)`
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  border-bottom-width: 1px;
+  border-bottom-color: #ccc;
+`;
+
+export const InfoContainer = styled.View`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const ProfilePictureContainer = styled.View`
+  margin-right: 10px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50px;
+  background-color: #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const Group = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;

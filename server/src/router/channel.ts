@@ -24,7 +24,10 @@ const createChannelOutput = z.object({
 }).or(z.object({
   type: z.literal("group"),
   id: z.number(),
-  users: z.array(userSchema)
+  users: z.array(userSchema),
+  title: z.string(),
+  description: z.string(),
+  authorId: z.number(),
 }))
 
 export const channelRouter = router({
@@ -32,6 +35,8 @@ export const channelRouter = router({
     .input(createChannelInput)
     .output(createChannelOutput)
     .mutation(async ({ ctx, input }) => {
+      if (input === ctx.user.id) throw new Error("You can't create a channel with yourself");
+      
       if (isPrivateOrGroup(input)) {
         const channel = await ctx.prisma.channel.create({
           data: {
@@ -106,10 +111,15 @@ export const channelRouter = router({
         }
       });
 
+      if (!channel.group) throw new Error("Group not created");
+
       return {
         type: "group",
         id: channel.id,
-        users: channel.users
+        users: channel.users,
+        title: channel.group.title,
+        description: channel.group.description,
+        authorId: channel.group.authorId,
       }
     }),
 })

@@ -9,7 +9,7 @@ interface User {
 
 const usersSlice = createSlice({
   name: "users",
-  initialState: {} as Record<number, User>,
+  initialState: {} as Record<number | string, User>,
   reducers: {
     addUsers: (state, action: PayloadAction<User[]>) => {
       for (const user of action.payload) {

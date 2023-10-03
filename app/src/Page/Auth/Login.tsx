@@ -5,7 +5,7 @@ import { useInputsReducer } from '../../hooks/inputsReducer';
 import z from "zod";
 import { FText } from '../../Components/FText';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { Container, Form, Button } from './Auth.css';
+import { Container, Form, Button } from '../css/auth.css';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch } from '../../store/store';
 import { setLogin } from '../../store/slices/loginSlice';
@@ -24,7 +24,7 @@ export default function Login() {
       if (err.message === "INVALID_CREDENTIALS") {
         setInputs({
           key: "password",
-          input: inputs.email.input,
+          input: inputs.password.input,
           parser: z.string()
             .refine(() => false, {
               message: "L'email ou le mot de passe est incorrect"
