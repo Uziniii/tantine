@@ -9,6 +9,8 @@ import { FText } from "../Components/FText";
 import styled from "styled-components/native"
 import { FontAwesome } from '@expo/vector-icons'; 
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
+import { useAppDispatch } from "../store/store";
+import { addUsers } from "../store/slices/usersSlice";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -52,8 +54,14 @@ export default function Search({ navigation }: Props) {
     staleTime: 0,
   })
 
-  const createChannel = trpc.channel.create.useMutation({
+  const dispatch = useAppDispatch()
 
+  const createChannel = trpc.channel.create.useMutation({
+    onSuccess(data, variables, context) {
+      dispatch(addUsers(data.users))
+
+      
+    },
   })
 
   const debouncedResults = useMemo(() => {

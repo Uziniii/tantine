@@ -10,9 +10,27 @@ function isPrivateOrGroup(input: z.infer<typeof createChannelInput>): input is n
   return typeof input === "number" ? true : false;
 }
 
+const userSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  surname: z.string(),
+  email: z.string(),
+});
+
+const createChannelOutput = z.object({
+  type: z.literal("private"),
+  id: z.number(),
+  users: z.array(userSchema),
+}).or(z.object({
+  type: z.literal("group"),
+  id: z.number(),
+  users: z.array(userSchema)
+}))
+
 export const channelRouter = router({
   create: protectedProcedure
     .input(createChannelInput)
+    .output(createChannelOutput)
     .mutation(async ({ ctx, input }) => {
       if (isPrivateOrGroup(input)) {
         const channel = await ctx.prisma.channel.create({
@@ -29,13 +47,22 @@ export const channelRouter = router({
           },
           select: {
             id: true,
-            users: true,
+            users: {
+              select: {
+                id: true,
+                name: true,
+                surname: true,
+                email: true,
+              }
+            },
             private: true,
           }
         });
 
         return {
-          
+          type: "private",
+          id: channel.id,
+          users: channel.users,
         }
       }
       
@@ -60,12 +87,29 @@ export const channelRouter = router({
           },
         },
         select: {
-          group: true,
-          users: true,
+          group: {
+            select: {
+              title: true,
+              description: true,
+              authorId: true,
+            }
+          },
+          users: {
+            select: {
+              id: true,
+              name: true,
+              surname: true,
+              email: true,
+            }
+          },
           id: true,
         }
       });
 
-      return channel
+      return {
+        type: "group",
+        id: channel.id,
+        users: channel.users
+      }
     }),
 })
