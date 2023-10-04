@@ -14,11 +14,11 @@ export const InfoContainer = styled.View`
   flex-direction: column;
 `;
 
-export const ProfilePictureContainer = styled.View`
+export const ProfilePictureContainer = styled.View<{ $size: string }>`
   margin-right: 10px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50px;
+  width: ${({ $size }) => $size ?? "50px"};
+  height: ${({ $size }) => $size ?? "50px"};
+  border-radius: 100%;
   background-color: #ccc;
   display: flex;
   justify-content: center;

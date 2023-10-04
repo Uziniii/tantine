@@ -90,6 +90,7 @@ export default function Search({ navigation }: Props) {
         placeholder: "Rechercher",
         onChangeText: ({ nativeEvent: { text } }: { nativeEvent: { text: string } }) => {
           debouncedResults(text)
+          setIsSearchEmpty(text === "")
         },
         onOpen: () => setShowTitle(false),
         onClose: () => setShowTitle(true),
@@ -104,7 +105,6 @@ export default function Search({ navigation }: Props) {
                 placeholder="Rechercher"
                 onChangeText={text => {
                   debouncedResults(text)
-                  setIsSearchEmpty(text === "")
                 }}
                 onEndEditing={() => {
                   if (isSearchEmpty) setShowTitle(true)
@@ -139,7 +139,7 @@ export default function Search({ navigation }: Props) {
 
   return <FlatList
     contentInsetAdjustmentBehavior="automatic"
-    data={isSearchEmpty ? [] : users.data}
+    data={isSearchEmpty && Platform.OS === "android" ? [] : users.data}
     renderItem={({ item }) => {
       return <UserContainer onPress={() => startChat(item.id)}>
         <ProfilePictureContainer>

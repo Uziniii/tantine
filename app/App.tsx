@@ -152,7 +152,7 @@ function AllRoute() {
       component={Chat}
       options={{
         tabBarIcon(props) {
-          return <FontAwesome  name="comments" size={30} color={props.color} />
+          return <FontAwesome name="comments" size={30} color={props.color} />
         },
         tabBarLabel(props) {
           return <FText $color={props.color} $size='12px'>Discussions</FText>

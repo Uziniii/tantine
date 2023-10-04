@@ -22,6 +22,9 @@ const server = createHTTPServer({
   createContext,
   router: appRouter,
   middleware: cors(),
+  onError({ error }) {
+    console.error(error);
+  },
 });
 
 server.listen(3000);

@@ -2,6 +2,7 @@ import { InputModeOptions } from "react-native"
 import { Action, InputsReducerState } from "../hooks/inputsReducer"
 import { FText } from "../Components/FText"
 import { styled } from "styled-components/native"
+import { TextInput as DefaultTextInput } from "react-native-gesture-handler"
 
 export const showError = (error: { error?: string } | undefined) => {
   return error?.error
@@ -9,11 +10,16 @@ export const showError = (error: { error?: string } | undefined) => {
   : <></>
 }
 
-const TextInput = styled.TextInput<{ $width?: string, $borderColor?: string }>`
+export const TextInput = styled(DefaultTextInput)<{
+  $width?: string,
+  $height?: string,
+  $borderColor?: string }>`
   width: ${props => props.$width || "100%"};
+  height: ${props => props.$height || "auto"};
   padding: 8px;
   border: 2px solid ${props => props.$borderColor || "#DADBDD"};
   border-radius: 8px;
+  color: black;
   ::placeholder {
     color: #DADBDD;
   }
