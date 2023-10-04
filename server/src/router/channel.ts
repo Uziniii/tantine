@@ -1,5 +1,6 @@
 import { protectedProcedure, router } from "../trpc";
 import z from "zod";
+import { messageRouter } from "./channel/message";
 
 const createChannelInput = z.number()
   .or(
@@ -10,21 +11,14 @@ function isPrivateOrGroup(input: z.infer<typeof createChannelInput>): input is n
   return typeof input === "number" ? true : false;
 }
 
-const userSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  surname: z.string(),
-  email: z.string(),
-});
-
 const createChannelOutput = z.object({
   type: z.literal("private"),
   id: z.number(),
-  users: z.array(userSchema),
+  users: z.array(z.number()),
 }).or(z.object({
   type: z.literal("group"),
   id: z.number(),
-  users: z.array(userSchema),
+  users: z.array(z.number()),
   title: z.string(),
   description: z.string(),
   authorId: z.number(),
@@ -38,7 +32,34 @@ export const channelRouter = router({
       if (input === ctx.user.id) throw new Error("You can't create a channel with yourself");
       
       if (isPrivateOrGroup(input)) {
-        const channel = await ctx.prisma.channel.create({
+        let channel = await ctx.prisma.channel.findFirst({
+          where: {
+            users: {
+              every: {
+                id: {
+                  in: [ctx.user.id, input]
+                }
+              }
+            }
+          },
+          select: {
+            id: true,
+            users: {
+              select: {
+                id: true,
+              }
+            },
+            private: true,
+          }
+        })
+
+        if (channel) return {
+          type: "private",
+          id: channel.id,
+          users: channel.users.map(user => user.id),
+        };
+
+        channel = await ctx.prisma.channel.create({
           data: {
             users: {
               connect: [
@@ -67,7 +88,7 @@ export const channelRouter = router({
         return {
           type: "private",
           id: channel.id,
-          users: channel.users,
+          users: channel.users.map(user => user.id),
         }
       }
       
@@ -102,9 +123,6 @@ export const channelRouter = router({
           users: {
             select: {
               id: true,
-              name: true,
-              surname: true,
-              email: true,
             }
           },
           id: true,
@@ -116,7 +134,7 @@ export const channelRouter = router({
       return {
         type: "group",
         id: channel.id,
-        users: channel.users,
+        users: channel.users.map(user => user.id),
         title: channel.group.title,
         description: channel.group.description,
         authorId: channel.group.authorId,

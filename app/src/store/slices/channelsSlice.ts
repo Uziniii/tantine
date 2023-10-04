@@ -17,7 +17,7 @@ interface Group {
 
 export type Channel = Private | Group;
 
-const channelSlice = createSlice({
+const channelsSlice = createSlice({
   name: "channels",
   initialState: {} as Record<number | string, Channel>,
   reducers: {
@@ -30,6 +30,6 @@ const channelSlice = createSlice({
   },
 });
 
-export const { addChannel } = channelSlice.actions;
+export const { addChannel } = channelsSlice.actions;
 
-export default channelSlice.reducer;
+export default channelsSlice.reducer;

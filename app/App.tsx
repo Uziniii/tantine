@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import { trpc } from './src/utils/trpc';
-import { httpBatchLink } from '@trpc/client';
+import { createWSClient, httpBatchLink, wsLink } from '@trpc/client';
 import superjson from "superjson";
 import Constants from "expo-constants";
 import Register from './src/Page/Auth/Register';
@@ -26,6 +26,7 @@ import Search from './src/Page/Search';
 import { set } from './src/store/slices/meSlice';
 import jwtDecode from 'jwt-decode';
 import Channel from './src/Page/Channel';
+import { AppRouter } from '../server/src';
 
 export default function App() {
   return <GestureHandlerRootView style={{ flex: 1 }}>
@@ -57,11 +58,14 @@ function Base() {
     AsyncStorage.getItem("token").then(token => {
       if (token) {
         dispatch(setLogin(true))
-        dispatch(set(jwtDecode(token)))
+        dispatch(set({
+          ...jwtDecode(token),
+          token,
+        }))
       }
     })
   }, [])
-
+  
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() =>
     trpc.createClient({
@@ -78,6 +82,11 @@ function Base() {
             } as any
           },
         }),
+        wsLink<AppRouter>({
+          client: createWSClient({
+            url: `ws://${host}:3001`,
+          })
+        })
       ],
       transformer: superjson
     }),
@@ -86,34 +95,36 @@ function Base() {
   return <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
       {login 
-        ? <NavigationContainer linking={linking}>
-          <Stack.Navigator
-            initialRouteName='home'
-          >
-            <Stack.Screen
-              name='home'
-              component={Home}
-              options={{
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name='search'
-              component={Search}
-              options={{
-                presentation: "modal",
-                animation: Platform.OS === "android" ? "slide_from_right" : "default",
-              }}
-            />
-            <Stack.Screen
-              name="channel"
-              component={Channel}
-              options={{
-                animation: Platform.OS === "android" ? "slide_from_right" : "default"
-              }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
+        ? <WSLayer>
+          <NavigationContainer linking={linking}>
+            <Stack.Navigator
+              initialRouteName='home'
+            >
+              <Stack.Screen
+                name='home'
+                component={Home}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name='search'
+                component={Search}
+                options={{
+                  presentation: "modal",
+                  animation: Platform.OS === "android" ? "slide_from_right" : "default",
+                }}
+              />
+              <Stack.Screen
+                name="channel"
+                component={Channel}
+                options={{
+                  animation: Platform.OS === "android" ? "slide_from_right" : "default"
+                }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </WSLayer>
         : <NavigationContainer linking={linking}> 
           <Stack.Navigator 
             screenOptions={{
@@ -129,6 +140,23 @@ function Base() {
       <StatusBar style="auto" />
     </QueryClientProvider>
   </trpc.Provider>
+}
+
+function WSLayer ({ children }: PropsWithChildren) {
+  const me = useAppSelector(state => state.me)
+  const channels = useAppSelector(state => state.channels)
+  
+  trpc.channel.message.onCreate.useSubscription({
+    token: me?.token || "",
+    channels: Object.values(channels).map(channel => channel.id),
+  }, {
+    onData(data) {
+      console.log(data);
+
+    },
+  })
+
+  return children
 }
 
 const Tab = createBottomTabNavigator();
@@ -166,7 +194,7 @@ function AllRoute() {
             Discussions
           </FText>
         },
-        headerRight(props) {
+        headerRight() {
           const navigation = useNavigation()
 
           return <View style={{ width: "100%", flex: 1, alignItems: "center", justifyContent: "center" }}>

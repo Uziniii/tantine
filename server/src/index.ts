@@ -1,6 +1,6 @@
 import { applyWSSHandler } from '@trpc/server/adapters/ws';
 import ws from 'ws';
-import { createContext, createContextWS, protectedProcedure, router } from "./trpc";
+import { createContext, createWSContext, router } from "./trpc";
 import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import cors from "cors"
 import dotenv from "dotenv"
@@ -36,7 +36,7 @@ const wss = new ws.Server({
 const handler = applyWSSHandler({
   wss,
   router: appRouter,
-  createContext 
+  createContext: createWSContext,
 });
 
 wss.on("connection", (ws) => {

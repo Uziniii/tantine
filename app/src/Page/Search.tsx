@@ -10,7 +10,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { useAppDispatch } from "../store/store";
 import { addUsers } from "../store/slices/usersSlice";
-import { addChannel } from "../store/slices/channelSlice";
+import { addChannel } from "../store/slices/channelsSlice";
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "./css/user.css";
 
 interface Props {
@@ -90,7 +90,6 @@ export default function Search({ navigation }: Props) {
         placeholder: "Rechercher",
         onChangeText: ({ nativeEvent: { text } }: { nativeEvent: { text: string } }) => {
           debouncedResults(text)
-          setIsSearchEmpty(text === "")
         },
         onOpen: () => setShowTitle(false),
         onClose: () => setShowTitle(true),
@@ -105,6 +104,7 @@ export default function Search({ navigation }: Props) {
                 placeholder="Rechercher"
                 onChangeText={text => {
                   debouncedResults(text)
+                  setIsSearchEmpty(text === "")
                 }}
                 onEndEditing={() => {
                   if (isSearchEmpty) setShowTitle(true)

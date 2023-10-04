@@ -8,6 +8,7 @@ import type { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone"
 import { Payload, verifyJwtToken } from './jwt';
 import { decode } from 'jsonwebtoken';
 import { NodeHTTPCreateContextFnOptions } from '@trpc/server/dist/adapters/node-http';
+import z from "zod"
 
 export const createContext = async ({
   req,
@@ -48,40 +49,10 @@ export const createContext = async ({
   };
 };
 
-export const createContextWS = async ({
-  req,
-  res,
-}: NodeHTTPCreateContextFnOptions<IncomingMessage, ws>) => {
-  async function getUserFromHeader() {
-    if (req.headers.authorization) {
-      const token = req.headers.authorization.split(" ")[1];
-
-      const user = decode(token) as Payload;
-
-      const dbUser = await prisma.user.findUnique({
-        where: {
-          id: user.id,
-        },
-        select: {
-          hashedPassword: true,
-        },
-      });
-
-      if (!dbUser || !verifyJwtToken(token, dbUser.hashedPassword)) {
-        return null;
-      }
-
-      return user;
-    }
-
-    return null;
-  }
-
-  const user = await getUserFromHeader();
-
+export const createWSContext = () => {
   return {
     prisma,
-    user,
+    user: null,
   };
 };
 
@@ -124,3 +95,109 @@ const userIsAuthed = t.middleware(({ ctx, next }) => {
 });
 
 export const protectedProcedure = t.procedure.use(userIsAuthed);
+
+export const userIsInChannel = protectedProcedure
+  .input(
+    z.object({
+      channelId: z.number().or(z.string()),
+    })
+  )
+  .use(async ({ ctx, input, next }) => {
+    if (input.channelId === undefined) {
+      throw new TRPCError({ code: "BAD_REQUEST" });
+    }
+
+    const channel = await ctx.prisma.channel.findUnique({
+      where: {
+        id: +input.channelId,
+      },
+      select: {
+        users: {
+          select: {
+            id: true,
+          },
+        },
+      }
+    })
+
+    if (!channel) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+
+    if (!channel.users.find(user => user.id === ctx.user.id)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    return next({
+      ctx: {
+        prisma,
+        user: ctx.user,
+      },
+    });
+  })
+
+export const wsUserIsAuthed = t.procedure
+  .input(
+    z.object({
+      token: z.string(),
+    })
+  )
+  .use(async ({ ctx, input, next }) => {
+    const user = decode(input.token) as Payload;
+
+    if (!user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    const dbUser = await ctx.prisma.user.findUnique({
+      where: {
+        id: user.id,
+      },
+      select: {
+        hashedPassword: true,
+      },
+    });
+
+    if (!dbUser || !verifyJwtToken(input.token, dbUser.hashedPassword)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    return next({
+      ctx: {
+        prisma,
+        user,
+      },
+    });
+  });
+
+export const wsUserIsInChannel = wsUserIsAuthed
+  .input(
+    z.object({
+      channels: z.array(z.number()),
+    })
+  )
+  .use(async ({ ctx, input, next }) => {
+    const user = ctx.prisma.user.findUnique({
+      where: {
+        id: ctx.user.id,
+        channels: {
+          every: {
+            id: {
+              in: input.channels,
+            },
+          }
+        }
+      }
+    })
+
+    if (!user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    return next({
+      ctx: {
+        prisma,
+        user: ctx.user,
+      },
+    });
+  });

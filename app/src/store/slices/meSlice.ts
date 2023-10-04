@@ -6,6 +6,7 @@ export interface Me {
   surname: string;
   email: string;
   iat: number;
+  token: string;
 }
 
 const meSlice = createSlice({

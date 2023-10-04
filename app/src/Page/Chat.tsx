@@ -7,7 +7,7 @@ import { useAppSelector } from "../store/store";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "./css/user.css";
 import { FontAwesome } from '@expo/vector-icons'; 
-import { Channel as IChannel } from "../store/slices/channelSlice";
+import { Channel as IChannel } from "../store/slices/channelsSlice";
 import { Me } from "../store/slices/meSlice";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 
@@ -26,7 +26,7 @@ export default function Chat () {
 }
 
 function ChannelList () {
-  const channel = useAppSelector(state => Object.values(state.channel))
+  const channel = useAppSelector(state => Object.values(state.channels))
   const me = useAppSelector(state => state.me)
   const navigation = useNavigation<any>()
 

@@ -2,7 +2,7 @@ import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import loginReducer from "./slices/loginSlice";
 import usersReducer from "./slices/usersSlice";
-import channelSlice from "./slices/channelSlice";
+import channelsSlice from "./slices/channelsSlice";
 import meSlice from "./slices/meSlice";
 
 export const store = configureStore({
@@ -10,7 +10,7 @@ export const store = configureStore({
     me: meSlice,
     login: loginReducer,
     users: usersReducer,
-    channel: channelSlice,
+    channels: channelsSlice,
   },
 })
 

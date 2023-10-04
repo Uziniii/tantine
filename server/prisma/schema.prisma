@@ -22,7 +22,7 @@ model User {
   messages Message[]
   channels Channel[]
 
-  GroupChannel GroupChannel[]
+  groupChannel GroupChannel[]
 }
 
 model Message {
@@ -32,8 +32,9 @@ model Message {
   updatedAt DateTime @updatedAt
   author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
-  Channel   Channel? @relation(fields: [channelId], references: [id])
-  channelId Int?
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId Int
+  nonce     String?
 }
 
 model Channel {

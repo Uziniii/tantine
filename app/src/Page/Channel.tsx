@@ -7,7 +7,8 @@ import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { FontAwesome } from '@expo/vector-icons'; 
 import styled from "styled-components/native"
 import { useAppSelector } from "../store/store";
-import { TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { TextInput, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { trpc } from "../utils/trpc";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -33,8 +34,12 @@ const InputContainer = styled(KeyboardAvoidingView)`
   border-top: 2px solid #D0D0D0;
 `
 
-const Input = styled.TextInput`
-  width: 100%;
+const Input = styled.TextInput.attrs({
+  multiline: true,
+  placeholder: "Envoyer un message",
+  inputMode: "text",
+})`
+  width: 80%;
   padding: 8px;
   border: 2px solid #DADBDD;
   border-radius: 8px;
@@ -44,10 +49,20 @@ const Input = styled.TextInput`
   }
 `
 
+const InputSafeAreaView = styled.SafeAreaView`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-bottom: ${() => Platform.OS === "android" ? "8px" : "inherit"};
+`
+
 export default function Channel ({ navigation }: Props) {  
   const route = useRoute<{params: {id:string}, key: string, name: string}>()
   const title = useAppSelector(state => {
-    const channel = state.channel[route.params.id]
+    const channel = state.channels[route.params.id]
     
     if (channel.type === "group") {
       return channel.title
@@ -77,15 +92,35 @@ export default function Channel ({ navigation }: Props) {
     })
   }, [])
 
+  let sendMessage = trpc.channel.message.create.useMutation({
+    onSuccess(data, variables, context) {
+      // console.log(data);
+      
+    },
+  })
+
+  const onSend = () => {
+    if (input.length === 0) {
+      return
+    }
+
+    sendMessage.mutate({
+      channelId: route.params.id,
+      content: input,
+    })
+  }
+
   return <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ height: "100%" }}>
     <View>
 
     </View>
     <InputContainer keyboardVerticalOffset={120} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <SafeAreaView style={{ flex: 1, width: "100%", alignItems: "center" }}>
-        <Input inputMode="text" onSubmitEditing={() => console.log("aze")} multiline style={{ width: "80%" }} value={input} onChangeText={setInput} placeholder="ehazuye"/>
-        <FontAwesome name="send"/>
-      </SafeAreaView>
+      <InputSafeAreaView>
+        <Input onSubmitEditing={() => console.log("aze")} value={input} onChangeText={setInput}/>
+        <TouchableOpacity onPress={onSend}>
+          <FontAwesome name="send" size={24} color={"#007aff"}/>
+        </TouchableOpacity>
+      </InputSafeAreaView>
     </InputContainer>
   </TouchableWithoutFeedback>
 }
