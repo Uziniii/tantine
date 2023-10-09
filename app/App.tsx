@@ -27,6 +27,7 @@ import { set } from './src/store/slices/meSlice';
 import jwtDecode from 'jwt-decode';
 import Channel from './src/Page/Channel';
 import { AppRouter } from '../server/src';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 export default function App() {
   return <GestureHandlerRootView style={{ flex: 1 }}>
@@ -82,11 +83,6 @@ function Base() {
             } as any
           },
         }),
-        wsLink<AppRouter>({
-          client: createWSClient({
-            url: `ws://${host}:3001`,
-          })
-        })
       ],
       transformer: superjson
     }),
@@ -146,15 +142,7 @@ function WSLayer ({ children }: PropsWithChildren) {
   const me = useAppSelector(state => state.me)
   const channels = useAppSelector(state => state.channels)
   
-  trpc.channel.message.onCreate.useSubscription({
-    token: me?.token || "",
-    channels: Object.values(channels).map(channel => channel.id),
-  }, {
-    onData(data) {
-      console.log(data);
-
-    },
-  })
+  
 
   return children
 }
