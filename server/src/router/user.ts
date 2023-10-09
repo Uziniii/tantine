@@ -4,6 +4,7 @@ import { generateAccessToken } from '../jwt';
 import { hashPassword, verifyPassword } from '../password';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { TRPCError } from '@trpc/server';
+import { ev } from '../ws';
 
 export const userRouter = router({
   create: publicProcedure
@@ -107,6 +108,8 @@ export const userRouter = router({
         )
       )
       .query(async ({ ctx, input }) => {
+        ev.emit("message", "Hello")
+
         const users = await ctx.prisma.user.findMany({
           where: {
             OR: [{
@@ -136,4 +139,32 @@ export const userRouter = router({
 
         return users;
       }),
+    
+  retrieve: protectedProcedure
+    .input(z.array(z.number()))
+    .output(
+      z.array(z.object({
+        id: z.number(),
+        email: z.string().email(),
+        name: z.string(),
+        surname: z.string(),
+      }))
+    )
+    .mutation(async ({ ctx, input }) => {
+      const users = await ctx.prisma.user.findMany({
+        where: {
+          id: {
+            in: input,
+          },
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          surname: true,
+        },
+      });
+
+      return users;
+    })
 });

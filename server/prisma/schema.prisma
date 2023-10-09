@@ -34,7 +34,6 @@ model Message {
   authorId  Int
   channel   Channel @relation(fields: [channelId], references: [id])
   channelId Int
-  nonce     String?
 }
 
 model Channel {

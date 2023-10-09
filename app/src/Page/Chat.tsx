@@ -1,6 +1,6 @@
-import { View } from "react-native";
+import { Text, View, VirtualizedList } from "react-native";
 import { FText } from "../Components/FText";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation, useRoute } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { trpc } from "../utils/trpc";
 import { useAppSelector } from "../store/store";
@@ -10,10 +10,25 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Channel as IChannel } from "../store/slices/channelsSlice";
 import { Me } from "../store/slices/meSlice";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
+import { useEffect } from "react";
 
 const Stack = createNativeStackNavigator();
 
-export default function Chat () {
+interface Props {
+  navigation: NavigationProp<any>
+}
+
+export default function Chat ({ navigation }: Props) {
+  const route = useRoute<{ params: { id: string } | undefined, key: string, name: string }>()
+
+  useEffect(() => {
+    if (!route.params?.id) return
+
+    navigation.navigate("channel", {
+      id: route.params.id,
+    })
+  })
+
   return <Stack.Navigator initialRouteName="channelList">
     <Stack.Screen
       name="channelList"
@@ -41,7 +56,7 @@ function ChannelList () {
         <ChannelItem item={item} me={me} />
       </TouchableOpacity>
     }}
-    keyExtractor={item => item.id.toString()}
+    keyExtractor={(item) => item.id.toString()}
   />
 }
 
@@ -52,7 +67,7 @@ interface ChannelProps {
 
 function ChannelItem ({ item, me }: ChannelProps) {
   if (item.type === "group") {
-    return <UserContainer disabled>
+    return <UserContainer style={{ flex: 1 }} disabled>
       <ProfilePictureContainer>
         <FontAwesome name="user" size={24} />
       </ProfilePictureContainer>
@@ -66,7 +81,7 @@ function ChannelItem ({ item, me }: ChannelProps) {
 
   const user = useAppSelector(state => state.users[item.users.find(id => id !== me?.id) || ""])
 
-  return <UserContainer disabled>
+  return <UserContainer style={{ flex: 1 }} disabled>
     <ProfilePictureContainer>
       <FontAwesome name="user" size={24} />
     </ProfilePictureContainer>

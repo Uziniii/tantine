@@ -1,7 +1,7 @@
+import { messageSchemaEvent } from './../../events/schema';
 import { z } from "zod";
-import { publicProcedure, router, userIsInChannel, wsUserIsInChannel } from "../../trpc";
-import { observable } from "@trpc/server/observable";
-import { EventEmitter } from "events";
+import { router, userIsInChannel } from "../../trpc";
+import { ev } from "../../ws";
 
 interface Message {
   channelId: number | null;
@@ -12,28 +12,13 @@ interface Message {
   authorId: number;
 }
 
-const ee = new EventEmitter();
-
 export const messageRouter = router({
-  onCreate: wsUserIsInChannel.subscription(() => {
-    return observable<Message>((emit) => {
-      const onCreate = (data: Message) => {
-        emit.next(data);
-      };
-
-      ee.on("create", onCreate);
-
-      return () => {
-        ee.off("create", onCreate);
-      };
-    });
-  }),
-
   create: userIsInChannel
     .input(
       z.object({
         content: z.string(),
         channelId: z.number().or(z.string()),
+        nonce: z.number(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -61,7 +46,15 @@ export const messageRouter = router({
         },
       });
 
-      ee.emit("create", message);
+      ev.emit("createMessage", {
+        id: message.id,
+        content: message.content,
+        authorId: message.authorId,
+        channelId: message.channelId,
+        nonce: input.nonce,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+      } satisfies z.infer<typeof messageSchemaEvent>);
 
       return message;
     }),

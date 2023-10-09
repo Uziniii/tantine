@@ -18,7 +18,7 @@ export const ProfilePictureContainer = styled.View<{ $size: string }>`
   margin-right: 10px;
   width: ${({ $size }) => $size ?? "50px"};
   height: ${({ $size }) => $size ?? "50px"};
-  border-radius: 100%;
+  border-radius: 200px;
   background-color: #ccc;
   display: flex;
   justify-content: center;

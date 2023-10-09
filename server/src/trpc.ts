@@ -49,13 +49,6 @@ export const createContext = async ({
   };
 };
 
-export const createWSContext = () => {
-  return {
-    prisma,
-    user: null,
-  };
-};
-
 /**
  * Initialization of tRPC backend
  * Should be done only once per backend!
@@ -135,69 +128,3 @@ export const userIsInChannel = protectedProcedure
       },
     });
   })
-
-export const wsUserIsAuthed = t.procedure
-  .input(
-    z.object({
-      token: z.string(),
-    })
-  )
-  .use(async ({ ctx, input, next }) => {
-    const user = decode(input.token) as Payload;
-
-    if (!user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-
-    const dbUser = await ctx.prisma.user.findUnique({
-      where: {
-        id: user.id,
-      },
-      select: {
-        hashedPassword: true,
-      },
-    });
-
-    if (!dbUser || !verifyJwtToken(input.token, dbUser.hashedPassword)) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-
-    return next({
-      ctx: {
-        prisma,
-        user,
-      },
-    });
-  });
-
-export const wsUserIsInChannel = wsUserIsAuthed
-  .input(
-    z.object({
-      channels: z.array(z.number()),
-    })
-  )
-  .use(async ({ ctx, input, next }) => {
-    const user = ctx.prisma.user.findUnique({
-      where: {
-        id: ctx.user.id,
-        channels: {
-          every: {
-            id: {
-              in: input.channels,
-            },
-          }
-        }
-      }
-    })
-
-    if (!user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-
-    return next({
-      ctx: {
-        prisma,
-        user: ctx.user,
-      },
-    });
-  });

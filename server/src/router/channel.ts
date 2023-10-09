@@ -1,4 +1,4 @@
-import { protectedProcedure, router } from "../trpc";
+import { protectedProcedure, router, userIsInChannel } from "../trpc";
 import z from "zod";
 import { messageRouter } from "./channel/message";
 
@@ -46,12 +46,12 @@ export const channelRouter = router({
             id: true,
             users: {
               select: {
-                id: true,
+                id: true
               }
             },
             private: true,
           }
-        })
+        });
 
         if (channel) return {
           type: "private",
@@ -84,7 +84,7 @@ export const channelRouter = router({
             private: true,
           }
         });
-
+        
         return {
           type: "private",
           id: channel.id,
@@ -140,4 +140,31 @@ export const channelRouter = router({
         authorId: channel.group.authorId,
       }
     }),
+
+  retrieveMessages: userIsInChannel
+    .input(z.object({
+      channelId: z.number(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const messages = await ctx.prisma.message.findMany({
+        where: {
+          channelId: input.channelId,
+        },
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          authorId: true,
+          channelId: true,
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      return messages;
+    }),
+  
+  message: messageRouter,
 })

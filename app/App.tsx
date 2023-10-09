@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { trpc } from './src/utils/trpc';
-import { createWSClient, httpBatchLink, wsLink } from '@trpc/client';
+import { httpBatchLink } from '@trpc/client';
 import superjson from "superjson";
 import Constants from "expo-constants";
 import Register from './src/Page/Auth/Register';
@@ -26,7 +26,6 @@ import Search from './src/Page/Search';
 import { set } from './src/store/slices/meSlice';
 import jwtDecode from 'jwt-decode';
 import Channel from './src/Page/Channel';
-import { AppRouter } from '../server/src';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 export default function App() {
@@ -141,9 +140,24 @@ function Base() {
 function WSLayer ({ children }: PropsWithChildren) {
   const me = useAppSelector(state => state.me)
   const channels = useAppSelector(state => state.channels)
-  
-  
 
+  const { sendJsonMessage } = useWebSocket(`ws://${host}:3001/${me?.token}`, {
+    onOpen() {
+      sendJsonMessage({
+        event: "init",
+        payload: me?.token
+      })
+    },
+    onMessage(event) {
+      console.log(event.data);
+      
+    },
+    heartbeat: {
+      message: "ping",
+      interval: 25000,
+    }
+  });
+  
   return children
 }
 

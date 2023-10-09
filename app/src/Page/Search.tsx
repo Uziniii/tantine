@@ -8,7 +8,7 @@ import { FText } from "../Components/FText";
 import styled from "styled-components/native"
 import { FontAwesome } from '@expo/vector-icons'; 
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
-import { useAppDispatch } from "../store/store";
+import { useAppDispatch, useAppSelector } from "../store/store";
 import { addUsers } from "../store/slices/usersSlice";
 import { addChannel } from "../store/slices/channelsSlice";
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "./css/user.css";
@@ -37,22 +37,37 @@ export default function Search({ navigation }: Props) {
   const [search, setSearch] = useState("")
   const [isSearchEmpty, setIsSearchEmpty] = useState(true)
 
-  const users = trpc.user.search.useQuery(search, {
+  const usersSearch = trpc.user.search.useQuery(search, {
     enabled: search.length > 1,
     staleTime: 0,
   })
 
+  const retrieveUsers = trpc.user.retrieve.useMutation()
+
   const dispatch = useAppDispatch()
+  const users = useAppSelector(state => Object.keys(state.users))
 
   const createChannel = trpc.channel.create.useMutation({
-    onSuccess(data) {
-      dispatch(addUsers(data.users))
-      
+    async onSuccess(data) {
+      let toFetch = []
+
+      for (const id of data.users) {
+        if (users.includes(id.toString())) continue
+
+        toFetch.push(+id)
+      }
+
+      if (toFetch.length > 0) {
+        let fetchedUsers = await retrieveUsers.mutateAsync(toFetch)
+
+        dispatch(addUsers(fetchedUsers))
+      }
+
       if (data.type === "group") {
         dispatch(addChannel({
           id: data.id,
           type: data.type,
-          users: data.users.map(user => user.id),
+          users: data.users,
           title: data.title,
           description: data.description,
           authorId: data.authorId,
@@ -61,15 +76,12 @@ export default function Search({ navigation }: Props) {
         dispatch(addChannel({
           id: data.id,
           type: data.type,
-          users: data.users.map(user => user.id),
+          users: data.users,
         }))
       }
 
       navigation.navigate("chat", {
-        screen: "channel",
-        params: {
-          id: data.id,
-        }
+        id: data.id
       })
     },
   })
@@ -139,7 +151,7 @@ export default function Search({ navigation }: Props) {
 
   return <FlatList
     contentInsetAdjustmentBehavior="automatic"
-    data={isSearchEmpty && Platform.OS === "android" ? [] : users.data}
+    data={isSearchEmpty && Platform.OS === "android" ? [] : usersSearch.data}
     renderItem={({ item }) => {
       return <UserContainer onPress={() => startChat(item.id)}>
         <ProfilePictureContainer>

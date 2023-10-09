@@ -1,6 +1,6 @@
 import { NavigationProp, RouteProp, useRoute } from "@react-navigation/native";
 import { useLayoutEffect, useState } from "react";
-import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, Text, View } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, Text, View, VirtualizedList } from "react-native";
 import { ProfilePictureContainer } from "./css/user.css";
 import { FText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
@@ -9,6 +9,16 @@ import styled from "styled-components/native"
 import { useAppSelector } from "../store/store";
 import { TextInput, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { trpc } from "../utils/trpc";
+import { GiftedChat } from "react-native-gifted-chat";
+
+interface IMessage {
+  id: number;
+  createdAt: Date;
+  authorId: number;
+  channelId: number;
+  content: string;
+  updatedAt: Date;
+}
 
 interface Props {
   navigation: NavigationProp<any>
@@ -60,7 +70,7 @@ const InputSafeAreaView = styled.SafeAreaView`
 `
 
 export default function Channel ({ navigation }: Props) {  
-  const route = useRoute<{params: {id:string}, key: string, name: string}>()
+  const route = useRoute<{params: { id: string }, key: string, name: string}>()
   const title = useAppSelector(state => {
     const channel = state.channels[route.params.id]
     
@@ -92,6 +102,10 @@ export default function Channel ({ navigation }: Props) {
     })
   }, [])
 
+  const messages = trpc.channel.retrieveMessages.useQuery({
+    channelId: +route.params.id,
+  })
+
   let sendMessage = trpc.channel.message.create.useMutation({
     onSuccess(data, variables, context) {
       // console.log(data);
@@ -104,23 +118,60 @@ export default function Channel ({ navigation }: Props) {
       return
     }
 
+    const nonce = Date.now()
+
     sendMessage.mutate({
       channelId: route.params.id,
       content: input,
+      nonce,
     })
   }
 
-  return <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ height: "100%" }}>
-    <View>
+  return <GiftedChat
+    
+    messages={messages.data?.map(message => ({
+      _id: message.id.toString(),
+      received: true,
+      text: message.content + message.authorId,
+      createdAt: message.createdAt,
+      user: {
+        _id: message.authorId.toString(),
+        name: "John Doe",
+        avatar: "https://placeimg.com/140/140/any",
+      },
+    })) || []}
+    onSend={message => onSend()}
+    user={{
+      _id: 61,
+    }}
+    timeFormat="HH:mm"
+  />
 
-    </View>
-    <InputContainer keyboardVerticalOffset={120} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <InputSafeAreaView>
-        <Input onSubmitEditing={() => console.log("aze")} value={input} onChangeText={setInput}/>
-        <TouchableOpacity onPress={onSend}>
-          <FontAwesome name="send" size={24} color={"#007aff"}/>
-        </TouchableOpacity>
-      </InputSafeAreaView>
-    </InputContainer>
-  </TouchableWithoutFeedback>
+  // return <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ height: "100%" }}>
+  //   <SafeAreaView style={{ paddingBottom: 64 }}>
+  //     {messages.data && 
+  //       <VirtualizedList
+  //         renderItem={(item) => <Message message={item.item}/>}
+  //         keyExtractor={(item: IMessage) => item.id.toString()}
+  //         getItem={(_, index): IMessage => messages.data[index]}
+  //         getItemCount={() => messages.data?.length || 0}
+          
+  //       />
+  //     }
+  //   </SafeAreaView>
+  //   <InputContainer keyboardVerticalOffset={120} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+  //     <InputSafeAreaView>
+  //       <Input onSubmitEditing={() => console.log("aze")} value={input} onChangeText={setInput}/>
+  //       <TouchableOpacity onPress={onSend}>
+  //         <FontAwesome name="send" size={24} color={"#007aff"}/>
+  //       </TouchableOpacity>
+  //     </InputSafeAreaView>
+  //   </InputContainer>
+  // </TouchableWithoutFeedback>
+}
+
+function Message ({ message }: { message: IMessage }) {
+  return <View>
+    <Text>{message.content}</Text>
+  </View>
 }
