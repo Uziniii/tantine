@@ -1,24 +1,14 @@
-import { NavigationProp, RouteProp, useRoute } from "@react-navigation/native";
-import { useLayoutEffect, useState } from "react";
-import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, Text, View, VirtualizedList } from "react-native";
+import { NavigationProp, useRoute } from "@react-navigation/native";
+import { useEffect, useLayoutEffect } from "react";
+import { KeyboardAvoidingView, Platform, View } from "react-native";
 import { ProfilePictureContainer } from "./css/user.css";
 import { FText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { FontAwesome } from '@expo/vector-icons'; 
 import styled from "styled-components/native"
 import { useAppSelector } from "../store/store";
-import { TextInput, TouchableOpacity, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { trpc } from "../utils/trpc";
 import { GiftedChat } from "react-native-gifted-chat";
-
-interface IMessage {
-  id: number;
-  createdAt: Date;
-  authorId: number;
-  channelId: number;
-  content: string;
-  updatedAt: Date;
-}
 
 interface Props {
   navigation: NavigationProp<any>
@@ -82,7 +72,7 @@ export default function Channel ({ navigation }: Props) {
 
     return `${user.surname} ${user.name}`
   })
-  const [input, setInput] = useState("")
+  const me = useAppSelector(state => state.me)
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -102,10 +92,6 @@ export default function Channel ({ navigation }: Props) {
     })
   }, [])
 
-  const messages = trpc.channel.retrieveMessages.useQuery({
-    channelId: +route.params.id,
-  })
-
   let sendMessage = trpc.channel.message.create.useMutation({
     onSuccess(data, variables, context) {
       // console.log(data);
@@ -113,39 +99,51 @@ export default function Channel ({ navigation }: Props) {
     },
   })
 
-  const onSend = () => {
-    if (input.length === 0) {
+  const msgState = useAppSelector(state => {
+    const channel = state.messages[+route.params.id]
+
+    return channel.position.map(
+      x => channel.messages[x]
+    )
+  })
+
+  useEffect(() => {
+    
+  }, [])
+
+  const onSend = (content: string, createdAt: Date | number) => {
+    if (content.length === 0) {
       return
     }
 
-    const nonce = Date.now()
+    const nonce = Date.now() + Math.random()
 
     sendMessage.mutate({
       channelId: route.params.id,
-      content: input,
+      content: content,
       nonce,
     })
   }
 
-  return <GiftedChat
-    
-    messages={messages.data?.map(message => ({
-      _id: message.id.toString(),
-      received: true,
-      text: message.content + message.authorId,
-      createdAt: message.createdAt,
-      user: {
-        _id: message.authorId.toString(),
-        name: "John Doe",
-        avatar: "https://placeimg.com/140/140/any",
-      },
-    })) || []}
-    onSend={message => onSend()}
-    user={{
-      _id: 61,
-    }}
-    timeFormat="HH:mm"
-  />
+  return <>
+    <GiftedChat
+      messages={msgState.map(message => ({
+        _id: message.id.toString(),
+        received: true,
+        text: message.content,
+        createdAt: new Date(message.createdAt),
+        user: {
+          _id: message.authorId,
+        },
+      })) || []}
+      onSend={(message) => onSend(message[0].text, message[0].createdAt)}
+      user={{
+        _id: me?.id || 1,
+      }}
+      timeFormat="HH:mm"
+    />
+    <View style={{ width: "100%", height: 32, backgroundColor: "white" }}></View>
+  </>
 
   // return <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ height: "100%" }}>
   //   <SafeAreaView style={{ paddingBottom: 64 }}>
@@ -170,8 +168,8 @@ export default function Channel ({ navigation }: Props) {
   // </TouchableWithoutFeedback>
 }
 
-function Message ({ message }: { message: IMessage }) {
-  return <View>
-    <Text>{message.content}</Text>
-  </View>
-}
+// function Message ({ message }: { message: IMessage }) {
+//   return <View>
+//     <Text>{message.content}</Text>
+//   </View>
+// }

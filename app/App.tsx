@@ -26,7 +26,8 @@ import Search from './src/Page/Search';
 import { set } from './src/store/slices/meSlice';
 import jwtDecode from 'jwt-decode';
 import Channel from './src/Page/Channel';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
+import useWebSocket from 'react-use-websocket';
+import z from "zod"
 
 export default function App() {
   return <GestureHandlerRootView style={{ flex: 1 }}>
@@ -148,9 +149,8 @@ function WSLayer ({ children }: PropsWithChildren) {
         payload: me?.token
       })
     },
-    onMessage(event) {
+    onMessage(event: MessageEvent<{}>) {
       console.log(event.data);
-      
     },
     heartbeat: {
       message: "ping",

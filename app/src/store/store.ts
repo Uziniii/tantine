@@ -4,6 +4,7 @@ import loginReducer from "./slices/loginSlice";
 import usersReducer from "./slices/usersSlice";
 import channelsSlice from "./slices/channelsSlice";
 import meSlice from "./slices/meSlice";
+import messagesSlice from "./slices/messagesSlice";
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     login: loginReducer,
     users: usersReducer,
     channels: channelsSlice,
+    messages: messagesSlice
   },
 })
 

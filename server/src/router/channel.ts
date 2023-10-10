@@ -145,7 +145,7 @@ export const channelRouter = router({
     .input(z.object({
       channelId: z.number(),
     }))
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const messages = await ctx.prisma.message.findMany({
         where: {
           channelId: input.channelId,
@@ -156,14 +156,13 @@ export const channelRouter = router({
           createdAt: true,
           updatedAt: true,
           authorId: true,
-          channelId: true,
         },
         orderBy: {
           createdAt: "asc",
         },
       });
 
-      return messages;
+      return messages.reverse();
     }),
   
   message: messageRouter,

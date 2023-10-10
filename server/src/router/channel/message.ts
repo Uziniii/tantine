@@ -34,7 +34,7 @@ export const messageRouter = router({
             connect: {
               id: +input.channelId,
             },
-          },
+          }
         },
         select: {
           id: true,
