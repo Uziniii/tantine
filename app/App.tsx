@@ -156,6 +156,9 @@ function WSLayer ({ children }: PropsWithChildren) {
         payload: me?.token
       })
     },
+    onError(event) {
+      console.log(event)
+    },
     async onMessage(ev: MessageEvent<string>) {
       let event = allSchemaEvent.safeParse(JSON.parse(ev.data));
       console.log(event);
