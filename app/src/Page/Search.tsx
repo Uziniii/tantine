@@ -1,6 +1,6 @@
 import { NavigationProp } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Keyboard, Platform, View } from "react-native";
+import { Keyboard, Platform } from "react-native";
 import debounce from "lodash.debounce";
 import { trpc } from "../utils/trpc";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from "../store/store";
 import { addUsers } from "../store/slices/usersSlice";
 import { addChannel } from "../store/slices/channelsSlice";
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "./css/user.css";
-import { init } from "../store/slices/messagesSlice";
+import { initMessages } from "../store/slices/messagesSlice";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -48,7 +48,7 @@ export default function Search({ navigation }: Props) {
   const dispatch = useAppDispatch()
   const users = useAppSelector(state => Object.keys(state.users))
   
-  const retrieveMessages = trpc.channel.retrieveMessages.useMutation()
+  const retrieveMessages = trpc.channel.message.retrieveMessages.useMutation()
 
   const createChannel = trpc.channel.create.useMutation({
     async onSuccess(data) {
@@ -91,7 +91,7 @@ export default function Search({ navigation }: Props) {
         updatedAt: message.updatedAt.toString(),
       }))
 
-      dispatch(init({
+      dispatch(initMessages({
         channelId: data.id,
         messages: messages,
       }))

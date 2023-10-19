@@ -1,23 +1,17 @@
+import type { Message } from "../../../schema"
 import { WebSocket } from "ws";
 import z from "zod"
 
-export const messageSchemaEvent = z.object({
-  id: z.number(),
-  channelId: z.number(),
-  authorId: z.number(),
-  content: z.string(),
-  nonce: z.number(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
+export const messageSchema = z.custom<Message>()
+
+const allSchema = messageSchema
 
 export interface IMapUser {
   id: number;
   ws: WebSocket;
 }
 
-type AllSchema =
-  | z.infer<typeof messageSchemaEvent>
+type AllSchema = z.infer<typeof allSchema>;
 
 export interface Args<Schema extends AllSchema> {
   payload: Schema;

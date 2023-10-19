@@ -1,4 +1,4 @@
-import { messageSchemaEvent } from './../../events/schema';
+import { messageSchema } from '../../events/schema';
 import { z } from "zod";
 import { router, userIsInChannel } from "../../trpc";
 import { ev } from "../../ws";
@@ -34,7 +34,7 @@ export const messageRouter = router({
             connect: {
               id: +input.channelId,
             },
-          }
+          },
         },
         select: {
           id: true,
@@ -54,8 +54,34 @@ export const messageRouter = router({
         nonce: input.nonce,
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
-      } satisfies z.infer<typeof messageSchemaEvent>);
+      } satisfies z.infer<typeof messageSchema>);
 
       return message;
+    }),
+
+  retrieveMessages: userIsInChannel
+    .input(
+      z.object({
+        channelId: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const messages = await ctx.prisma.message.findMany({
+        where: {
+          channelId: input.channelId,
+        },
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          authorId: true,
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      return messages.reverse();
     }),
 });

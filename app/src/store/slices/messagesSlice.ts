@@ -6,6 +6,7 @@ export interface Message {
   createdAt: string;
   updatedAt: string;
   authorId: number;
+  nonce?: number;
 }
 
 export interface MessageStateSchema {
@@ -20,14 +21,14 @@ interface State {
 }
 
 const messagesSlice = createSlice({
-  name: "me",
+  name: "messages",
   initialState: {} as State,
   reducers: {
     init: (
       state,
       action: PayloadAction<{
         channelId: number;
-        messages: Message[]
+        messages: Message[];
       }>
     ) => {
       const { channelId, messages } = action.payload;
@@ -44,9 +45,37 @@ const messagesSlice = createSlice({
 
       return state
     },
+    addTemp: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        nonce: number;
+        message: Message;
+      }>
+    ) => {
+      const { channelId, message } = action.payload;
+      
+      return state;
+    },
+    add: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        nonce?: number;
+        message: Message;
+      }>
+    ) => {
+      const { channelId, message } = action.payload;
+      
+      if (!state[channelId]) return state
+
+      state[channelId].messages[+message.id] = message;
+      state[channelId].position.unshift(+message.id);
+      return state;
+    }
   },
 });
 
-export const { init } = messagesSlice.actions;
+export const { init: initMessages, add: addMessage } = messagesSlice.actions;
 
 export default messagesSlice.reducer;

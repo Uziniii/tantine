@@ -27,7 +27,10 @@ import { set } from './src/store/slices/meSlice';
 import jwtDecode from 'jwt-decode';
 import Channel from './src/Page/Channel';
 import useWebSocket from 'react-use-websocket';
-import z from "zod"
+import { addMessage } from './src/store/slices/messagesSlice';
+import { allSchemaEvent } from './schema';
+import { addChannel } from './src/store/slices/channelsSlice';
+import { addUsers } from './src/store/slices/usersSlice';
 
 export default function App() {
   return <GestureHandlerRootView style={{ flex: 1 }}>
@@ -139,8 +142,12 @@ function Base() {
 }
 
 function WSLayer ({ children }: PropsWithChildren) {
+  const dispatch = useAppDispatch()
   const me = useAppSelector(state => state.me)
   const channels = useAppSelector(state => state.channels)
+  const users = useAppSelector(state => state.users)
+  const fecthChannel = trpc.channel.retrieve.useMutation()
+  const fetchUsers = trpc.user.retrieve.useMutation()
 
   const { sendJsonMessage } = useWebSocket(`ws://${host}:3001/${me?.token}`, {
     onOpen() {
@@ -149,8 +156,48 @@ function WSLayer ({ children }: PropsWithChildren) {
         payload: me?.token
       })
     },
-    onMessage(event: MessageEvent<{}>) {
-      console.log(event.data);
+    async onMessage(ev: MessageEvent<string>) {
+      let event = allSchemaEvent.safeParse(JSON.parse(ev.data));
+      console.log(event);
+
+      if (!event.success) return
+
+      const { payload } = event.data 
+
+      switch(event.data.event) {
+        case "createMessage":
+          if (!channels[payload.channelId]) {
+            const channel = await fecthChannel.mutateAsync({
+              channelId: payload.channelId,
+            })
+
+            const toFetch: number[] = []
+
+            for (const id of channel.users) {
+              if (users[id]) continue
+
+              toFetch.push(id)
+            }
+
+            const fetchedUsers = await fetchUsers.mutateAsync(toFetch)
+            dispatch(addUsers(fetchedUsers))
+            dispatch(addChannel(channel))
+
+            return
+          }
+
+          dispatch(addMessage({
+            channelId: payload.channelId,
+            message: {
+              id: payload.id,
+              authorId: payload.authorId,
+              content: payload.content,
+              createdAt: payload.createdAt.toString(),
+              updatedAt: payload.updatedAt.toString(),
+            }
+          }))
+          break;
+      }
     },
     heartbeat: {
       message: "ping",
