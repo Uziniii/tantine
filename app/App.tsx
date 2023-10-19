@@ -182,8 +182,6 @@ function WSLayer ({ children }: PropsWithChildren) {
             const fetchedUsers = await fetchUsers.mutateAsync(toFetch)
             dispatch(addUsers(fetchedUsers))
             dispatch(addChannel(channel))
-
-            return
           }
 
           dispatch(addMessage({
