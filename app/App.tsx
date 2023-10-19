@@ -27,7 +27,8 @@ import { set } from './src/store/slices/meSlice';
 import jwtDecode from 'jwt-decode';
 import Channel from './src/Page/Channel';
 import useWebSocket from 'react-use-websocket';
-import z from "zod"
+import { allSchema } from './schema';
+import { addMessage } from './src/store/slices/messagesSlice';
 
 export default function App() {
   return <GestureHandlerRootView style={{ flex: 1 }}>
@@ -139,8 +140,8 @@ function Base() {
 }
 
 function WSLayer ({ children }: PropsWithChildren) {
+  const dispatch = useAppDispatch()
   const me = useAppSelector(state => state.me)
-  const channels = useAppSelector(state => state.channels)
 
   const { sendJsonMessage } = useWebSocket(`ws://${host}:3001/${me?.token}`, {
     onOpen() {
@@ -149,8 +150,28 @@ function WSLayer ({ children }: PropsWithChildren) {
         payload: me?.token
       })
     },
-    onMessage(event: MessageEvent<{}>) {
-      console.log(event.data);
+    onMessage(ev: MessageEvent<string>) {
+      let event = allSchema.safeParse(JSON.parse(ev.data));
+console.log(event);
+
+      if (!event.success) return
+
+      const { payload } = event.data 
+
+      switch(event.data.event) {
+        case "createMessage":
+          dispatch(addMessage({
+            channelId: payload.channelId,
+            message: {
+              id: payload.id,
+              authorId: payload.authorId,
+              content: payload.content,
+              createdAt: payload.createdAt.toString(),
+              updatedAt: payload.updatedAt.toString(),
+            }
+          }))
+          break;
+      }
     },
     heartbeat: {
       message: "ping",
@@ -199,7 +220,7 @@ function AllRoute() {
         headerRight() {
           const navigation = useNavigation()
 
-          return <View style={{ width: "100%", flex: 1, alignItems: "center", justifyContent: "center" }}>
+         return <View style={{ width: "100%", flex: 1, alignItems: "center", justifyContent: "center" }}>
             <TouchableOpacity onPress={() => navigation.navigate("search" as never)}>
               <Feather name="edit" size={24} color={"#007aff"}/>
             </TouchableOpacity>

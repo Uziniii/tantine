@@ -3,11 +3,11 @@ import { FText } from "../Components/FText";
 import { NavigationProp, useNavigation, useRoute } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { trpc } from "../utils/trpc";
-import { useAppSelector } from "../store/store";
+import { useAppDispatch, useAppSelector } from "../store/store";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "./css/user.css";
 import { FontAwesome } from '@expo/vector-icons'; 
-import { Channel as IChannel } from "../store/slices/channelsSlice";
+import { Channel as IChannel, addChannel } from "../store/slices/channelsSlice";
 import { Me } from "../store/slices/meSlice";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { useEffect } from "react";
@@ -19,7 +19,23 @@ interface Props {
 }
 
 export default function Chat ({ navigation }: Props) {
+  const dispatch = useAppDispatch()
   const route = useRoute<{ params: { id: string } | undefined, key: string, name: string }>()
+  const channels = trpc.channel.retrieveRecentChannel.useQuery(undefined, {
+    staleTime: 0,
+  })
+  const users = useAppSelector(state => state.users)
+  const fetchUsers = trpc.user.retrieve.useMutation()
+
+  useEffect(() => {
+    if (!channels.data) return
+
+    channels.data.forEach(channel => {
+      dispatch(addChannel(channel))
+    })
+
+    
+  }, [channels])
 
   useEffect(() => {
     if (!route.params?.id) return

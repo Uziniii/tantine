@@ -1,6 +1,6 @@
 import { NavigationProp, useRoute } from "@react-navigation/native";
-import { useEffect, useLayoutEffect } from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { Keyboard, View } from "react-native";
 import { ProfilePictureContainer } from "./css/user.css";
 import { FText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
@@ -21,44 +21,6 @@ const TitleContainer = styled.View`
   padding-bottom: 8px;
 `
 
-const InputContainer = styled(KeyboardAvoidingView)`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  justify-content: start;
-  position: absolute;
-  bottom: 0px;
-  background-color: #fff;
-  padding-top: 8px;
-  border-top: 2px solid #D0D0D0;
-`
-
-const Input = styled.TextInput.attrs({
-  multiline: true,
-  placeholder: "Envoyer un message",
-  inputMode: "text",
-})`
-  width: 80%;
-  padding: 8px;
-  border: 2px solid #DADBDD;
-  border-radius: 8px;
-  color: black;
-  ::placeholder {
-    color: #DADBDD;
-  }
-`
-
-const InputSafeAreaView = styled.SafeAreaView`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding-bottom: ${() => Platform.OS === "android" ? "8px" : "inherit"};
-`
-
 export default function Channel ({ navigation }: Props) {  
   const route = useRoute<{params: { id: string }, key: string, name: string}>()
   const title = useAppSelector(state => {
@@ -73,6 +35,7 @@ export default function Channel ({ navigation }: Props) {
     return `${user.surname} ${user.name}`
   })
   const me = useAppSelector(state => state.me)
+  const [isKeyboardShow, setIsKeyboardShow] = useState(false)
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -92,12 +55,22 @@ export default function Channel ({ navigation }: Props) {
     })
   }, [])
 
-  let sendMessage = trpc.channel.message.create.useMutation({
-    onSuccess(data, variables, context) {
-      // console.log(data);
-      
-    },
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardWillShow", () => {
+      setIsKeyboardShow(true)
+    })
+
+    const hideSub = Keyboard.addListener("keyboardWillHide", () => {
+      setIsKeyboardShow(false)
+    })
+
+    return () => {
+      showSub.remove()
+      hideSub.remove()
+    }
   })
+
+  let sendMessage = trpc.channel.message.create.useMutation()
 
   const msgState = useAppSelector(state => {
     const channel = state.messages[+route.params.id]
@@ -106,10 +79,6 @@ export default function Channel ({ navigation }: Props) {
       x => channel.messages[x]
     )
   })
-
-  useEffect(() => {
-    
-  }, [])
 
   const onSend = (content: string, createdAt: Date | number) => {
     if (content.length === 0) {
@@ -142,34 +111,6 @@ export default function Channel ({ navigation }: Props) {
       }}
       timeFormat="HH:mm"
     />
-    <View style={{ width: "100%", height: 32, backgroundColor: "white" }}></View>
+    <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "white" }}></View>
   </>
-
-  // return <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ height: "100%" }}>
-  //   <SafeAreaView style={{ paddingBottom: 64 }}>
-  //     {messages.data && 
-  //       <VirtualizedList
-  //         renderItem={(item) => <Message message={item.item}/>}
-  //         keyExtractor={(item: IMessage) => item.id.toString()}
-  //         getItem={(_, index): IMessage => messages.data[index]}
-  //         getItemCount={() => messages.data?.length || 0}
-          
-  //       />
-  //     }
-  //   </SafeAreaView>
-  //   <InputContainer keyboardVerticalOffset={120} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-  //     <InputSafeAreaView>
-  //       <Input onSubmitEditing={() => console.log("aze")} value={input} onChangeText={setInput}/>
-  //       <TouchableOpacity onPress={onSend}>
-  //         <FontAwesome name="send" size={24} color={"#007aff"}/>
-  //       </TouchableOpacity>
-  //     </InputSafeAreaView>
-  //   </InputContainer>
-  // </TouchableWithoutFeedback>
 }
-
-// function Message ({ message }: { message: IMessage }) {
-//   return <View>
-//     <Text>{message.content}</Text>
-//   </View>
-// }

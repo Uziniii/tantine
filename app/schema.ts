@@ -1,9 +1,16 @@
 import z from "zod"
-import { messageSchemaEvent } from "../server/src/events/schema"
 
-// const allEvents = z.object({
-//   event: z.literal("createMessage"),
-//   payload: messageSchemaEvent
-// })
+const messageSchemaEvent = z.object({
+  event: z.literal("createMessage"),
+  payload: z.object({
+    id: z.number(),
+    channelId: z.number(),
+    authorId: z.number(),
+    content: z.string(),
+    nonce: z.number(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  }),
+});
 
-// export { allEvents }
+export const allSchema = messageSchemaEvent;

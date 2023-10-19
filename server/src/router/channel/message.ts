@@ -34,7 +34,7 @@ export const messageRouter = router({
             connect: {
               id: +input.channelId,
             },
-          }
+          },
         },
         select: {
           id: true,
@@ -57,5 +57,31 @@ export const messageRouter = router({
       } satisfies z.infer<typeof messageSchemaEvent>);
 
       return message;
+    }),
+
+  retrieveMessages: userIsInChannel
+    .input(
+      z.object({
+        channelId: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const messages = await ctx.prisma.message.findMany({
+        where: {
+          channelId: input.channelId,
+        },
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          authorId: true,
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      return messages.reverse();
     }),
 });

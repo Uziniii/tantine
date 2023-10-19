@@ -1,6 +1,6 @@
 import { NavigationProp } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Keyboard, Platform, View } from "react-native";
+import { Keyboard, Platform } from "react-native";
 import debounce from "lodash.debounce";
 import { trpc } from "../utils/trpc";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
@@ -48,7 +48,7 @@ export default function Search({ navigation }: Props) {
   const dispatch = useAppDispatch()
   const users = useAppSelector(state => Object.keys(state.users))
   
-  const retrieveMessages = trpc.channel.retrieveMessages.useMutation()
+  const retrieveMessages = trpc.channel.message.retrieveMessages.useMutation()
 
   const createChannel = trpc.channel.create.useMutation({
     async onSuccess(data) {

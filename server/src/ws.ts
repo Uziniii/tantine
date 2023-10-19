@@ -121,7 +121,7 @@ export const ev = new EventEmitter()
 
 ev.on(
   "createMessage",
-  (message: z.infer<typeof messageSchemaEvent>) => messageEvent({
+  (message: z.infer<typeof messageSchemaEvent>["payload"]) => messageEvent({
     payload: message,
     users,
     idToTokens,
