@@ -6,9 +6,10 @@ import { FText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { FontAwesome } from '@expo/vector-icons'; 
 import styled from "styled-components/native"
-import { useAppSelector } from "../store/store";
+import { useAppDispatch, useAppSelector } from "../store/store";
 import { trpc } from "../utils/trpc";
 import { GiftedChat } from "react-native-gifted-chat";
+import { initMessages } from "../store/slices/messagesSlice";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -22,6 +23,7 @@ const TitleContainer = styled.View`
 `
 
 export default function Channel ({ navigation }: Props) {  
+  const dispatch = useAppDispatch()
   const route = useRoute<{params: { id: string }, key: string, name: string}>()
   const title = useAppSelector(state => {
     const channel = state.channels[route.params.id]
@@ -36,6 +38,20 @@ export default function Channel ({ navigation }: Props) {
   })
   const me = useAppSelector(state => state.me)
   const [isKeyboardShow, setIsKeyboardShow] = useState(false)
+  const retrieveMessages = trpc.channel.message.retrieveMessages.useMutation({
+    onSuccess(data, variables) {
+      dispatch(initMessages({
+        channelId: variables.channelId,
+        messages: data.map(message => ({
+          id: message.id,
+          authorId: message.authorId,
+          content: message.content,
+          createdAt: message.createdAt.toString(),
+          updatedAt: message.updatedAt.toString(),
+        })),
+      }))
+    },
+  })
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -75,9 +91,19 @@ export default function Channel ({ navigation }: Props) {
   const msgState = useAppSelector(state => {
     const channel = state.messages[+route.params.id]
 
+    if (!channel) return undefined
+
     return channel.position.map(
       x => channel.messages[x]
     )
+  })
+
+  useEffect(() => {
+    if (msgState) return
+
+    retrieveMessages.mutate({
+      channelId: +route.params.id,
+    })
   })
 
   const onSend = (content: string, createdAt: Date | number) => {
@@ -96,7 +122,7 @@ export default function Channel ({ navigation }: Props) {
 
   return <>
     <GiftedChat
-      messages={msgState.map(message => ({
+      messages={msgState?.map(message => ({
         _id: message.id.toString(),
         received: true,
         text: message.content,

@@ -1,4 +1,4 @@
-import { messageSchemaEvent } from './../../events/schema';
+import { messageSchema } from '../../events/schema';
 import { z } from "zod";
 import { router, userIsInChannel } from "../../trpc";
 import { ev } from "../../ws";
@@ -54,7 +54,7 @@ export const messageRouter = router({
         nonce: input.nonce,
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
-      } satisfies z.infer<typeof messageSchemaEvent>);
+      } satisfies z.infer<typeof messageSchema>);
 
       return message;
     }),

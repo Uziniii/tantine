@@ -66,6 +66,9 @@ const messagesSlice = createSlice({
       }>
     ) => {
       const { channelId, message } = action.payload;
+      
+      if (!state[channelId]) return state
+
       state[channelId].messages[+message.id] = message;
       state[channelId].position.unshift(+message.id);
       return state;
@@ -73,6 +76,6 @@ const messagesSlice = createSlice({
   },
 });
 
-export const { init, add: addMessage } = messagesSlice.actions;
+export const { init: initMessages, add: addMessage } = messagesSlice.actions;
 
 export default messagesSlice.reducer;

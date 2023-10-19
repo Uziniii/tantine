@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from "../store/store";
 import { addUsers } from "../store/slices/usersSlice";
 import { addChannel } from "../store/slices/channelsSlice";
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "./css/user.css";
-import { init } from "../store/slices/messagesSlice";
+import { initMessages } from "../store/slices/messagesSlice";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -91,7 +91,7 @@ export default function Search({ navigation }: Props) {
         updatedAt: message.updatedAt.toString(),
       }))
 
-      dispatch(init({
+      dispatch(initMessages({
         channelId: data.id,
         messages: messages,
       }))

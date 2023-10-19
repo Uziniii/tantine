@@ -1,12 +1,12 @@
 import { prisma } from '../db';
-import { Args, messageSchemaEvent } from './schema';
+import { Args, messageSchema } from './schema';
 import z from "zod"
 
 export const messageEvent = async ({
   payload,
   users,
   idToTokens,
-}: Args<z.infer<typeof messageSchemaEvent>>) => {
+}: Args<z.infer<typeof messageSchema>>) => {
   const channel = await prisma.channel.findUnique({
     where: {
       id: +payload.channelId,

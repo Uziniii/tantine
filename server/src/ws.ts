@@ -3,7 +3,7 @@ import { prisma } from "./db";
 import { decode } from "jsonwebtoken";
 import { Payload, verifyJwtToken } from "./jwt";
 import { messageEvent } from "./events/message";
-import { IMapUser, messageSchemaEvent } from "./events/schema";
+import { IMapUser, messageSchema } from "./events/schema";
 import z from "zod"
 
 const users = new Map<string, IMapUser>()
@@ -121,7 +121,7 @@ export const ev = new EventEmitter()
 
 ev.on(
   "createMessage",
-  (message: z.infer<typeof messageSchemaEvent>["payload"]) => messageEvent({
+  (message: z.infer<typeof messageSchema>) => messageEvent({
     payload: message,
     users,
     idToTokens,

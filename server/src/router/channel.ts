@@ -12,34 +12,29 @@ function isPrivateOrGroup(input: z.infer<typeof createChannelInput>): input is n
   return typeof input === "number" ? true : false;
 }
 
-const createChannelOutput = z.object({
+const privateChannel = z.object({
   type: z.literal("private"),
   id: z.number(),
   users: z.array(z.number()),
-}).or(z.object({
+});
+
+const groupChannel = z.object({
   type: z.literal("group"),
   id: z.number(),
   users: z.array(z.number()),
   title: z.string(),
   description: z.string(),
   authorId: z.number(),
-}))
+});
 
-const channelsList = z.array(z.union([
-  z.object({
-    type: z.literal("private"),
-    id: z.number(),
-    users: z.array(z.number()),
-  }),
-  z.object({
-    type: z.literal("group"),
-    id: z.number(),
-    users: z.array(z.number()),
-    title: z.string(),
-    description: z.string(),
-    authorId: z.number(),
-  })
-]))
+const createChannelOutput = privateChannel.or(groupChannel)
+
+const diffChannels = z.union([
+  privateChannel,
+  groupChannel
+])
+
+const channelsList = z.array(diffChannels)
 
 export const channelRouter = router({
   create: protectedProcedure
@@ -192,6 +187,8 @@ export const channelRouter = router({
         },
       });
 
+      console.log([...channels].map(({ Channel }) => Channel[0].users));
+
       return channels.map(({ Channel }) => {
         const [channel] = Channel;
 
@@ -218,6 +215,55 @@ export const channelRouter = router({
           authorId: channel.group.authorId,
         };
       });
+    }),
+
+  retrieve: userIsInChannel
+    .output(diffChannels)
+    .mutation(async ({ ctx, input }) => {
+      const channel = await ctx.prisma.channel.findFirst({
+        where: {
+          id: +input.channelId,
+        },
+        select: {
+          id: true,
+          private: true,
+          group: {
+            select: {
+              title: true,
+              description: true,
+              authorId: true,
+            },
+          },
+          users: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      if (channel === null)
+        throw new TRPCError({
+          message: "Channel not found",
+          code: "BAD_REQUEST",
+        });
+
+      if (!channel.group) {
+        return {
+          type: "private",
+          id: channel.id,
+          users: channel.users.map((user) => user.id),
+        };
+      }
+
+      return {
+        type: "group",
+        id: channel.id,
+        users: channel.users.map((user) => user.id),
+        title: channel.group.title,
+        description: channel.group.description,
+        authorId: channel.group.authorId,
+      };
     }),
 
   message: messageRouter,

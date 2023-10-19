@@ -1,4 +1,3 @@
-import { Text, View, VirtualizedList } from "react-native";
 import { FText } from "../Components/FText";
 import { NavigationProp, useNavigation, useRoute } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -10,7 +9,9 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Channel as IChannel, addChannel } from "../store/slices/channelsSlice";
 import { Me } from "../store/slices/meSlice";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { addUsers } from "../store/slices/usersSlice";
+import { initMessages } from "../store/slices/messagesSlice";
 
 const Stack = createNativeStackNavigator();
 
@@ -25,16 +26,31 @@ export default function Chat ({ navigation }: Props) {
     staleTime: 0,
   })
   const users = useAppSelector(state => state.users)
-  const fetchUsers = trpc.user.retrieve.useMutation()
+  const [isLoading, setIsLoading] = useState(true)
+  const fetchUsers = trpc.user.retrieve.useMutation({
+    onSuccess(data) {
+      dispatch(addUsers(data))
+      setIsLoading(false)
+    },
+  })
 
   useEffect(() => {
-    if (!channels.data) return
+    if (!isLoading || !channels.data) return
+
+    const toFetch: number[] = []
 
     channels.data.forEach(channel => {
       dispatch(addChannel(channel))
-    })
 
+      // fetch users
+      for (const id of channel.users) {
+        if (users[id]) continue
+
+        toFetch.push(id)
+      }
+    })
     
+    fetchUsers.mutate(toFetch)
   }, [channels])
 
   useEffect(() => {
@@ -44,6 +60,8 @@ export default function Chat ({ navigation }: Props) {
       id: route.params.id,
     })
   })
+
+  if (isLoading) return <></>
 
   return <Stack.Navigator initialRouteName="channelList">
     <Stack.Screen
@@ -57,18 +75,20 @@ export default function Chat ({ navigation }: Props) {
 }
 
 function ChannelList () {
-  const channel = useAppSelector(state => Object.values(state.channels))
+  const channels = useAppSelector(state => Object.values(state.channels))
   const me = useAppSelector(state => state.me)
   const navigation = useNavigation<any>()
+  
+  const onChannelPress = (id: number) => {
+    navigation.navigate("channel", {
+      id: id,
+    })
+  }
 
   return <FlatList
-    data={channel}
+    data={channels}
     renderItem={({ item }) => {
-      return <TouchableOpacity onPress={() => {
-        navigation.navigate("channel", {
-          id: item.id,
-        })
-      }}>
+      return <TouchableOpacity onPress={() => onChannelPress(item.id)}>
         <ChannelItem item={item} me={me} />
       </TouchableOpacity>
     }}
