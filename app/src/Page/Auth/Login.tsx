@@ -1,10 +1,10 @@
 import { trpc } from '../../utils/trpc';
-import { Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import { renderInput, showError } from '../../utils/formHelpers';
 import { useInputsReducer } from '../../hooks/inputsReducer';
 import z from "zod";
 import { FText } from '../../Components/FText';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import { Container, Form, Button } from '../css/auth.css';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch } from '../../store/store';
@@ -12,7 +12,10 @@ import { setLogin } from '../../store/slices/loginSlice';
 
 export default function Login() {
   const dispatch = useAppDispatch()
-  const [inputs, setInputs] = useInputsReducer()
+  const [inputs, setInputs] = useInputsReducer([
+    "email",
+    "password",
+  ])
   
   const login = trpc.user.login.useMutation({
     async onSuccess(data) {
@@ -41,9 +44,9 @@ export default function Login() {
     })
   }
 
-  return <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+  return <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      behavior={Platform.OS === "ios" ? "padding" : "height"}>  
       <Container>
         <Form>
           {renderInput({
@@ -78,5 +81,5 @@ export default function Login() {
         </Form>
       </Container>
     </KeyboardAvoidingView>
-  </TouchableWithoutFeedback>
+  </ScrollView>
 }

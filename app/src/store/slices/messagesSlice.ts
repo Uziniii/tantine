@@ -5,19 +5,23 @@ export interface Message {
   content: string;
   createdAt: string;
   updatedAt: string;
-  authorId: number;
+  authorId: number | null;
   nonce?: number;
+  system: boolean;
 }
 
 export interface MessageStateSchema {
   messages: {
-    [key: number]: Message;
+    [key: number | string]: Message;
   };
   position: number[];
+  temp: {
+    [key: number | string]: Message;
+  };
 }
 
 interface State {
-  [key: number]: MessageStateSchema
+  [key: number | string]: MessageStateSchema
 }
 
 const messagesSlice = createSlice({
@@ -36,6 +40,7 @@ const messagesSlice = createSlice({
       state[channelId] = {
         messages: {},
         position: [],
+        temp: {},
       };
 
       for (const message of messages) {
@@ -55,6 +60,26 @@ const messagesSlice = createSlice({
     ) => {
       const { channelId, message } = action.payload;
       
+      if (!state[channelId] || !message.nonce) return state
+
+      state[channelId].position.unshift(message.nonce);
+      state[channelId].temp[message.nonce] = message;
+      
+      return state;
+    },
+    removeTemp: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        nonce: number;
+      }>
+    ) => {
+      const { channelId, nonce } = action.payload;
+      
+      if (!state[channelId]) return state
+
+      delete state[channelId].temp[nonce];
+      
       return state;
     },
     add: (
@@ -69,6 +94,10 @@ const messagesSlice = createSlice({
       
       if (!state[channelId]) return state
 
+      if (message.nonce) {
+        delete state[channelId].temp[message.nonce];
+      }
+
       state[channelId].messages[+message.id] = message;
       state[channelId].position.unshift(+message.id);
       return state;
@@ -76,6 +105,11 @@ const messagesSlice = createSlice({
   },
 });
 
-export const { init: initMessages, add: addMessage } = messagesSlice.actions;
+export const {
+  init: initMessages,
+  add: addMessage,
+  addTemp: addTempMessage,
+  removeTemp: removeTempMessage,
+} = messagesSlice.actions;
 
 export default messagesSlice.reducer;

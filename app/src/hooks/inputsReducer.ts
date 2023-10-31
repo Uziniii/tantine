@@ -4,7 +4,7 @@ import { z } from "zod"
 export type InputsReducerState = {
   [key: string]: {
     input: string;
-    error: string | undefined;
+    error: string | undefined | null;
   };
 };
 
@@ -31,19 +31,28 @@ const inputsReducer = (state: InputsReducerState, action: Action) => {
 };
 
 type reducerReturn = [
-  {
-    [x: string]: {
-        input: string;
-        error: string | undefined;
-    }
-  },
+  InputsReducerState,
   React.Dispatch<Action>
 ]
 
-export const useInputsReducer = (): reducerReturn => {
+function arrToState<Keys extends string[]>(arr: Keys) {
+  const result: Record<string, any> = {};
+  for (const item of arr) {
+    result[item] = {
+      input: "",
+      error: null,
+    };
+  }
+  return result as Record<keyof Keys, {
+    input: string;
+    error: null;
+  }>;
+}
+
+export function useInputsReducer(keys: string[]): reducerReturn {
   const [state, dispatcher] = useReducer(
     inputsReducer,
-    {} satisfies InputsReducerState
+    arrToState(keys)
   );
 
   return [state, dispatcher];

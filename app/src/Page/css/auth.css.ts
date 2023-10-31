@@ -10,12 +10,12 @@ export const BottomContainer = styled.View`
   justify-content: center;
 `;
 
-export const Button = styled(TouchableOpacity)`
-  width: 100%;
+export const Button = styled(TouchableOpacity)<{ $width?: string }>`
+  width: ${({ $width }) => $width || "100%"};
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #575bfd;
+  background: #2A2F3E;
   border-radius: 8px;
   padding: 12px 0;
 `;
@@ -31,7 +31,10 @@ export const InputGroup = styled.View`
 
 export const Container = styled.View`
   width: 100%;
-  height: 100%;
+  height: 90%;
+  margin-top: 50px;
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;

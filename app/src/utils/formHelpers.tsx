@@ -4,7 +4,7 @@ import { FText } from "../Components/FText"
 import { styled } from "styled-components/native"
 import { TextInput as DefaultTextInput } from "react-native-gesture-handler"
 
-export const showError = (error: { error?: string } | undefined) => {
+export const showError = (error: { error?: string | null } | undefined) => {
   return error?.error
   ? <FText>{error.error}</FText>
   : <></>
@@ -14,18 +14,21 @@ export const TextInput = styled(DefaultTextInput)<{
   $width?: string,
   $height?: string,
   $borderColor?: string }>`
+  background: white;
   width: ${props => props.$width || "100%"};
   height: ${props => props.$height || "auto"};
-  padding: 8px;
-  border: 2px solid ${props => props.$borderColor || "#DADBDD"};
+  padding: 12px;
+  border: 1px solid ${props => props.$borderColor || "#DADBDD"};
   border-radius: 8px;
   color: black;
+  box-shadow: 0px 1px 1.41px rgba(0, 0, 0, 0.2);
+
   ::placeholder {
     color: #DADBDD;
   }
 `
 
-type set = (action: Action) => void
+type set = (action: Action) => void;
 
 interface Props {
   setInputs: set,

@@ -1,0 +1,192 @@
+import { FText } from "../Components/FText";
+import {
+  NavigationProp,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { trpc } from "../utils/trpc";
+import { useAppDispatch, useAppSelector } from "../store/store";
+import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
+import {
+  Group,
+  InfoContainer,
+  ProfilePictureContainer,
+  UserContainer,
+} from "./css/user.css";
+import { FontAwesome } from "@expo/vector-icons";
+import { Channel as IChannel, addChannel } from "../store/slices/channelsSlice";
+import { Me, set } from "../store/slices/meSlice";
+import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
+import { useEffect, useState } from "react";
+import { addUsers } from "../store/slices/usersSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import jwtDecode from "jwt-decode";
+import styled from "styled-components/native";
+
+const Stack = createNativeStackNavigator();
+
+interface Props {
+  navigation: NavigationProp<any>;
+}
+
+export default function ChannelList({ navigation }: Props) {
+  const dispatch = useAppDispatch();
+  const route = useRoute<{
+    params: { id: string } | undefined;
+    key: string;
+    name: string;
+  }>();
+  const channels = trpc.channel.retrieveRecentChannel.useQuery(undefined, {
+    staleTime: 0,
+  });
+  const users = useAppSelector((state) => state.users);
+  const [isLoading, setIsLoading] = useState(true);
+  const fetchUsers = trpc.user.retrieve.useMutation({
+    onSuccess(data) {
+      dispatch(addUsers(data));
+      setIsLoading(false);
+    },
+  });
+  const isMe = useAppSelector((state) => state.me !== null);
+
+  useEffect(() => {
+    if (!isLoading || !channels.data) return;
+
+    const toFetch: number[] = [];
+
+    channels.data.forEach((channel) => {
+      dispatch(addChannel(channel));
+
+      // fetch users
+      for (const id of channel.users) {
+        if (users[id]) continue;
+
+        toFetch.push(id);
+      }
+    });
+
+    fetchUsers.mutate(toFetch);
+  }, [channels]);
+
+  useEffect(() => {
+    if (!route.params?.id) return;
+
+    navigation.navigate("channel", {
+      id: route.params.id,
+    });
+  });
+
+  useEffect(() => {
+    if (isMe) return;
+
+    AsyncStorage.getItem("token").then((token) => {
+      if (token) {
+        dispatch(
+          set({
+            ...jwtDecode(token),
+            token,
+          })
+        );
+      }
+    });
+  }, []);
+
+  if (isLoading) return <></>;
+
+  return <Stack.Navigator initialRouteName="channelList">
+    <Stack.Screen
+      name="channelList"
+      component={List}
+      options={{
+        headerShown: false,
+      }}
+    />
+  </Stack.Navigator>
+}
+
+const Container = styled.View`
+  height: 100%;
+  background-color: #282C3B;
+  border-top-right-radius: 50px;
+  border-top-left-radius: 50px;
+  position: fixed;
+  bottom: 0;
+  margin: 30px 0 0 0;
+  padding: 20px 10px 0 10px;
+`
+
+function List() {
+  const channels = useAppSelector((state) => Object.values(state.channels));
+  const me = useAppSelector((state) => state.me);
+  const navigation = useNavigation<any>();
+
+  const onChannelPress = (id: number) => {
+    navigation.navigate("channel", {
+      id: id,
+    });
+  };
+
+  return <Container>
+    <FlatList
+      data={channels}
+      renderItem={({ item }) => {
+        return (
+          <TouchableOpacity onPress={() => onChannelPress(item.id)}>
+            <ChannelItem item={item} me={me} />
+          </TouchableOpacity>
+        );
+      }}
+      keyExtractor={(item) => item.id.toString()}
+    />
+  </Container>
+}
+
+interface ChannelProps {
+  item: IChannel;
+  me: Me | null;
+}
+
+function ChannelItem({ item, me }: ChannelProps) {
+  if (item.type === "group") {
+    return (
+      <UserContainer style={{ flex: 1 }} disabled>
+        <ProfilePictureContainer>
+          <FontAwesome name="group" size={24} />
+        </ProfilePictureContainer>
+        <InfoContainer>
+          <Group style={{ height: "100%" }}>
+            <FText
+              $size="18px"
+              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+            >
+              {item.title}
+            </FText>
+          </Group>
+        </InfoContainer>
+      </UserContainer>
+    );
+  }
+
+  const user = useAppSelector(
+    (state) => state.users[item.users.find((id) => id !== me?.id) || ""]
+  );
+
+  return (
+    <UserContainer style={{ flex: 1 }} disabled>
+      <ProfilePictureContainer>
+        <FontAwesome name="user" size={24} />
+      </ProfilePictureContainer>
+      <InfoContainer>
+        <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
+          <FText $size="18px" $color="#FFF" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+            {user.surname} {user.name}
+          </FText>
+          <FText $size="15px" $color="#FFF">
+            {user.email}
+          </FText>
+        </Group>
+      </InfoContainer>
+    </UserContainer>
+  );
+}

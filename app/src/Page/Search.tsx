@@ -1,42 +1,33 @@
 import { NavigationProp } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Keyboard, Platform } from "react-native";
+import { Keyboard, Platform, View } from "react-native";
 import debounce from "lodash.debounce";
 import { trpc } from "../utils/trpc";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { FText } from "../Components/FText";
-import styled from "styled-components/native"
-import { FontAwesome } from '@expo/vector-icons'; 
+import { FontAwesome } from '@expo/vector-icons';
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { addUsers } from "../store/slices/usersSlice";
 import { addChannel } from "../store/slices/channelsSlice";
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "./css/user.css";
 import { initMessages } from "../store/slices/messagesSlice";
+import { Button } from "./css/auth.css";
+import { isKeyboard } from "../hooks/isKeyboard";
+import { AndroidSearchBar, AndroidSearchBarContainer, Radio, VerticalGroup, Container, ButtonGroup, GroupedButton } from "./css/search.css";
 
 interface Props {
   navigation: NavigationProp<any>
 }
 
-const AndroidSearchBar = styled.TextInput`
-  font-size: 18px;
-  max-width: 70%;
-  width: 70%;
-  border-bottom-color: #ccc;
-  border-bottom-width: 1px;
-`
-
-const AndroidSearchBarContainer = styled.View`
-  display: flex;
-  flex-direction: row;
-  align-items: start;
-  width: 100%;
-`
-
 export default function Search({ navigation }: Props) {
-  const [showTitle, setShowTitle] = useState(true)
   const [search, setSearch] = useState("")
+  const [groupMode, setGroupMode] = useState(false)
+  const [showTitle, setShowTitle] = useState(true)
   const [isSearchEmpty, setIsSearchEmpty] = useState(true)
+  const isKeyboardShow = isKeyboard()
+  const [addedUsers, setAddedUsers] = useState<Record<number, boolean>>({})
+  const [showList, setShowList] = useState(false)
 
   const usersSearch = trpc.user.search.useQuery(search, {
     enabled: search.length > 1,
@@ -46,7 +37,8 @@ export default function Search({ navigation }: Props) {
   const retrieveUsers = trpc.user.retrieve.useMutation()
 
   const dispatch = useAppDispatch()
-  const users = useAppSelector(state => Object.keys(state.users))
+  const usersId = useAppSelector(state => Object.keys(state.users))
+  const users = useAppSelector(state => state.users)
   
   const retrieveMessages = trpc.channel.message.retrieveMessages.useMutation()
 
@@ -55,7 +47,7 @@ export default function Search({ navigation }: Props) {
       let toFetch = []
 
       for (const id of data.users) {
-        if (users.includes(id.toString())) continue
+        if (usersId.includes(id.toString())) continue
 
         toFetch.push(+id)
       }
@@ -161,27 +153,104 @@ export default function Search({ navigation }: Props) {
     });
   }, [navigation, showTitle, isSearchEmpty]);
   
-  const startChat = (id: number) => {
+  const userPress = (id: number) => {
+    if (groupMode) {
+      setAddedUsers(val => ({
+        ...val,
+        [id]: !val[id]
+      }))
+      
+      if (users[id]) return
+
+      const user = usersSearch.data?.find(user => user.id === id)
+
+      if (!user) return
+
+      return dispatch(addUsers([user]))
+    }
+
     createChannel.mutate(id)
   }
 
-  return <FlatList
-    contentInsetAdjustmentBehavior="automatic"
-    data={isSearchEmpty && Platform.OS === "android" ? [] : usersSearch.data}
-    renderItem={({ item }) => {
-      return <UserContainer onPress={() => startChat(item.id)}>
-        <ProfilePictureContainer>
-          <FontAwesome name="user" size={24}/>
-        </ProfilePictureContainer>
-        <InfoContainer>
-          <Group>
-            <FText>{item.surname} </FText>
-            <FText>{item.name}</FText>
-          </Group>
-          <FText>{item.email}</FText>
-        </InfoContainer>
-      </UserContainer>
-    }}
-    keyExtractor={item => item.id.toString()}
-  />
+  const onGroupValidate = () => {
+    createChannel.mutate(Object.keys(addedUsers).filter(id => addedUsers[+id]).map(id => +id))
+  }
+
+  return <Container $pad={!isKeyboardShow && !search ? "110px" : "53px"}>
+    {groupMode ? <ButtonGroup>
+      <GroupedButton $size={25} onPress={() => setGroupMode(false)}>
+        <FText $color="white">Annuler</FText>
+      </GroupedButton>
+      <GroupedButton $size={50} onPress={() => setShowList(val => !val)}>
+        {showList 
+          ? <FText $color="white">Cacher la liste</FText>
+          : <FText $color="white">Voir la liste</FText>
+        }
+      </GroupedButton>
+      <GroupedButton $size={25} onPress={onGroupValidate}>
+        <FText $color="white">Valider</FText>
+      </GroupedButton>
+    </ButtonGroup> : <Button onPress={() => setGroupMode(true)} containerStyle={{ padding: 16 }}>
+      <FText $color="white">Créer un groupe</FText>
+    </Button>}
+
+    {showList ? <FlatList
+        style={{
+          borderTopWidth: 1,
+          borderTopColor: "#ccc",
+        }}
+        contentInsetAdjustmentBehavior="automatic"
+        data={Object.keys(addedUsers).filter(id => addedUsers[+id])}
+        renderItem={({ item }) => <UserItem addedUsers={addedUsers} groupMode={groupMode} userPress={userPress} item={users[item]} />}
+        keyExtractor={item => item.toString()}
+      /> : <FlatList
+        style={{
+          borderTopWidth: 1,
+          borderTopColor: "#ccc",
+        }}
+        contentInsetAdjustmentBehavior="automatic"
+        data={isSearchEmpty && Platform.OS === "android" ? [] : usersSearch.data}
+        renderItem={({ item }) => <UserItem addedUsers={addedUsers} groupMode={groupMode} userPress={userPress} item={item} />}
+        keyExtractor={item => item.id.toString()}
+      />
+    }
+  </Container>
+}
+
+interface IUser {
+  id: number,
+  name: string,
+  surname: string,
+  email: string,
+}
+
+interface UserItemProps {
+  item: IUser,
+  userPress: (id: number) => void,
+  groupMode: boolean,
+  addedUsers: Record<number, boolean>,
+}
+
+function UserItem({ item, addedUsers, groupMode, userPress }: UserItemProps) {
+  return <UserContainer style={{ justifyContent: "space-between" }} onPress={() => userPress(item.id)}>
+    <VerticalGroup>
+      <ProfilePictureContainer>
+        <FontAwesome name="user" size={24} />
+      </ProfilePictureContainer>
+      <InfoContainer>
+        <Group>
+          <FText>{item.surname} </FText>
+          <FText>{item.name}</FText>
+        </Group>
+        <FText>{item.email}</FText>
+      </InfoContainer>
+    </VerticalGroup>
+    {groupMode && <VerticalGroup>
+      <Radio style={{
+        backgroundColor: addedUsers[item.id] ? "#575bfd" : undefined,
+      }}>
+        {addedUsers[item.id] && <FontAwesome name="check" color="white" size={16} />}
+      </Radio>
+    </VerticalGroup>}
+  </UserContainer>
 }
