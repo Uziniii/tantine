@@ -1,0 +1,44 @@
+{
+  "langSelect": {
+    "lang": "Français",
+    "hello": "Bonjour",
+    "sub": "Choissisez votre langue !",
+    "next": "Suivant"
+  },
+  "auth": {
+    "register": "S'enregistrer",
+    "login": "Se connecter",
+    "name": "Nom",
+    "surname": "Prénom",
+    "state": "Département ou état",
+    "city": "Ville",
+    "email": "Adresse email",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer votre mot de passe",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "error": {
+      "nameSurnameMin": "Le {} doit faire minimum 2 caractère",
+      "emailAlreadyExists": "Cette adresse email est déjà utilisée",
+      "emailInvalid": "L'adresse email est invalide",
+      "passwordMin": "Le mot de passe doit faire minimum 8 caractères",
+      "passwordNotMatch": "Les mots de passe ne correspondent pas",
+      "stateMin": "Le département ou l'état doit faire minimum 2 caractères",
+      "cityMin": "La ville doit faire minimum 2 caractères"
+    }
+  },
+  "dropdown": {
+    "search": "Rechercher",
+    "countryPlaceholder": "Pays de résidence",
+    "originCountryPlaceholder": "Pays d'origine",
+    "genderPlaceholder": "Genre",
+    "gender": [
+      "Homme",
+      "Femme",
+      "Autre"
+    ]
+  },
+  "tab": {
+    "chat": "Messages",
+    "settings": "Paramètres"
+  }
+}

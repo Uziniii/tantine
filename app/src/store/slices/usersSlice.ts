@@ -7,9 +7,11 @@ interface User {
   email: string;
 }
 
+export type UsersState = Record<number | string, User>;
+
 const usersSlice = createSlice({
   name: "users",
-  initialState: {} as Record<number | string, User>,
+  initialState: {} as UsersState,
   reducers: {
     addUsers: (state, action: PayloadAction<User[]>) => {
       for (const user of action.payload) {

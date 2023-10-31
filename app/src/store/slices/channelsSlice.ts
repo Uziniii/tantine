@@ -17,9 +17,11 @@ interface Group {
 
 export type Channel = Private | Group;
 
+export type ChannelsState = Record<number | string, Channel>
+
 const channelsSlice = createSlice({
   name: "channels",
-  initialState: {} as Record<number | string, Channel>,
+  initialState: {} as ChannelsState,
   reducers: {
     addChannel: (state, action: PayloadAction<Channel>) => {
       const channel = action.payload;
@@ -27,9 +29,19 @@ const channelsSlice = createSlice({
 
       return state;
     },
+    editGroupTitle: (state, action: PayloadAction<{ channelId: number; title: string }>) => {
+      const { channelId, title } = action.payload;
+      
+      const channel = state[channelId];
+
+      if (channel.type !== "group") return state
+
+      channel.title = title;
+      return state;
+    },
   },
 });
 
-export const { addChannel } = channelsSlice.actions;
+export const { addChannel, editGroupTitle } = channelsSlice.actions;
 
 export default channelsSlice.reducer;

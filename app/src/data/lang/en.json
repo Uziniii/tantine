@@ -1,0 +1,44 @@
+{
+  "langSelect": {
+    "lang": "English",
+    "hello": "Hello",
+    "sub": "Choose your language !",
+    "next": "Next"
+  },
+  "auth": {
+    "register": "Register",
+    "login": "Login",
+    "name": "Name",
+    "surname": "Surname",
+    "state": "State or department",
+    "city": "City",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "alreadyHaveAccount": "Already have an account?",
+    "error": {
+      "nameSurnameMin": "The {} must be at least 2 characters long",
+      "emailAlreadyExists": "The email already exists",
+      "emailInvalid": "The email is invalid",
+      "passwordMin": "The password must be at least 8 characters long",
+      "passwordNotMatch": "The password confirmation does not match",
+      "stateMin": "The state or department must be at least 2 characters long",
+      "cityMin": "The city must be at least 2 characters long"
+    }
+  },
+  "dropdown": {
+    "search": "Search",
+    "countryPlaceholder": "Country of residence",
+    "originCountryPlaceholder": "Country of origin",
+    "genderPlaceholder": "Gender",
+    "gender": [
+      "Man",
+      "Woman",
+      "Other"
+    ]
+  },
+  "tab": {
+    "chat": "Chat",
+    "settings": "Settings"
+  }
+}
