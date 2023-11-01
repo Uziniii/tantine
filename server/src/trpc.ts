@@ -128,3 +128,34 @@ export const userIsInChannel = protectedProcedure
       },
     });
   })
+
+export const userIsAuthorOrAdmin = userIsInChannel
+  .use(async ({ ctx, input, next }) => {
+    const channel = await ctx.prisma.channel.findUnique({
+      where: {
+        id: +input.channelId,
+      },
+      select: {
+        group: {
+          select: {
+            authorId: true,
+          }
+        }
+      }
+    })
+
+    if (!channel) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+
+    if (channel.group?.authorId !== ctx.user.id) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    return next({
+      ctx: {
+        prisma,
+        user: ctx.user,
+      },
+    });
+  });

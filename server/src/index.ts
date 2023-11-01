@@ -4,7 +4,6 @@ import cors from "cors"
 import dotenv from "dotenv"
 import { userRouter } from "./router/user";
 import { channelRouter } from "./router/channel";
-import { ev } from "./ws"
 
 dotenv.config()
 
@@ -28,7 +27,3 @@ const server = createHTTPServer({
 
 server.listen(3000);
 console.log("Server started");
-
-// setInterval(() => {
-//   ev.emit("message", "Hello")
-// }, 1000)

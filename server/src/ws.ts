@@ -2,9 +2,11 @@ import { EventEmitter, Server } from "ws"
 import { prisma } from "./db";
 import { decode } from "jsonwebtoken";
 import { Payload, verifyJwtToken } from "./jwt";
-import { messageEvent } from "./events/message";
-import { IMapUser, messageSchema } from "./events/schema";
+import { createMessageEvent } from "./events/message";
+import { IMapUser, messageSchema, newGroupTitleSchema } from "./events/schema";
 import z from "zod"
+import { sendFactory } from "./helpers/event";
+import { newGroupTitleEvent } from "./events/channel";
 
 const users = new Map<string, IMapUser>()
 const idToTokens = new Map<string, Set<string>>()
@@ -84,6 +86,22 @@ wss.on("connection", async (ws) => {
       idToTokens.set(user.id.toString(), tokens.add(token));
     }
 
+    ws.once("close", () => {
+      users.delete(token);
+      
+      const tokens = idToTokens.get(user.id.toString())
+      
+      if (!tokens) return
+
+      tokens.delete(token)
+
+      if (tokens.size === 0) {
+        return idToTokens.delete(user.id.toString())
+      }
+      
+      idToTokens.set(user.id.toString(), tokens)
+    })
+
     users.set(token, {
       id: user.id,
       ws,
@@ -117,13 +135,26 @@ process.on("SIGTERM", () => {
   wss.close();
 });
 
+const sendToIds = sendFactory(idToTokens, users);
+
 export const ev = new EventEmitter()
 
 ev.on(
   "createMessage",
-  (message: z.infer<typeof messageSchema>) => messageEvent({
+  (message: z.infer<typeof messageSchema>) => createMessageEvent({
     payload: message,
     users,
     idToTokens,
+    sendToIds,
+  })
+);
+
+ev.on(
+  "newGroupTitle",
+  (payload: z.infer<typeof newGroupTitleSchema>) => newGroupTitleEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
   })
 );

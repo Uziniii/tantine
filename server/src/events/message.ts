@@ -2,10 +2,9 @@ import { prisma } from '../db';
 import { Args, messageSchema } from './schema';
 import z from "zod"
 
-export const messageEvent = async ({
+export const createMessageEvent = async ({
   payload,
-  users,
-  idToTokens,
+  sendToIds
 }: Args<z.infer<typeof messageSchema>>) => {
   const channel = await prisma.channel.findUnique({
     where: {
@@ -28,19 +27,9 @@ export const messageEvent = async ({
 
   if (!channel) return;
 
-  for (const user of channel.users) {
-    const tokens = idToTokens.get(user.id.toString());
-
-    if (!tokens) continue;
-
-    for (const token of tokens) {
-      users.get(token)?.ws.send(
-        JSON.stringify({
-          event: "createMessage",
-          payload,
-        }),
-        (e) => console.error(e)
-      );
-    }
-  }
+  sendToIds(
+    channel.users.map((user) => user.id),
+    "createMessage",
+    payload
+  )
 };
