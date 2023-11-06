@@ -20,6 +20,18 @@ const countryType = z.union(
 const trimMin = z.string().trim().min(2);
 const genderType = z.union([z.literal(1), z.literal(2), z.literal(3)])
 
+const user = z.object({
+  id: z.number(),
+  email: z.string().email(),
+  name: z.string(),
+  surname: z.string(),
+  gender: z.number(),
+  country: countryType,
+  state: z.string(),
+  city: z.string(),
+  origin: countryType,
+});
+
 export const userRouter = router({
   create: publicProcedure
     .input(
@@ -127,16 +139,7 @@ export const userRouter = router({
 
   search: protectedProcedure
     .input(z.string().min(2))
-    .output(
-      z.array(
-        z.object({
-          id: z.number(),
-          email: z.string().email(),
-          name: z.string(),
-          surname: z.string(),
-        })
-      )
-    )
+    .output(z.array(user))
     .query(async ({ ctx, input }) => {
       ev.emit("message", "Hello");
 
@@ -168,6 +171,11 @@ export const userRouter = router({
           email: true,
           name: true,
           surname: true,
+          gender: true,
+          country: true,
+          state: true,
+          city: true,
+          origin: true,
         },
       });
 
@@ -176,21 +184,7 @@ export const userRouter = router({
 
   retrieve: protectedProcedure
     .input(z.array(z.number()))
-    .output(
-      z.array(
-        z.object({
-          id: z.number(),
-          email: z.string().email(),
-          name: z.string(),
-          surname: z.string(),
-          gender: z.number(),
-          country: countryType,
-          state: z.string(),
-          city: z.string(),
-          origin: countryType,
-        })
-      )
-    )
+    .output(z.array(user))
     .mutation(async ({ ctx, input }) => {
       const users = await ctx.prisma.user.findMany({
         where: {
@@ -213,4 +207,23 @@ export const userRouter = router({
 
       return users;
     }),
+
+  me: protectedProcedure
+    .query(async ({ ctx }) => {
+      const user = await ctx.prisma.user.findUnique({
+        where: {
+          id: ctx.user.id,
+        },
+        select: {
+          id: true,
+          name: true,
+          surname: true,
+          email: true,
+        }
+      })
+
+      if (!user) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return user;
+    })
 });

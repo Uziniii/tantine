@@ -16,6 +16,7 @@
     "password": "Mot de passe",
     "confirmPassword": "Confirmer votre mot de passe",
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "back": "Retour",
     "error": {
       "nameSurnameMin": "Le {} doit faire minimum 2 caractère",
       "emailAlreadyExists": "Cette adresse email est déjà utilisée",
@@ -40,5 +41,25 @@
   "tab": {
     "chat": "Messages",
     "settings": "Paramètres"
+  },
+  "route": {
+    "info": "Informations",
+    "edit": "Modifier le groupe",
+    "manageMember": "Gérer un membre"
+  },
+  "search": {
+    "search": "Rechercher",
+    "cancel": "Annuler",
+    "confirm": "Valider",
+    "hideList": "Cacher la liste",
+    "showList": "Voir la liste",
+    "createGroup": "Créer un groupe"
+  },
+  "groupLookup": {
+    "member": "membre"
+  },
+  "memberLookup": {
+    "remove": "Retirer du groupe",
+    "sendMessage": "Envoyer un message"
   }
 }

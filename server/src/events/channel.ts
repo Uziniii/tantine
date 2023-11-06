@@ -1,11 +1,10 @@
 import { prisma } from "../db";
 import { ev } from "../ws";
-import { Args, newGroupTitleSchema } from "./schema";
+import { Args, newGroupTitleSchema, removeMemberSchema } from "./schema";
 import z from "zod"
 
 export const newGroupTitleEvent = async ({
   payload,
-  idToTokens,
   sendToIds,
 }: Args<z.infer<typeof newGroupTitleSchema>>) => {
   const message = await prisma.message.create({
@@ -20,11 +19,52 @@ export const newGroupTitleEvent = async ({
     },
   });
 
+  const channel = await prisma.channel.findUnique({
+    where: {
+      id: +payload.channelId,
+    },
+    select: {
+      users: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
   ev.emit("createMessage", {
-    payload: {
-      
-    }
+    channelId: payload.channelId,
+    authorId: null,
+    content: message.content,
+    id: message.id,
+    system: message.system,
+    createdAt: message.createdAt,
+    updatedAt: message.updatedAt,
   })
 
-  sendToIds(Array.from(idToTokens.keys()), "editGroupTitle", payload);
+  if (!channel) return;
+
+  sendToIds(channel.users.map(({ id }) => id), "editGroupTitle", payload);
 };
+
+export const removeMemberEvent = async ({
+  payload,
+  sendToIds,
+}: Args<z.infer<typeof removeMemberSchema>>) => {
+  const channel = await prisma.channel.findUnique({
+    where: {
+      id: +payload.channelId,
+    },
+    select: {
+      users: {
+        select: {
+          id: true
+        }
+      },
+    },
+  });
+
+  if (!channel) return;
+
+  sendToIds(channel.users.map(({ id }) => id), "removeMember", payload);
+}

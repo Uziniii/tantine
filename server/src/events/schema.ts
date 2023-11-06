@@ -8,10 +8,15 @@ export const newGroupTitleSchema = z.object({
   title: z.string().trim().min(2).max(50),
   channelId: z.number(),
 })
+export const removeMemberSchema = z.object({
+  channelId: z.string(),
+  memberId: z.number()
+})
 
 const allSchema = z.union([
   messageSchema,
-  newGroupTitleSchema
+  newGroupTitleSchema,
+  removeMemberSchema
 ]);
 
 export interface IMapUser {

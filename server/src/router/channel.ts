@@ -43,7 +43,10 @@ export const channelRouter = router({
     .output(createChannelOutput)
     .mutation(async ({ ctx, input }) => {
       if (input === ctx.user.id)
-        throw new Error("You can't create a channel with yourself");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You can't create a channel with yourself"
+        });
 
       if (isPrivateOrGroup(input)) {
         let channel = await ctx.prisma.channel.findFirst({
@@ -58,11 +61,6 @@ export const channelRouter = router({
           },
           select: {
             id: true,
-            users: {
-              select: {
-                id: true,
-              },
-            },
             private: true,
           },
         });
@@ -71,7 +69,7 @@ export const channelRouter = router({
           return {
             type: "private",
             id: channel.id,
-            users: channel.users.map((user) => user.id),
+            users: [ctx.user.id, input],
           };
 
         channel = await ctx.prisma.channel.create({
@@ -85,14 +83,6 @@ export const channelRouter = router({
           },
           select: {
             id: true,
-            users: {
-              select: {
-                id: true,
-                name: true,
-                surname: true,
-                email: true,
-              },
-            },
             private: true,
           },
         });
@@ -100,7 +90,7 @@ export const channelRouter = router({
         return {
           type: "private",
           id: channel.id,
-          users: channel.users.map((user) => user.id),
+          users: [ctx.user.id, input],
         };
       }
 
@@ -129,11 +119,6 @@ export const channelRouter = router({
               authorId: true,
             },
           },
-          users: {
-            select: {
-              id: true,
-            },
-          },
           id: true,
         },
       });
@@ -151,7 +136,7 @@ export const channelRouter = router({
       return {
         type: "group",
         id: channel.id,
-        users: channel.users.map((user) => user.id),
+        users: [ctx.user.id, ...input],
         title: channel.group.title,
         description: channel.group.description,
         authorId: channel.group.authorId,
@@ -179,7 +164,7 @@ export const channelRouter = router({
             in: ids.map((id) => id.channelId),
           },
         },
-        include: {
+        select: {
           group: true,
           private: true,
           users: {
@@ -187,6 +172,7 @@ export const channelRouter = router({
               id: true,
             },
           },
+          id: true,
         },
       });
 

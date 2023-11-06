@@ -14,8 +14,8 @@ export default function UserLookup () {
       <FontAwesome name="user" size={50} color="black" />
     </ProfilePictureContainer>
     <Group>
-      <FText $size="24px">{user.surname} {user.name}</FText>
-      <FText $size="16px">{user.email}</FText>
+      <FText $color="white" $size="24px">{user.surname} {user.name}</FText>
+      <FText $color="white" $size="16px">{user.email}</FText>
     </Group>
   </Container>
 }

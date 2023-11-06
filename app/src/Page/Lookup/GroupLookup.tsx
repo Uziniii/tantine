@@ -8,12 +8,14 @@ import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { View } from "react-native";
 import { useLayoutEffect } from "react";
+import { langData } from "../../data/lang/lang";
 
 interface Props {
   navigation: NavigationProp<any>
 }
 
 export default function GroupLookup({ navigation }: Props) {
+  const lang = useAppSelector(state => langData[state.language].groupLookup)
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const group = useAppSelector(state => state.channels[route.params.id])
   const me = useAppSelector(state => state.me)
@@ -35,7 +37,10 @@ export default function GroupLookup({ navigation }: Props) {
   if (group.type !== "group" || me === null) return null
 
   const onUserPress = (id: number) => {
-    
+    navigation.navigate("memberLookup", { 
+      id: id.toString(), 
+      channelId: route.params.id
+    })
   }
   
   return <>
@@ -44,8 +49,8 @@ export default function GroupLookup({ navigation }: Props) {
         <FontAwesome name="group" size={50} color="black" />
       </ProfilePictureContainer>
       <Group>
-        <FText $size="24px">{group.title}</FText>
-        <FText $size="16px">{group.users.length} membres</FText>
+        <FText $color="white" $size="24px">{group.title}</FText>
+        <FText $color="white" $size="16px">{group.users.length} {group.users.length <= 1 ? lang.member : `${lang.member}s`}</FText>
       </Group>
     </Container>
     <FlatList
@@ -62,7 +67,7 @@ export default function GroupLookup({ navigation }: Props) {
       }}
       keyExtractor={item => item.toString()}
     />
-  </> 
+  </>
 }
 
 interface UserProps {
@@ -77,8 +82,8 @@ function User ({ item }: UserProps) {
       <FontAwesome name="user" size={24} />
     </ProfilePictureContainer>
     <InfoContainer>
-      <FText $size="18px" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{user.surname} {user.name}</FText>
-      <FText>{user.email}</FText>
+      <FText $color="white" $size="18px" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{user.surname} {user.name}</FText>
+      <FText $color="white">{user.email}</FText>
     </InfoContainer>
   </UserContainer>
 }

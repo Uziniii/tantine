@@ -6,7 +6,7 @@ import { TextInput as DefaultTextInput } from "react-native-gesture-handler"
 
 export const showError = (error: { error?: string | null } | undefined) => {
   return error?.error
-  ? <FText>{error.error}</FText>
+  ? <FText $color="white">{error.error}</FText>
   : <></>
 }
 

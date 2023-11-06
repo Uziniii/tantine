@@ -1,6 +1,6 @@
 import { NavigationProp } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Keyboard, Platform, View } from "react-native";
+import { Keyboard, Platform } from "react-native";
 import debounce from "lodash.debounce";
 import { trpc } from "../utils/trpc";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
@@ -15,12 +15,16 @@ import { initMessages } from "../store/slices/messagesSlice";
 import { Button } from "./css/auth.css";
 import { isKeyboard } from "../hooks/isKeyboard";
 import { AndroidSearchBar, AndroidSearchBarContainer, Radio, VerticalGroup, Container, ButtonGroup, GroupedButton } from "./css/search.css";
+import { addPosition } from "../store/slices/notificationSlice";
+import { langData } from "../data/lang/lang";
 
 interface Props {
   navigation: NavigationProp<any>
 }
 
 export default function Search({ navigation }: Props) {
+  const lang = useAppSelector(state => langData[state.language].search)
+
   const [search, setSearch] = useState("")
   const [groupMode, setGroupMode] = useState(false)
   const [showTitle, setShowTitle] = useState(true)
@@ -75,6 +79,8 @@ export default function Search({ navigation }: Props) {
         }))
       }
 
+      dispatch(addPosition(data.id))
+
       const messages = (await retrieveMessages.mutateAsync({
         channelId: +data.id
       })).map(message => ({
@@ -107,7 +113,7 @@ export default function Search({ navigation }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerSearchBarOptions: Platform.OS === "ios" ? {
-        placeholder: "Rechercher",
+        placeholder: lang.search,
         onChangeText: ({ nativeEvent: { text } }: { nativeEvent: { text: string } }) => {
           debouncedResults(text)
         },
@@ -121,7 +127,7 @@ export default function Search({ navigation }: Props) {
             return <AndroidSearchBarContainer>
               <AndroidSearchBar
                 autoFocus={true}
-                placeholder="Rechercher"
+                placeholder={lang.search}
                 onChangeText={text => {
                   debouncedResults(text)
                   setIsSearchEmpty(text === "")
@@ -140,7 +146,7 @@ export default function Search({ navigation }: Props) {
           font={[Montserrat_700Bold, "Montserrat_700Bold"]}
           $size='24px'
         >
-          Rechercher
+          {lang.search}
         </FText>
       },
       headerRight: Platform.OS === "android" ? () => {
@@ -179,19 +185,19 @@ export default function Search({ navigation }: Props) {
   return <Container $pad={!isKeyboardShow && !search ? "110px" : "53px"}>
     {groupMode ? <ButtonGroup>
       <GroupedButton $size={25} onPress={() => setGroupMode(false)}>
-        <FText $color="white">Annuler</FText>
+        <FText $color="white">{lang.cancel}</FText>
       </GroupedButton>
       <GroupedButton $size={50} onPress={() => setShowList(val => !val)}>
         {showList 
-          ? <FText $color="white">Cacher la liste</FText>
-          : <FText $color="white">Voir la liste</FText>
+          ? <FText $color="white">{lang.hideList}</FText>
+          : <FText $color="white">{lang.showList}</FText>
         }
       </GroupedButton>
       <GroupedButton $size={25} onPress={onGroupValidate}>
-        <FText $color="white">Valider</FText>
+        <FText $color="white">{lang.confirm}</FText>
       </GroupedButton>
     </ButtonGroup> : <Button onPress={() => setGroupMode(true)} containerStyle={{ padding: 16 }}>
-      <FText $color="white">Créer un groupe</FText>
+      <FText $color="white">{lang.createGroup}</FText>
     </Button>}
 
     {showList ? <FlatList

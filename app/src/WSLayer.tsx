@@ -17,10 +17,15 @@ export default function WSLayer({ children }: PropsWithChildren) {
 
   const { sendJsonMessage } = useWebSocket(`ws://${host}:3001/${me?.token}`, {
     onOpen() {
+      console.log("WS OPEN")
+
       sendJsonMessage({
         event: "init",
         payload: me?.token
       })
+    },
+    onClose(event) {
+      console.log(event)
     },
     onError(event) {
       console.log(event)
@@ -28,9 +33,8 @@ export default function WSLayer({ children }: PropsWithChildren) {
     shouldReconnect: () => true,
     async onMessage(ev: MessageEvent<string>) {
       let event = allSchemaEvent.safeParse(JSON.parse(ev.data));
-      console.log(event);
 
-      if (!event.success) return
+      if (!event.success || me === null) return
 
       const { payload } = event.data
 
@@ -45,8 +49,9 @@ export default function WSLayer({ children }: PropsWithChildren) {
           users,
           fetchChannel,
           fetchUsers,
+          me,
         }),
-        "newGroupTitle": newGroupTitleEventFactory({
+        "editGroupTitle": newGroupTitleEventFactory({
           dispatch,
         })
       } as const
@@ -59,7 +64,7 @@ export default function WSLayer({ children }: PropsWithChildren) {
     },
     heartbeat: {
       message: "ping",
-      interval: 25000,
+      interval: 5000,
     }
   });
 

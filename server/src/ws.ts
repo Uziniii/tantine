@@ -3,10 +3,10 @@ import { prisma } from "./db";
 import { decode } from "jsonwebtoken";
 import { Payload, verifyJwtToken } from "./jwt";
 import { createMessageEvent } from "./events/message";
-import { IMapUser, messageSchema, newGroupTitleSchema } from "./events/schema";
+import { IMapUser, messageSchema, newGroupTitleSchema, removeMemberSchema } from "./events/schema";
 import z from "zod"
 import { sendFactory } from "./helpers/event";
-import { newGroupTitleEvent } from "./events/channel";
+import { newGroupTitleEvent, removeMemberEvent } from "./events/channel";
 
 const users = new Map<string, IMapUser>()
 const idToTokens = new Map<string, Set<string>>()
@@ -116,6 +116,8 @@ wss.on("connection", async (ws) => {
 const interval = setInterval(function ping() {
   wss.clients.forEach(function each(ws) {
     if ((ws as any).isAlive === false) {
+      console.log("❌ Terminating");
+      
       return ws.terminate();
     }
 
@@ -158,3 +160,13 @@ ev.on(
     sendToIds,
   })
 );
+
+ev.on(
+  "removeMember",
+  (payload: z.infer<typeof removeMemberSchema>) => removeMemberEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+)

@@ -5,6 +5,11 @@ interface User {
   name: string;
   surname: string;
   email: string;
+  country: string;
+  city: string;
+  state: string;
+  origin: string;
+  gender: number;
 }
 
 export type UsersState = Record<number | string, User>;

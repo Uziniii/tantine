@@ -23,6 +23,7 @@ import { addUsers } from "../store/slices/usersSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
 import styled from "styled-components/native";
+import { setPositions } from "../store/slices/notificationSlice";
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +41,10 @@ export default function ChannelList({ navigation }: Props) {
   const channels = trpc.channel.retrieveRecentChannel.useQuery(undefined, {
     staleTime: 0,
   });
+  const meQuery = trpc.user.me.useQuery(undefined, {
+    staleTime: 0,
+  })
+  const me = useAppSelector((state) => state.me);
   const users = useAppSelector((state) => state.users);
   const [isLoading, setIsLoading] = useState(true);
   const fetchUsers = trpc.user.retrieve.useMutation({
@@ -48,10 +53,11 @@ export default function ChannelList({ navigation }: Props) {
       setIsLoading(false);
     },
   });
-  const isMe = useAppSelector((state) => state.me !== null);
 
   useEffect(() => {
     if (!isLoading || !channels.data) return;
+
+    dispatch(setPositions(channels.data.map((channel) => channel.id)));
 
     const toFetch: number[] = [];
 
@@ -78,7 +84,7 @@ export default function ChannelList({ navigation }: Props) {
   });
 
   useEffect(() => {
-    if (isMe) return;
+    if (me !== null) return;
 
     AsyncStorage.getItem("token").then((token) => {
       if (token) {
@@ -90,7 +96,14 @@ export default function ChannelList({ navigation }: Props) {
         );
       }
     });
-  }, []);
+
+    if (meQuery.data) {
+      dispatch(set({
+        ...me,
+        ...meQuery.data,
+      }));
+    }
+  }, [meQuery]);
 
   if (isLoading) return <></>;
 
@@ -117,7 +130,9 @@ const Container = styled.View`
 `
 
 function List() {
-  const channels = useAppSelector((state) => Object.values(state.channels));
+  const channels = useAppSelector((state) => {
+    return state.notification.positions.map(id => state.channels[id])
+  });
   const me = useAppSelector((state) => state.me);
   const navigation = useNavigation<any>();
 
@@ -157,6 +172,7 @@ function ChannelItem({ item, me }: ChannelProps) {
         <InfoContainer>
           <Group style={{ height: "100%" }}>
             <FText
+              $color="#FFF"
               $size="18px"
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             >

@@ -8,10 +8,15 @@ import { FText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import GroupLookup from "../Page/Lookup/GroupLookup";
 import EditGroup from "../Page/Lookup/Group/EditGroup";
+import MemberLookup from "../Page/Lookup/Group/MemberLookup";
+import { useAppSelector } from "../store/store";
+import { langData } from "../data/lang/lang";
 
 const Stack = createNativeStackNavigator();
 
 export default function AllRoute () {
+  const lang = useAppSelector(state => langData[state.language].route)
+
   return <Stack.Navigator
     initialRouteName='home'
   >
@@ -47,7 +52,7 @@ export default function AllRoute () {
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
           >
-            Informations
+            {lang.info}
           </FText>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
@@ -64,7 +69,7 @@ export default function AllRoute () {
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
           >
-            Informations
+            {lang.info}
           </FText>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
@@ -81,7 +86,24 @@ export default function AllRoute () {
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
           >
-            Modifier
+            {lang.edit}
+          </FText>
+        },
+        animation: Platform.OS === "android" ? "slide_from_right" : "default"
+      }}
+    />
+    <Stack.Screen
+      name="memberLookup"
+      component={MemberLookup}
+      options={{
+        headerBackTitleVisible: false,
+        headerTitleAlign: "center",
+        headerTitle() {
+          return <FText
+            font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+            $size={"24px"}
+          >
+            {lang.manageMember}
           </FText>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"

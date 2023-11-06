@@ -1,8 +1,8 @@
-import { editGroupTitle } from "../slices/channelsSlice";
-import { useAppDispatch } from "../store";
+import { editGroupTitle, removeMember } from "../slices/channelsSlice";
+import { AppDispatch } from "../store";
 
 interface NewGroupTitleProps {
-  dispatch: ReturnType<typeof useAppDispatch>
+  dispatch: AppDispatch
 }
 
 export function newGroupTitleEventFactory ({
@@ -12,6 +12,23 @@ export function newGroupTitleEventFactory ({
     title: string;
     channelId: number;
   }) {
+    console.log(payload);
+    
     dispatch(editGroupTitle(payload));
+  }
+}
+
+interface RemoveMemberProps {
+  dispatch: AppDispatch
+}
+
+export function removeMemberEventFactory ({
+  dispatch
+}: RemoveMemberProps) {
+  return function event(payload: {
+    memberId: number;
+    channelId: string;
+  }) {
+    dispatch(removeMember(payload))
   }
 }

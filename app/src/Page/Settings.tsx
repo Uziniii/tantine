@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Button, View } from "react-native";
-import { store, useAppDispatch, useAppSelector } from "../store/store";
-import { setLogin } from "../store/slices/loginSlice";
+import { useAppDispatch, useAppSelector } from "../store/store";
 import { FText } from "../Components/FText";
 import { Container, Group } from "./css/lookup.css";
 import { ProfilePictureContainer } from "./css/user.css";

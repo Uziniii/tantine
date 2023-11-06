@@ -39,9 +39,26 @@ const channelsSlice = createSlice({
       channel.title = title;
       return state;
     },
+    removeMember: (
+      state,
+      action: PayloadAction<{
+        channelId: string;
+        memberId: number
+      }>
+    ) => {
+      const { channelId, memberId } = action.payload;
+
+      const channel = state[channelId];
+
+      if (channel.type !== "group") return state;
+
+      channel.users = channel.users.filter((id) => id !== memberId);
+
+      return state;
+    }
   },
 });
 
-export const { addChannel, editGroupTitle } = channelsSlice.actions;
+export const { addChannel, editGroupTitle, removeMember } = channelsSlice.actions;
 
 export default channelsSlice.reducer;

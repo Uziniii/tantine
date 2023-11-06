@@ -77,13 +77,10 @@ export default function Channel ({ navigation }: Props) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-
       headerShadowVisible: false,
-    
       headerStyle: {
         backgroundColor: '#1C202C'
       },
-
       headerTitle() {
         return <TitleContainer onPress={onTitlePress}>
           <ProfilePictureContainer $size="36px">
@@ -122,6 +119,8 @@ export default function Channel ({ navigation }: Props) {
       channelId: +route.params.id,
     })
   })
+
+  if (retrieveMessages.status === "loading") return null
 
   const onSend = (content: string, createdAt: Date | number) => {
     if (content.length === 0) {

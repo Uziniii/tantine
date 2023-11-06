@@ -14,7 +14,7 @@ const green = "#22c954"
 const LangButton = styled.TouchableOpacity<{ $borderColor?: boolean }>`
   background: white;
   width: 65%;
-  padding: 8px;
+  padding: 10px;
   border: 1px solid ${props => (props.$borderColor && green) || "#DADBDD"};
   border-radius: 8px;
   color: black;
@@ -25,16 +25,16 @@ const LangButton = styled.TouchableOpacity<{ $borderColor?: boolean }>`
   margin-top: 8px;
 `
 
-export const Button = styled.TouchableOpacity<{ $width?: string }>`
+export const NextButton = styled.TouchableOpacity<{ $width?: string }>`
   width: ${({ $width }) => $width || "100%"};
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
-  background: #1C202C;
+  background: #2A2F3E;
   border-radius: 8px;
   margin-top: 8px;
-  padding: 10px;
+  padding: 12px;
 `;
 
 interface Props {
@@ -67,9 +67,9 @@ export default function LangSelect ({ navigation }: Props) {
         {lc === langCode && <FontAwesome name="check-circle" size={20} color={green} />}
       </LangButton>
     })}
-    <Button onPress={onContinue} $width="65%">
+    <NextButton onPress={onContinue} $width="65%">
       <FText $color="white" >{lang.next}</FText>
       <FontAwesome name="arrow-right" size={16} color={"white"} />
-    </Button>
+    </NextButton>
   </Container>
 }
