@@ -24,6 +24,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
 import styled from "styled-components/native";
 import { setPositions } from "../store/slices/notificationSlice";
+import CreateGroup from "../Components/CreateGroup";
 
 const Stack = createNativeStackNavigator();
 
@@ -98,10 +99,10 @@ export default function ChannelList({ navigation }: Props) {
     });
 
     if (meQuery.data) {
-      dispatch(set({
-        ...me,
-        ...meQuery.data,
-      }));
+      // dispatch(set({
+      //   ...me,
+      //   ...meQuery.data,
+      // }));
     }
   }, [meQuery]);
 
@@ -120,12 +121,12 @@ export default function ChannelList({ navigation }: Props) {
 
 const Container = styled.View`
   height: 100%;
-  background-color: #282C3B;
+  background-color: red;
   border-top-right-radius: 50px;
   border-top-left-radius: 50px;
   position: fixed;
   bottom: 0;
-  margin: 30px 0 0 0;
+  margin: 30px 0 20px 0;
   padding: 20px 10px 0 10px;
 `
 
@@ -153,7 +154,8 @@ function List() {
         );
       }}
       keyExtractor={(item) => item.id.toString()}
-    />
+      />
+      <CreateGroup/>
   </Container>
 }
 

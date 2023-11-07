@@ -146,35 +146,48 @@ export const channelRouter = router({
   retrieveRecentChannel: protectedProcedure
     .output(channelsList)
     .query(async ({ ctx }) => {
-      const ids = await ctx.prisma.message.groupBy({
-        by: ["channelId"],
-        where: {
-          authorId: ctx.user.id,
-        },
-        orderBy: {
-          _max: {
-            createdAt: "desc",
-          },
-        },
-      });
-
       const channels = await ctx.prisma.channel.findMany({
         where: {
-          id: {
-            in: ids.map((id) => id.channelId),
+          users: {
+            some: {
+              id: ctx.user.id,
+            },
           },
         },
-        select: {
-          group: true,
-          private: true,
+        include: {
+          messages: {
+            select: {
+              createdAt: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+            take: 1,
+          },
           users: {
             select: {
               id: true,
-            },
+            }
           },
-          id: true,
+          group: {
+            select: {
+              title: true,
+              description: true,
+              authorId: true,
+            }
+          },
+          private: {
+            select: {
+              id: true,
+            }
+          }
         },
       });
+      
+      console.log(channels);
+      
+
+      if (!channels) return []
 
       return channels.map((channel) => {
         const { group, private: channelPrivate } = channel;
