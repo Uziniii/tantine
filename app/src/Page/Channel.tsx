@@ -25,6 +25,11 @@ const TitleContainer = styled(TouchableWithoutFeedback)`
   padding-bottom: 8px;
 `
 
+const Wrapper = styled.View`
+  flex: 1;
+  background-color: white;
+`
+
 function isMessageSystem(message: Message): message is Message & { system: true } {
   return Boolean(message.system)
 }
@@ -79,7 +84,7 @@ export default function Channel ({ navigation }: Props) {
     navigation.setOptions({
       headerShadowVisible: false,
       headerStyle: {
-        backgroundColor: '#1C202C'
+        backgroundColor: '#FFF',
       },
       headerTitle() {
         return <TitleContainer onPress={onTitlePress}>
@@ -89,7 +94,7 @@ export default function Channel ({ navigation }: Props) {
           <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
-            $color="#FFF"
+            $color="#000"
           >
             {title}
           </FText>
@@ -150,8 +155,9 @@ export default function Channel ({ navigation }: Props) {
     })
   }
 
-  return <>
+  return <Wrapper>
     <GiftedChat
+      
       renderBubble={(props) => {
         let sumChars = 0;
         if (props.position === "left") {
@@ -207,5 +213,5 @@ export default function Channel ({ navigation }: Props) {
       renderUsernameOnMessage={true}
     />
     <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "white" }}></View>
-  </>
+  </Wrapper>
 }

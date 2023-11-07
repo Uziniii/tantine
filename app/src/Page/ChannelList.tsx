@@ -25,6 +25,7 @@ import jwtDecode from "jwt-decode";
 import styled from "styled-components/native";
 import { setPositions } from "../store/slices/notificationSlice";
 import CreateGroup from "../Components/CreateGroup";
+import { langData } from "../data/lang/lang";
 
 const Stack = createNativeStackNavigator();
 
@@ -121,12 +122,12 @@ export default function ChannelList({ navigation }: Props) {
 
 const Container = styled.View`
   height: 100%;
-  background-color: red;
+  background-color: white;
   border-top-right-radius: 50px;
   border-top-left-radius: 50px;
   position: fixed;
   bottom: 0;
-  margin: 30px 0 20px 0;
+  //margin: 50px 0 0 0;
   padding: 20px 10px 0 10px;
 `
 
@@ -165,26 +166,8 @@ interface ChannelProps {
 }
 
 function ChannelItem({ item, me }: ChannelProps) {
-  if (item.type === "group") {
-    return (
-      <UserContainer style={{ flex: 1 }} disabled>
-        <ProfilePictureContainer>
-          <FontAwesome name="group" size={24} />
-        </ProfilePictureContainer>
-        <InfoContainer>
-          <Group style={{ height: "100%" }}>
-            <FText
-              $color="#FFF"
-              $size="18px"
-              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-            >
-              {item.title}
-            </FText>
-          </Group>
-        </InfoContainer>
-      </UserContainer>
-    );
-  }
+  const notification = useAppSelector((state) => state.notification.notifications[item.id]);
+  const lang = useAppSelector(state => langData[state.language].groupLookup);
 
   const user = useAppSelector(
     (state) => state.users[item.users.find((id) => id !== me?.id) || ""]
@@ -196,13 +179,19 @@ function ChannelItem({ item, me }: ChannelProps) {
         <FontAwesome name="user" size={24} />
       </ProfilePictureContainer>
       <InfoContainer>
-        <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
-          <FText $size="18px" $color="#FFF" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
-            {user.surname} {user.name}
+        <Group>
+          <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
+            <FText $size="18px" $color="#202E44" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+              {item.type === "group" ? item.title : `${user.surname} ${user.name}`}
+            </FText>
+            <FText $size="15px" $color="#202E44">
+              {item.type === "group" ? `${item.users.length} ${lang.member}` : user.email}
+            </FText>
+          </Group>
+          <Group>
+            <FText>{notification}
           </FText>
-          <FText $size="15px" $color="#FFF">
-            {user.email}
-          </FText>
+          </Group>
         </Group>
       </InfoContainer>
     </UserContainer>

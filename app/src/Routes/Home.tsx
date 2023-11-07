@@ -9,8 +9,19 @@ import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ChannelList from "../Page/ChannelList";
 import Settings from "../Page/Settings";
+import styled from "styled-components/native"
 
 const Tab = createBottomTabNavigator();
+
+const ButtonSearch = styled(TouchableOpacity)`
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: #334055;
+  display: flex;
+  align-items: center;
+  justify-content:center;
+`
 
 export function Home() {
   const lang = useAppSelector(state => langData[state.language].tab)
@@ -20,11 +31,12 @@ export function Home() {
     tabBarStyle: {
       height: '10%',
       paddingBottom: 16,
-      backgroundColor: '#1B202D',
+      backgroundColor: '#202E44',
       borderTopWidth: 0
     },
     headerStyle: {
-      backgroundColor: "#1B202D",
+      backgroundColor: "#202E44",
+      height: 150
     },
   }}>
     <Tab.Screen
@@ -38,11 +50,11 @@ export function Home() {
         tabBarLabel() {
           return <FText $color='#FFFF' $size='12px'>{lang.chat}</FText>
         },
+        // headerTitle() {
+        //   return <></>
+        // },
         headerTitle() {
-          return <></>
-        },
-        headerLeft() {
-          return <View style={{ marginLeft: 16 }}>
+          return <View style={{ marginLeft: 16}}>
             <FText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"25px"}
@@ -56,9 +68,9 @@ export function Home() {
           const navigation = useNavigation()
 
           return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginRight: 16 }}>
-            <TouchableOpacity onPress={() => navigation.navigate("search" as never)}>
-              <Feather name="edit" size={24} color={"#007aff"} />
-            </TouchableOpacity>
+            <ButtonSearch onPress={() => navigation.navigate("search" as never)}>
+              <Feather name="search" size={25} color={"#fff"} />
+            </ButtonSearch>
           </View>
         },
       }}

@@ -146,50 +146,98 @@ export const channelRouter = router({
   retrieveRecentChannel: protectedProcedure
     .output(channelsList)
     .query(async ({ ctx }) => {
-      const channels = await ctx.prisma.channel.findMany({
+      // const channels = await ctx.prisma.channel.findMany({
+      //   where: {
+      //     users: {
+      //       some: {
+      //         id: ctx.user.id,
+      //       },
+      //     },
+      //   },
+      //   include: {
+      //     messages: {
+      //       select: {
+      //         createdAt: true,
+      //       },
+      //       orderBy: {
+      //         createdAt: "desc",
+      //       },
+      //       take: 1,
+      //     },
+      //     users: {
+      //       select: {
+      //         id: true,
+      //       }
+      //     },
+      //     group: {
+      //       select: {
+      //         title: true,
+      //         description: true,
+      //         authorId: true,
+      //       }
+      //     },
+      //     private: {
+      //       select: {
+      //         id: true,
+      //       }
+      //     }
+      //   },
+      // });
+
+      interface QueryRaw {
+        channel_id: number;
+        message_id: number | null;
+        created_at: Date | null;
+      }
+
+      const channels = await ctx.prisma.$queryRaw<QueryRaw[] | null>`
+        SELECT c.id AS channel_id, m.message_id, m.created_at
+        FROM Channel c
+        LEFT JOIN (
+          SELECT
+            channelId AS message_id,
+            MAX(createdAt) AS created_at
+          FROM Message
+          WHERE authorId = ${ctx.user.id}
+          GROUP BY channelId
+        ) m ON c.id = m.message_id
+        ORDER BY m.created_at DESC;
+      `;
+
+      if (!channels || channels.length < 1) return []
+console.log(channels);
+
+      const mostRecentChannels = await ctx.prisma.channel.findMany({
         where: {
-          users: {
-            some: {
-              id: ctx.user.id,
-            },
+          id: {
+            in: channels
+              .filter((channel) => channel.created_at !== null)
+              .map((channel) => channel.channel_id),
           },
         },
-        include: {
-          messages: {
-            select: {
-              createdAt: true,
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-            take: 1,
-          },
+        select: {
+          id: true,
           users: {
             select: {
-              id: true,
+              id: true
             }
           },
           group: {
             select: {
               title: true,
               description: true,
-              authorId: true,
+              authorId: true
             }
           },
           private: {
             select: {
-              id: true,
+              id: true
             }
           }
-        },
-      });
-      
-      console.log(channels);
-      
+        }
+      })
 
-      if (!channels) return []
-
-      return channels.map((channel) => {
+      return mostRecentChannels?.map((channel) => {
         const { group, private: channelPrivate } = channel;
 
         if (group === null && channelPrivate === null)
