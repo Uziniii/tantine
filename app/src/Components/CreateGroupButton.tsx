@@ -1,4 +1,5 @@
 import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import styled from "styled-components/native";
 
@@ -16,10 +17,16 @@ const CreateGroupContainer = styled(TouchableOpacity)`
   color:white;
 `
 
-export default function CreateGroup(){
-    return(
-        <CreateGroupContainer>
-            <FontAwesome name="plus" size={35} color="white" />
-        </CreateGroupContainer>
-    );
+export default function CreateGroupButton() {
+  const navigation = useNavigation<any>();
+
+  const onPress = () => {
+    navigation.navigate("createGroup");
+  }
+
+  return (
+    <CreateGroupContainer onPress={onPress}>
+      <FontAwesome name="plus" size={35} color="white" />
+    </CreateGroupContainer>
+  );
 }

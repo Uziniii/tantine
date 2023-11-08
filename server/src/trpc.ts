@@ -95,7 +95,7 @@ export const userIsInChannel = protectedProcedure
       channelId: z.number().or(z.string()),
     })
   )
-  .use(async ({ ctx, input, next }) => {
+  .use(async ({ ctx, input, next, path }) => {
     if (input.channelId === undefined) {
       throw new TRPCError({ code: "BAD_REQUEST" });
     }
@@ -104,7 +104,7 @@ export const userIsInChannel = protectedProcedure
       where: {
         id: +input.channelId,
       },
-      select: {
+      include: {
         users: {
           select: {
             id: true,
@@ -116,6 +116,7 @@ export const userIsInChannel = protectedProcedure
     if (!channel) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
+console.log(path, channel.id);
 
     if (!channel.users.find(user => user.id === ctx.user.id)) {
       throw new TRPCError({ code: "UNAUTHORIZED" });

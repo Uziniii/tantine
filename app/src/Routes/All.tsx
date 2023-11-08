@@ -11,8 +11,26 @@ import EditGroup from "../Page/Lookup/Group/EditGroup";
 import MemberLookup from "../Page/Lookup/Group/MemberLookup";
 import { useAppSelector } from "../store/store";
 import { langData } from "../data/lang/lang";
+import CreateGroup from "../Page/CreateGroup";
+import { AddMember } from "../Page/Lookup/Group/Add/AddMember";
+import styled from "styled-components/native";
+import AddMemberConfirm from "../Page/Lookup/Group/Add/AddMemberConfirm";
+import { FontAwesome, Feather } from "@expo/vector-icons";
 
 const Stack = createNativeStackNavigator();
+
+const Container = styled.View`
+  flex: 1;
+  width: 100%;
+`
+
+const TitleCreateGroup = styled.View`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+`
 
 export default function AllRoute () {
   const lang = useAppSelector(state => langData[state.language].route)
@@ -31,6 +49,27 @@ export default function AllRoute () {
       name='search'
       component={Search}
       options={{
+        contentStyle: {
+          backgroundColor: "white"
+        },
+        presentation: "modal",
+        animation: Platform.OS === "android" ? "slide_from_right" : "default",
+      }}
+    />
+    <Stack.Screen
+      name='createGroup'
+      component={CreateGroup}
+      options={{
+        headerTitle() {
+          return <TitleCreateGroup> 
+            <FontAwesome name="comments" size={30} color="#14213d"/>
+            <FText
+              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+              $size={"20px"}
+              $color="#14213d"
+            >Nouveau groupe</FText>
+          </TitleCreateGroup>
+        },
         presentation: "modal",
         animation: Platform.OS === "android" ? "slide_from_right" : "default",
       }}
@@ -74,7 +113,7 @@ export default function AllRoute () {
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
-    />
+    /> 
     <Stack.Screen
       name='editGroup'
       component={EditGroup}
@@ -105,6 +144,44 @@ export default function AllRoute () {
           >
             {lang.manageMember}
           </FText>
+        },
+        animation: Platform.OS === "android" ? "slide_from_right" : "default"
+      }}
+    />
+    <Stack.Screen
+      name="addMember"
+      component={AddMember}
+      options={{
+        headerBackTitleVisible: false,
+        headerTitleAlign: "left",
+        headerTitle() {
+          return <Container>
+            <FText
+              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+              $size={"20px"}
+            >
+              {lang.addMember}
+            </FText>
+          </Container>
+        },
+        animation: Platform.OS === "android" ? "slide_from_right" : "default"
+      }}
+    />
+    <Stack.Screen
+      name="addMemberConfirm"
+      component={AddMemberConfirm}
+      options={{
+        headerBackTitleVisible: false,
+        headerTitleAlign: "left",
+        headerTitle() {
+          return <Container>
+            <FText
+              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+              $size={"20px"}
+            >
+              {lang.addMember}
+            </FText>
+          </Container>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}

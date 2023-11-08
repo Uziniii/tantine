@@ -29,9 +29,9 @@ const rootReducer = (state: any, action: AnyAction) => {
 
 export const store = configureStore({
   reducer: rootReducer,
-  middleware(getDefaultMiddleware) {
-    return getDefaultMiddleware().concat(logger);
-  },
+  // middleware(getDefaultMiddleware) {
+  //   return getDefaultMiddleware().concat(logger);
+  // },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

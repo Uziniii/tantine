@@ -12,9 +12,13 @@ export function generateAccessToken(payload: Payload, hashedPassword: string) {
 }
 
 export function verifyJwtToken(token: string, hashedPassword: string) {
-  if (jwt.verify(token, process.env.SECRET + "." + hashedPassword)) {
-    return true;
+  try {
+    if (jwt.verify(token, process.env.SECRET + "." + hashedPassword)) {
+      return true;
+    }
+  } catch (err) {
+    return false;
   }
-
+  
   return false;
 }

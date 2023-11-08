@@ -1,24 +1,42 @@
 import { NavigationProp, useRoute } from "@react-navigation/native";
-import { useAppSelector } from "../../store/store";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 import { InfoContainer, ProfilePictureContainer, UserContainer } from "../css/user.css";
 import { FontAwesome, Feather } from "@expo/vector-icons"
 import { FText } from "../../Components/FText";
 import { Container, Group } from "../css/lookup.css";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
-import { View } from "react-native";
+import { Alert, Dimensions, View } from "react-native";
 import { useLayoutEffect } from "react";
 import { langData } from "../../data/lang/lang";
+import { Button } from "../css/auth.css";
+import { trpc } from "../../utils/trpc";
+import { removeChannelNotification } from "../../store/slices/notificationSlice";
+import { removeChannel } from "../../store/slices/channelsSlice";
+
+const { width } = Dimensions.get("window")
 
 interface Props {
   navigation: NavigationProp<any>
 }
 
 export default function GroupLookup({ navigation }: Props) {
+  const dispatch = useAppDispatch()
   const lang = useAppSelector(state => langData[state.language].groupLookup)
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const group = useAppSelector(state => state.channels[route.params.id])
   const me = useAppSelector(state => state.me)
+  const deleteGroup = trpc.channel.group.delete.useMutation({
+    onSuccess(_, variables) {
+      dispatch(removeChannelNotification(+variables.channelId))
+      dispatch(removeChannel(+variables.channelId))
+      
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'home' }], // replace 'ChannelList' with the name of your screen
+      });
+    }
+  })
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -34,6 +52,7 @@ export default function GroupLookup({ navigation }: Props) {
     })
   })
 
+  if (group === undefined) return null
   if (group.type !== "group" || me === null) return null
 
   const onUserPress = (id: number) => {
@@ -43,6 +62,30 @@ export default function GroupLookup({ navigation }: Props) {
     })
   }
   
+  const onAddPress = () => {
+    navigation.navigate("addMember", {
+      id: route.params.id
+    })
+  }
+
+  const createConfirmAlert = () => {
+    Alert.alert(lang.deleteGroupAlertTitle, lang.deleteGroupAlertMessage, [
+      {
+        text: lang.cancel,
+        style: "cancel",
+      },
+      {
+        text: lang.confirm,
+        onPress() {
+          deleteGroup.mutate({
+            channelId: route.params.id
+          })
+        },
+        style: "destructive",
+      }
+    ])
+  }
+
   return <>
     <Container>
       <ProfilePictureContainer $size="100px">
@@ -52,6 +95,12 @@ export default function GroupLookup({ navigation }: Props) {
         <FText $color="white" $size="24px">{group.title}</FText>
         <FText $color="white" $size="16px">{group.users.length} {group.users.length <= 1 ? lang.member : `${lang.member}s`}</FText>
       </Group>
+      <Button onPress={onAddPress} $width={`${width * 0.8}px`}>
+        <FText>{lang.addMembers}</FText>
+      </Button>
+      <Button onPress={createConfirmAlert} $width={`${width * 0.8}px`} $background="red">
+        <FText $color="white">{lang.deleteGroupButton}</FText>
+      </Button>
     </Container>
     <FlatList
       style={{

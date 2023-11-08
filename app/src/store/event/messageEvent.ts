@@ -44,7 +44,7 @@ export function createMessageEventFactory({
     }
 
     dispatch(
-      addMessage({
+      addMessage({  
         channelId: payload.channelId,
         message: {
           id: payload.id,

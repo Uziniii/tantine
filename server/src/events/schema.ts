@@ -12,11 +12,21 @@ export const removeMemberSchema = z.object({
   channelId: z.string(),
   memberId: z.number()
 })
+export const addMemberSchema = z.object({
+  channelId: z.string(),
+  membersIds: z.array(z.number())
+})
+export const deleteGroupSchema = z.object({
+  channelId: z.number(),
+  users: z.array(z.number()),
+})
 
 const allSchema = z.union([
   messageSchema,
   newGroupTitleSchema,
-  removeMemberSchema
+  removeMemberSchema,
+  addMemberSchema,
+  deleteGroupSchema,
 ]);
 
 export interface IMapUser {

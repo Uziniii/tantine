@@ -28,6 +28,7 @@ export const createMessageEvent = async ({
   });
 
   if (!channel) return;
+console.log(channel.users.map((user) => user.id));
 
   sendToIds(
     channel.users.map((user) => user.id),

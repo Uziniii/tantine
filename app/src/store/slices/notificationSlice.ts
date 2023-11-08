@@ -24,6 +24,10 @@ const notificationSlice = createSlice({
       return state
     },
     addPosition(state, action: PayloadAction<number>) {
+      if (state.positions.indexOf(action.payload) !== -1) {
+        return state
+      }
+
       state.positions.push(action.payload);
       state.notifications[action.payload] = 0;
 
@@ -44,6 +48,10 @@ const notificationSlice = createSlice({
     addNotification(state, action: PayloadAction<number>) {
       const id = action.payload;
 
+      if (!state.notifications[id]) {
+        state.notifications[id] = 0;
+      }
+
       state.notifications[id] += 1;
       const pos = state.positions.indexOf(id)
 
@@ -61,6 +69,23 @@ const notificationSlice = createSlice({
       state.notifications[id] = 0;
 
       return state
+    },
+    removeChannelNotification(state, action: PayloadAction<number>) {
+      const id = action.payload;
+
+      if (!state.notifications[id]) {
+        return state
+      }
+
+      delete state.notifications[id];
+      const pos = state.positions.indexOf(id)
+console.log("pos", pos);
+
+      if (pos !== -1) {
+        state.positions.splice(pos, 1);
+      }
+      
+      return state
     }
   },
 });
@@ -71,6 +96,7 @@ export const {
   addPosition,
   toFirstPosition,
   clearNotifications,
+  removeChannelNotification,
 } = notificationSlice.actions;
 
 export default notificationSlice.reducer;

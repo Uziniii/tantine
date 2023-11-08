@@ -3,10 +3,10 @@ import { prisma } from "./db";
 import { decode } from "jsonwebtoken";
 import { Payload, verifyJwtToken } from "./jwt";
 import { createMessageEvent } from "./events/message";
-import { IMapUser, messageSchema, newGroupTitleSchema, removeMemberSchema } from "./events/schema";
+import { IMapUser, addMemberSchema, deleteGroupSchema, messageSchema, newGroupTitleSchema, removeMemberSchema } from "./events/schema";
 import z from "zod"
 import { sendFactory } from "./helpers/event";
-import { newGroupTitleEvent, removeMemberEvent } from "./events/channel";
+import { addMembersEvent, deleteGroupEvent, newGroupTitleEvent, removeMemberEvent } from "./events/channel";
 
 const users = new Map<string, IMapUser>()
 const idToTokens = new Map<string, Set<string>>()
@@ -170,3 +170,21 @@ ev.on(
     sendToIds,
   })
 )
+
+ev.on("addMembers", (payload: z.infer<typeof addMemberSchema>) =>
+  addMembersEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+);
+
+ev.on("deleteGroup", (payload: z.infer<typeof deleteGroupSchema>) => {
+  deleteGroupEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+})

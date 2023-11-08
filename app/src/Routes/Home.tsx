@@ -53,8 +53,11 @@ export function Home() {
         // headerTitle() {
         //   return <></>
         // },
+
+        //style={{ marginLeft: 16}}
+
         headerTitle() {
-          return <View style={{ marginLeft: 16}}>
+          return <View>
             <FText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"25px"}

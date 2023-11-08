@@ -37,9 +37,9 @@ model Message {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  author    User?    @relation(fields: [authorId], references: [id])
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  Int?
-  channel   Channel @relation(fields: [channelId], references: [id])
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId Int
 }
 
@@ -47,9 +47,9 @@ model Channel {
   id        Int             @id @default(autoincrement())
   messages  Message[]
   users     User[]
-  private   PrivateChannel? @relation(fields: [privateId], references: [id])
+  private   PrivateChannel? @relation(fields: [privateId], references: [id], onDelete: Cascade)
   privateId Int?
-  group     GroupChannel?   @relation(fields: [groupId], references: [id])
+  group     GroupChannel?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int?
 }
 

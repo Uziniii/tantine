@@ -3,6 +3,7 @@ import z from "zod";
 import { messageRouter } from "./channel/message";
 import { TRPCError } from "@trpc/server";
 import { groupRouter } from "./channel/group";
+import { ev } from "../ws";
 
 const createChannelInput = z.number()
   .or(
@@ -58,6 +59,9 @@ export const channelRouter = router({
                 },
               },
             },
+            privateId: {
+              not: null,
+            }
           },
           select: {
             id: true,
@@ -125,13 +129,15 @@ export const channelRouter = router({
 
       if (!channel.group) throw new Error("Group not created");
 
-      await ctx.prisma.message.create({
+      const message = await ctx.prisma.message.create({
         data: {
           content: `Le groupe ${channel.group.title} a été créé`,
           system: true,
           channelId: channel.id,
         },
       });
+
+      ev.emit("createMessage", message)
 
       return {
         type: "group",
@@ -146,44 +152,6 @@ export const channelRouter = router({
   retrieveRecentChannel: protectedProcedure
     .output(channelsList)
     .query(async ({ ctx }) => {
-      // const channels = await ctx.prisma.channel.findMany({
-      //   where: {
-      //     users: {
-      //       some: {
-      //         id: ctx.user.id,
-      //       },
-      //     },
-      //   },
-      //   include: {
-      //     messages: {
-      //       select: {
-      //         createdAt: true,
-      //       },
-      //       orderBy: {
-      //         createdAt: "desc",
-      //       },
-      //       take: 1,
-      //     },
-      //     users: {
-      //       select: {
-      //         id: true,
-      //       }
-      //     },
-      //     group: {
-      //       select: {
-      //         title: true,
-      //         description: true,
-      //         authorId: true,
-      //       }
-      //     },
-      //     private: {
-      //       select: {
-      //         id: true,
-      //       }
-      //     }
-      //   },
-      // });
-
       interface QueryRaw {
         channel_id: number;
         message_id: number | null;
@@ -194,26 +162,32 @@ export const channelRouter = router({
         SELECT c.id AS channel_id, m.message_id, m.created_at
         FROM Channel c
         LEFT JOIN (
-          SELECT
-            channelId AS message_id,
-            MAX(createdAt) AS created_at
+          SELECT channelId AS message_id, MAX(createdAt) AS created_at
           FROM Message
-          WHERE authorId = ${ctx.user.id}
           GROUP BY channelId
         ) m ON c.id = m.message_id
+        WHERE EXISTS (
+          SELECT 1
+          FROM _ChannelToUser cu
+          WHERE cu.A = c.id
+          AND cu.B = ${ctx.user.id}
+        )
         ORDER BY m.created_at DESC;
       `;
 
       if (!channels || channels.length < 1) return []
-console.log(channels);
-
+      console.log(channels);
+      
       const mostRecentChannels = await ctx.prisma.channel.findMany({
         where: {
           id: {
-            in: channels
-              .filter((channel) => channel.created_at !== null)
-              .map((channel) => channel.channel_id),
+            in: channels.filter((channel) => channel.created_at !== null).map((channel) => channel.channel_id),
           },
+          users: {
+            some: {
+              id: ctx.user.id,
+            },
+          }
         },
         select: {
           id: true,

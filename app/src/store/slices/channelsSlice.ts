@@ -55,10 +55,32 @@ const channelsSlice = createSlice({
       channel.users = channel.users.filter((id) => id !== memberId);
 
       return state;
+    },
+    removeChannel: (state, action: PayloadAction<number>) => {
+      delete state[action.payload];
+
+      return state;
+    },
+    addMembers: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        membersIds: number[];
+      }>
+    ) => {
+      const { channelId, membersIds } = action.payload;
+      const channel = state[channelId];
+
+      if (channel && channel.type !== "group") return state;
+
+      channel.users.push(...membersIds);
+
+      return state;
     }
   },
 });
 
-export const { addChannel, editGroupTitle, removeMember } = channelsSlice.actions;
+export const { addChannel, editGroupTitle, removeMember, removeChannel, addMembers } =
+  channelsSlice.actions;
 
 export default channelsSlice.reducer;

@@ -138,9 +138,12 @@ export const userRouter = router({
     }),
 
   search: protectedProcedure
-    .input(z.string().min(2))
+    .input(z.object({
+      input: z.string().min(2),
+      not: z.array(z.number()).optional()
+    }))
     .output(z.array(user))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input: { input, not } }) => {
       ev.emit("message", "Hello");
 
       const users = await ctx.prisma.user.findMany({
@@ -163,7 +166,9 @@ export const userRouter = router({
             },
           ],
           NOT: {
-            id: ctx.user.id,
+            id: {
+              in: [ctx.user.id, ...(not || [])]
+            },
           },
         },
         select: {

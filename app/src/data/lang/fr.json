@@ -45,7 +45,8 @@
   "route": {
     "info": "Informations",
     "edit": "Modifier le groupe",
-    "manageMember": "Gérer un membre"
+    "manageMember": "Gérer un membre",
+    "addMember": "Ajouter des membres"
   },
   "search": {
     "search": "Rechercher",
@@ -56,10 +57,21 @@
     "createGroup": "Créer un groupe"
   },
   "groupLookup": {
-    "member": "membre"
+    "member": "membre",
+    "cancel": "Annuler",
+    "confirm": "Supprimer",
+    "addMembers": "Ajouter des membres",
+    "deleteGroupButton": "Supprimer le groupe",
+    "deleteGroupAlertTitle": "Supprimer le groupe",
+    "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?"
   },
   "memberLookup": {
     "remove": "Retirer du groupe",
     "sendMessage": "Envoyer un message"
+  },
+  "addMember": {
+    "search": "Rechercher",
+    "next": "Suivant",
+    "confirm": "Valider"
   }
 }

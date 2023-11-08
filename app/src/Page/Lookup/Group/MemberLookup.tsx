@@ -45,7 +45,7 @@ export default function MemberLookup ({ navigation }: Props) {
       <FText $color="white" $size="24px">{user.surname} {user.name}</FText>
       <FText $color="white" $size="16px">{user.email}</FText>
     </Group>
-    {group.authorId !== me.id && <>
+    {(group.authorId === me.id && user.id !== me.id) && <>
       <Button $width={`${width * 0.8}px`}>
         <FText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.sendMessage}</FText>
       </Button>

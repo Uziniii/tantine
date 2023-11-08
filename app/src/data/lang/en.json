@@ -45,7 +45,8 @@
   "route": {
     "info": "Informations",
     "edit": "Edit group",
-    "manageMember": "Manage a member"
+    "manageMember": "Manage a member",
+    "addMember": "Add members"
   },
   "search": {
     "search": "Search",
@@ -56,10 +57,21 @@
     "createGroup": "Create group"
   },
   "groupLookup": {
-    "member": "member"
+    "member": "member",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "addMembers": "Add members",
+    "deleteGroupButton": "Delete group",
+    "deleteGroupAlertTitle": "Delete group",
+    "deleteGroupAlertMessage": "Are you sure you want to delete this group?"
   },
   "memberLookup": {
     "remove": "Remove from group",
     "sendMessage": "Send a message"
+  },
+  "addMember": {
+    "search": "Search",
+    "next": "Next",
+    "confirm": "Confirm"
   }
 }

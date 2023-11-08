@@ -1,4 +1,3 @@
-import { FText } from "../Components/FText";
 import {
   NavigationProp,
   useNavigation,
@@ -8,24 +7,16 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { trpc } from "../utils/trpc";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
-import {
-  Group,
-  InfoContainer,
-  ProfilePictureContainer,
-  UserContainer,
-} from "./css/user.css";
-import { FontAwesome } from "@expo/vector-icons";
-import { Channel as IChannel, addChannel } from "../store/slices/channelsSlice";
-import { Me, set } from "../store/slices/meSlice";
-import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
+import { addChannel } from "../store/slices/channelsSlice";
+import { set } from "../store/slices/meSlice";
 import { useEffect, useState } from "react";
 import { addUsers } from "../store/slices/usersSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
 import styled from "styled-components/native";
 import { setPositions } from "../store/slices/notificationSlice";
-import CreateGroup from "../Components/CreateGroup";
-import { langData } from "../data/lang/lang";
+import CreateGroupButton from "../Components/CreateGroupButton";
+import ChannelItem from "../Components/ChannelItem";
 
 const Stack = createNativeStackNavigator();
 
@@ -41,10 +32,10 @@ export default function ChannelList({ navigation }: Props) {
     name: string;
   }>();
   const channels = trpc.channel.retrieveRecentChannel.useQuery(undefined, {
-    staleTime: 0,
+    staleTime: Infinity,
   });
   const meQuery = trpc.user.me.useQuery(undefined, {
-    staleTime: 0,
+    staleTime: Infinity,
   })
   const me = useAppSelector((state) => state.me);
   const users = useAppSelector((state) => state.users);
@@ -148,6 +139,8 @@ function List() {
     <FlatList
       data={channels}
       renderItem={({ item }) => {
+        if (item?.id === undefined) return null;
+
         return (
           <TouchableOpacity onPress={() => onChannelPress(item.id)}>
             <ChannelItem item={item} me={me} />
@@ -155,45 +148,7 @@ function List() {
         );
       }}
       keyExtractor={(item) => item.id.toString()}
-      />
-      <CreateGroup/>
+    />
+    <CreateGroupButton/>
   </Container>
-}
-
-interface ChannelProps {
-  item: IChannel;
-  me: Me | null;
-}
-
-function ChannelItem({ item, me }: ChannelProps) {
-  const notification = useAppSelector((state) => state.notification.notifications[item.id]);
-  const lang = useAppSelector(state => langData[state.language].groupLookup);
-
-  const user = useAppSelector(
-    (state) => state.users[item.users.find((id) => id !== me?.id) || ""]
-  );
-
-  return (
-    <UserContainer style={{ flex: 1 }} disabled>
-      <ProfilePictureContainer>
-        <FontAwesome name="user" size={24} />
-      </ProfilePictureContainer>
-      <InfoContainer>
-        <Group>
-          <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
-            <FText $size="18px" $color="#202E44" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
-              {item.type === "group" ? item.title : `${user.surname} ${user.name}`}
-            </FText>
-            <FText $size="15px" $color="#202E44">
-              {item.type === "group" ? `${item.users.length} ${lang.member}` : user.email}
-            </FText>
-          </Group>
-          <Group>
-            <FText>{notification}
-          </FText>
-          </Group>
-        </Group>
-      </InfoContainer>
-    </UserContainer>
-  );
 }

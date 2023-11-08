@@ -13,6 +13,8 @@ import { Message, addTempMessage, initMessages } from "../store/slices/messagesS
 import { isKeyboard } from "../hooks/isKeyboard";
 import Bubble from "../Components/Bubble";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import Loading from "../Components/Loading";
+import { clearNotifications } from "../store/slices/notificationSlice";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -40,6 +42,7 @@ export default function Channel ({ navigation }: Props) {
   const [title, lookupId] = useAppSelector(state => {
     const channel = state.channels[route.params.id]
     
+    if (channel === undefined) return [undefined, undefined]
     if (channel.type === "group") {
       return [channel.title, channel.id]
     }
@@ -48,7 +51,8 @@ export default function Channel ({ navigation }: Props) {
 
     return [`${user.surname} ${user.name}`, user.id]
   })
-  const type = useAppSelector(state => state.channels[route.params.id].type)
+  
+  const type = useAppSelector(state => state.channels[route.params.id]?.type)
   const me = useAppSelector(state => state.me)
   const users = useAppSelector(state => state.users)
   const isKeyboardShow = isKeyboard()
@@ -79,6 +83,10 @@ export default function Channel ({ navigation }: Props) {
       })
     }
   }
+
+  useEffect(() => {
+    dispatch(clearNotifications(+route.params.id))
+  }, [])
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -118,14 +126,15 @@ export default function Channel ({ navigation }: Props) {
   })
 
   useEffect(() => {
-    if (msgState) return
+    if (msgState || retrieveMessages.isLoading) return
 
     retrieveMessages.mutate({
       channelId: +route.params.id,
     })
   })
 
-  if (retrieveMessages.status === "loading") return null
+  if (title === undefined && lookupId === undefined) return null
+  if (retrieveMessages.status === "loading") return <Loading />
 
   const onSend = (content: string, createdAt: Date | number) => {
     if (content.length === 0) {
@@ -157,7 +166,6 @@ export default function Channel ({ navigation }: Props) {
 
   return <Wrapper>
     <GiftedChat
-      
       renderBubble={(props) => {
         let sumChars = 0;
         if (props.position === "left") {

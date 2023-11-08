@@ -1,4 +1,8 @@
-import { editGroupTitle, removeMember } from "../slices/channelsSlice";
+import { trpc } from "../../utils/trpc";
+import { addChannel, addMembers, editGroupTitle, removeChannel, removeMember } from "../slices/channelsSlice";
+import { Me } from "../slices/meSlice";
+import { addPosition, removeChannelNotification } from "../slices/notificationSlice";
+import { addUsers } from "../slices/usersSlice";
 import { AppDispatch } from "../store";
 
 interface NewGroupTitleProps {
@@ -20,15 +24,87 @@ export function newGroupTitleEventFactory ({
 
 interface RemoveMemberProps {
   dispatch: AppDispatch
+  me: Me
 }
 
 export function removeMemberEventFactory ({
-  dispatch
+  dispatch,
+  me
 }: RemoveMemberProps) {
   return function event(payload: {
     memberId: number;
     channelId: string;
   }) {
+    console.log(payload);
+    
+    if (me.id == payload.memberId) {
+      dispatch(removeChannelNotification(+payload.channelId))
+      dispatch(removeChannel(+payload.channelId))
+      return
+    }
+
     dispatch(removeMember(payload))
+  }
+}
+
+interface AddMembersProps {
+  dispatch: AppDispatch;
+  usersId: string[];
+  retrieveUsers: ReturnType<typeof trpc.user.retrieve.useMutation>;
+  me: Me;
+  fetchChannel: ReturnType<typeof trpc.channel.retrieve.useMutation>;
+}
+
+export const addMembersEventFactory = ({
+  dispatch,
+  usersId,
+  retrieveUsers,
+  me,
+  fetchChannel
+}: AddMembersProps) => {
+  return async function event(payload: {
+    channelId: number;
+    membersIds: number[];
+  }) {
+    let toFetch = [];
+
+    for (const id of payload.membersIds) {
+      if (usersId.includes(id.toString())) continue;
+
+      toFetch.push(+id);
+    }
+
+    if (toFetch.length > 0) {
+      let fetchedUsers = await retrieveUsers.mutateAsync(toFetch);
+
+      dispatch(addUsers(fetchedUsers));
+    }
+
+    if (payload.membersIds.includes(me.id)) {
+      const channel = await fetchChannel.mutateAsync({
+        channelId: payload.channelId
+      });
+
+      dispatch(addChannel(channel))
+      dispatch(addPosition(channel.id));
+    }
+
+    dispatch(addMembers(payload))
+  }
+}
+
+interface DeleteGroupProps {
+  dispatch: AppDispatch
+}
+
+export const deleteGroupEventFactory = ({
+  dispatch,
+}: DeleteGroupProps) => {
+  return function event(payload: {
+    channelId: number;
+    users: number[];
+  }) {
+    dispatch(removeChannelNotification(+payload.channelId))
+    dispatch(removeChannel(+payload.channelId))
   }
 }
