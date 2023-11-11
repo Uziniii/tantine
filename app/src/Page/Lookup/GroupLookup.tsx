@@ -13,12 +13,23 @@ import { Button } from "../css/auth.css";
 import { trpc } from "../../utils/trpc";
 import { removeChannelNotification } from "../../store/slices/notificationSlice";
 import { removeChannel } from "../../store/slices/channelsSlice";
+import styled from 'styled-components';
 
 const { width } = Dimensions.get("window")
 
 interface Props {
   navigation: NavigationProp<any>
 }
+
+const ButtonEdit = styled(TouchableOpacity)`
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: #334055;
+  display: flex;
+  align-items: center;
+  justify-content:center;
+`
 
 export default function GroupLookup({ navigation }: Props) {
   const dispatch = useAppDispatch()
@@ -42,11 +53,11 @@ export default function GroupLookup({ navigation }: Props) {
     navigation.setOptions({
       headerRight: () => {
         return <View>
-          <TouchableOpacity onPress={
+          <ButtonEdit onPress={
             () => navigation.navigate("editGroup", { id: route.params.id })
           }>
-            <Feather name="edit" size={24} color={"#007aff"} />
-          </TouchableOpacity>
+            <Feather name="edit" size={18} color={"white"} />
+          </ButtonEdit>
         </View>
       }
     })
@@ -95,17 +106,17 @@ export default function GroupLookup({ navigation }: Props) {
         <FText $color="white" $size="24px">{group.title}</FText>
         <FText $color="white" $size="16px">{group.users.length} {group.users.length <= 1 ? lang.member : `${lang.member}s`}</FText>
       </Group>
-      <Button onPress={onAddPress} $width={`${width * 0.8}px`}>
-        <FText>{lang.addMembers}</FText>
-      </Button>
-      <Button onPress={createConfirmAlert} $width={`${width * 0.8}px`} $background="red">
-        <FText $color="white">{lang.deleteGroupButton}</FText>
-      </Button>
+      {group.authorId === me.id && <>
+        <Button onPress={onAddPress} $width={`${width * 0.8}px`}>
+          <FText>{lang.addMembers}</FText>
+        </Button>
+        <Button onPress={createConfirmAlert} $width={`${width * 0.8}px`} $background="red">
+          <FText $color="white">{lang.deleteGroupButton}</FText>
+        </Button>
+      </>}
     </Container>
     <FlatList
       style={{
-        borderTopWidth: 1,
-        borderTopColor: "#ccc",
         marginTop: 24,
       }}
       data={group.users}

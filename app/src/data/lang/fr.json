@@ -46,7 +46,9 @@
     "info": "Informations",
     "edit": "Modifier le groupe",
     "manageMember": "Gérer un membre",
-    "addMember": "Ajouter des membres"
+    "addMember": "Ajouter des membres",
+    "search": "Rechercher",
+    "createGroup": "Nouveau groupe"
   },
   "search": {
     "search": "Rechercher",

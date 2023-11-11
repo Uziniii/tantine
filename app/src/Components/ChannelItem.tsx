@@ -39,7 +39,7 @@ export default function ChannelItem({ item, me }: ChannelProps) {
   return (
     <UserContainer style={{ flex: 1 }} disabled>
       <ProfilePictureContainer>
-        <FontAwesome name="user" size={24} />
+        <FontAwesome name={item.type === "private" ? "user" : "group"} size={24} />
       </ProfilePictureContainer>
       <InfoContainer>
         <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>

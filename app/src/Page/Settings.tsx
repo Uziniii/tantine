@@ -18,8 +18,8 @@ export default function Settings () {
         <FontAwesome name="user" size={50} color="black" />
       </ProfilePictureContainer>
       <Group>
-        <FText $size="24px">{me.surname} {me.name}</FText>
-        <FText $size="16px">{me.email}</FText>
+        <FText $size="24px" $color="white">{me.surname} {me.name}</FText>
+        <FText $size="16px" $color="white">{me.email}</FText>
       </Group>
     </Container>
     <Button color={"red"} title="Déconnexion" onPress={() => {

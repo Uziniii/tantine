@@ -7,7 +7,7 @@ const CreateGroupContainer = styled(TouchableOpacity)`
   width:70px;
   height:70px;
   background-color:#202E44;
-  border-radius: 99999px;
+  border-radius: 30px;
   position:fixed;
   margin: 0 10px 40px 0;
   align-self: flex-end;

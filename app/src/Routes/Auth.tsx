@@ -37,6 +37,10 @@ export default function Auth() {
       component={Register}
       options={{
         headerTitleAlign: "center",
+        headerShadowVisible: false,
+        headerStyle: {
+          backgroundColor: '#202E44'
+        },
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
@@ -54,7 +58,13 @@ export default function Auth() {
       component={Login}
       options={{
         headerBackTitleVisible: false,
+        headerShadowVisible: false,
         headerTitleAlign: "center",
+
+        headerStyle: {
+          backgroundColor: '#202E44'
+        },
+
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}

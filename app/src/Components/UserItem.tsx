@@ -13,6 +13,7 @@ interface IUser {
 interface BasicProps {
   item: IUser,
   userPress: (id: number) => void,
+  theme?: "light" | "dark",
 }
 
 interface NormalProps extends BasicProps {
@@ -27,7 +28,7 @@ interface GroupModeProps extends BasicProps {
 
 type Props = NormalProps | GroupModeProps
 
-export default function UserItem({ item, addedUsers, groupMode, userPress }: Props) {
+export default function UserItem({ item, addedUsers, groupMode, userPress, theme }: Props) {
   return <UserContainer style={{ justifyContent: "space-between" }} onPress={() => userPress(item.id)}>
     <VerticalGroup>
       <ProfilePictureContainer>
@@ -35,16 +36,16 @@ export default function UserItem({ item, addedUsers, groupMode, userPress }: Pro
       </ProfilePictureContainer>
       <InfoContainer>
         <Group>
-          <FText $color="white">{item.surname} {item.name}</FText>
+          <FText $color={theme === "dark" ? "white" : "black"}>{item.surname} {item.name}</FText>
         </Group>
-        <FText $color="white">{item.email}</FText>
+        <FText $color={theme === "dark" ? "white" : "black"}>{item.email}</FText>
       </InfoContainer>
     </VerticalGroup>
     {groupMode && <VerticalGroup>
       <Radio style={{
-        backgroundColor: addedUsers[item.id] ? "#575bfd" : undefined,
+        backgroundColor: addedUsers[item.id] ? "#202E44" : undefined,
       }}>
-        {addedUsers[item.id] && <FontAwesome name="check" color="white" size={16} />}
+        {addedUsers[item.id] && <FontAwesome name="check" color={theme === "dark" ? "white" : "white"} size={16} />}
       </Radio>
     </VerticalGroup>}
   </UserContainer>

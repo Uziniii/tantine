@@ -68,8 +68,7 @@ export default function EditGroup () {
   }
 
   return <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-    <Container $marginTop={16}>
-      <FText $size="20px">Nom du groupe</FText>
+    <Container $marginTop={50}>
       <TextInput $height="43.7px" $width="90%" $borderColor={error ? "red" : undefined} onChangeText={onInputChange} placeholder="Title" defaultValue={group.title} />
       {error && <FText $size="12px" $color="red">{error}</FText>}
       {/* {editName.status === "success" && <FText $size="12px" $color="green">Le nom du groupe a bien étais changé</FText>} */}

@@ -169,13 +169,48 @@ export const groupRouter = router({
     .input(z.object({
       query: z.string().trim().min(2).max(50)
     }))
+    .output(z.array(z.object({
+      id: z.number(),
+      title: z.string().optional(),
+      users: z.array(z.number())
+    })))
     .query(async ({ ctx, input }) => {
       const groups = await ctx.prisma.channel.findMany({
         where: {
-          title: {
-            contains: input.query
+          group: {
+            title: {
+              contains: input.query
+            },
+            // author: {
+            //   city: {
+            //     contains: input.query
+            //   },
+            //   state: {
+            //     contains: input.query
+            //   },
+            //   country: {
+            //     contains: input.query
+            //   },
+            // }
           }
         },
+        select: {
+          id: true,
+          users: {
+            select: {
+              id: true
+            }
+          },
+          group: true
+        }
       })
+
+      console.log(groups)
+
+      return groups.filter(channel => channel.group !== null).map(({ id, group, users }) => ({
+        id,
+        title: group?.title,
+        users: users.map(({ id }) => id)
+      }))
     })
 })

@@ -89,13 +89,9 @@ export function Home() {
         tabBarLabel(props) {
           return <FText $color='#FFFF' $size='12px'>{lang.settings}</FText>
         },
-
+        
         headerTitle() {
-          return <></>
-        },
-
-        headerLeft() {
-          return <View style={{ marginLeft: 16 }}>
+          return <View>
             <FText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"25px"}

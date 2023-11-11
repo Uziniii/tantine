@@ -5,6 +5,10 @@ export const UserContainer = styled(TouchableOpacity)`
   display: flex;
   flex-direction: row;
   padding: 10px;
+  border: 1px solid #DBDBDB;
+  border-top-width: 0;
+  border-left-width: 0;
+  border-right-width: 0;
 `;
 
 export const InfoContainer = styled.View`

@@ -1,9 +1,8 @@
 import { View } from "react-native";
-import { TextInput } from "../../../../utils/formHelpers";
 import { trpc } from "../../../../utils/trpc";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import debounce from "lodash.debounce";
-import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
+import { FlatList, TouchableOpacity, TextInput } from "react-native-gesture-handler";
 import UserItem from "../../../../Components/UserItem";
 import { addUsers } from "../../../../store/slices/usersSlice";
 import { useAppDispatch, useAppSelector } from "../../../../store/store";
@@ -11,10 +10,22 @@ import { NavigationProp, useRoute } from "@react-navigation/native";
 import { FText } from "../../../../Components/FText";
 import { langData } from "../../../../data/lang/lang";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
+import styled from "styled-components/native";
 
 interface Props {
   navigation: NavigationProp<any>
 }
+
+export const SearchInput = styled.TextInput`
+  width:95%;
+  height:48px;
+  padding:0 0 0 20px;
+  margin: 20px 0 0 0;
+  border-radius:9999px;
+  background-color: white;
+  color: black;
+  align-self: center;
+`
 
 export function AddMember({ navigation }: Props) {
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
@@ -81,20 +92,19 @@ export function AddMember({ navigation }: Props) {
   }
 
   return <View>
-    <TextInput
+    <SearchInput
       placeholder={lang.search}
-      onChangeText={text => {
+      onChangeText={(text: string) => {
         debouncedResults(text)
       }}
     />
     <FlatList
       style={{
-        borderTopWidth: 1,
-        borderTopColor: "#ccc",
+        marginTop: 20
       }}
       contentInsetAdjustmentBehavior="automatic"
       data={usersSearch.data ?? []}
-      renderItem={({ item }) => <UserItem addedUsers={addedUsers} groupMode={true} userPress={userPress} item={item} />}
+      renderItem={({ item }) => <UserItem theme="dark" addedUsers={addedUsers} groupMode={true} userPress={userPress} item={item} />}
       keyExtractor={item => item.id.toString()}
     />
   </View>;

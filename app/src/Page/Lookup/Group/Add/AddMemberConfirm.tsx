@@ -55,16 +55,15 @@ export default function AddMemberConfirm({ navigation }: Props) {
       [id]: !addedUsers[id],
     })
   }
-console.log(users );
+console.log(users);
 
   return <FlatList  
     style={{
-      borderTopWidth: 1,
-      borderTopColor: "#ccc",
+      marginTop: 20
     }}
     contentInsetAdjustmentBehavior="automatic"
     data={users}
-    renderItem={({ item }) => <UserItem addedUsers={addedUsers} groupMode={true} userPress={userPress} item={item} />}
+    renderItem={({ item }) => <UserItem theme="dark" addedUsers={addedUsers} groupMode={true} userPress={userPress} item={item} />}
     keyExtractor={item => item.id.toString()}
   />
 }

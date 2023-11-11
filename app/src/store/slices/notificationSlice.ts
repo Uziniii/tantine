@@ -18,7 +18,7 @@ const notificationSlice = createSlice({
       state.positions = action.payload;
 
       for (const position of action.payload) {
-        state.notifications[position] = 0;
+        state.notifications[+position] = 0;
       }
 
       return state
@@ -73,7 +73,10 @@ const notificationSlice = createSlice({
     removeChannelNotification(state, action: PayloadAction<number>) {
       const id = action.payload;
 
-      if (!state.notifications[id]) {
+      console.log("removeChannelNotification", id);
+      console.log(state.notifications);
+      
+      if (state.notifications[id] === undefined) {
         return state
       }
 

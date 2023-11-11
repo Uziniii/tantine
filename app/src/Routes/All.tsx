@@ -49,6 +49,16 @@ export default function AllRoute () {
       name='search'
       component={Search}
       options={{
+        headerTitle() {
+          return <TitleCreateGroup> 
+            <FontAwesome name="search" size={30} color="#14213d"/>
+            <FText
+              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+              $size={"20px"}
+              $color="#14213d"
+            >{lang.search}</FText>
+          </TitleCreateGroup>
+        },
         contentStyle: {
           backgroundColor: "white"
         },
@@ -67,7 +77,7 @@ export default function AllRoute () {
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
               $color="#14213d"
-            >Nouveau groupe</FText>
+            >{lang.createGroup}</FText>
           </TitleCreateGroup>
         },
         presentation: "modal",
@@ -101,12 +111,19 @@ export default function AllRoute () {
       name="groupLookup"
       component={GroupLookup}
       options={{
-        headerBackTitleVisible: false,
         headerTitleAlign: "center",
+        headerShadowVisible: false,
+        headerBackTitleVisible: false,
+        
+        headerStyle: {
+          backgroundColor: "#202E44",
+        },
+
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
+            $color="white"
           >
             {lang.info}
           </FText>
@@ -119,11 +136,19 @@ export default function AllRoute () {
       component={EditGroup}
       options={{
         headerBackTitleVisible: false,
+        headerShadowVisible: false,
         headerTitleAlign: "center",
+
+        headerStyle: {
+          backgroundColor: "#202E44",
+        },
+
+
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
+            $color="white"
           >
             {lang.edit}
           </FText>
@@ -135,12 +160,18 @@ export default function AllRoute () {
       name="memberLookup"
       component={MemberLookup}
       options={{
+
+        headerStyle: {
+          backgroundColor: "#202E44",
+        },
+
         headerBackTitleVisible: false,
         headerTitleAlign: "center",
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
+            $color="white"
           >
             {lang.manageMember}
           </FText>
@@ -152,6 +183,11 @@ export default function AllRoute () {
       name="addMember"
       component={AddMember}
       options={{
+
+        headerStyle: {
+          backgroundColor: "#202E44",
+        },
+
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
         headerTitle() {
@@ -159,6 +195,7 @@ export default function AllRoute () {
             <FText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
+              $color="white"
             >
               {lang.addMember}
             </FText>
@@ -171,6 +208,10 @@ export default function AllRoute () {
       name="addMemberConfirm"
       component={AddMemberConfirm}
       options={{
+        headerStyle: {
+          backgroundColor: "#202E44",
+        },
+        headerShadowVisible: false,
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
         headerTitle() {
@@ -178,6 +219,7 @@ export default function AllRoute () {
             <FText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
+              $color="white"
             >
               {lang.addMember}
             </FText>

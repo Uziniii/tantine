@@ -17,7 +17,7 @@ export const AndroidSearchBarContainer = styled.View`
   width: 100%;
 `;
 
-export const Container = styled.View<{ $pad: string }>`
+export const Container = styled.View<{ $pad?: string }>`
   flex: 1;
   padding-top: ${({ $pad }) => Platform.OS === "android" ? 0 : $pad};
 `;

@@ -46,7 +46,9 @@
     "info": "Informations",
     "edit": "Edit group",
     "manageMember": "Manage a member",
-    "addMember": "Add members"
+    "addMember": "Add members",
+    "search": "Search",
+    "createGroup": "Create group"
   },
   "search": {
     "search": "Search",
