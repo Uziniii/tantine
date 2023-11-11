@@ -1,4 +1,3 @@
-import { FText } from "../Components/FText";
 import {
   NavigationProp,
   useNavigation,
@@ -8,21 +7,16 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { trpc } from "../utils/trpc";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
-import {
-  Group,
-  InfoContainer,
-  ProfilePictureContainer,
-  UserContainer,
-} from "./css/user.css";
-import { FontAwesome } from "@expo/vector-icons";
-import { Channel as IChannel, addChannel } from "../store/slices/channelsSlice";
-import { Me, set } from "../store/slices/meSlice";
-import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
+import { addChannel } from "../store/slices/channelsSlice";
+import { set } from "../store/slices/meSlice";
 import { useEffect, useState } from "react";
 import { addUsers } from "../store/slices/usersSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
 import styled from "styled-components/native";
+import { setPositions } from "../store/slices/notificationSlice";
+import CreateGroupButton from "../Components/CreateGroupButton";
+import ChannelItem from "../Components/ChannelItem";
 
 const Stack = createNativeStackNavigator();
 
@@ -38,8 +32,12 @@ export default function ChannelList({ navigation }: Props) {
     name: string;
   }>();
   const channels = trpc.channel.retrieveRecentChannel.useQuery(undefined, {
-    staleTime: 0,
+    staleTime: Infinity,
   });
+  const meQuery = trpc.user.me.useQuery(undefined, {
+    staleTime: Infinity,
+  })
+  const me = useAppSelector((state) => state.me);
   const users = useAppSelector((state) => state.users);
   const [isLoading, setIsLoading] = useState(true);
   const fetchUsers = trpc.user.retrieve.useMutation({
@@ -48,10 +46,11 @@ export default function ChannelList({ navigation }: Props) {
       setIsLoading(false);
     },
   });
-  const isMe = useAppSelector((state) => state.me !== null);
 
   useEffect(() => {
     if (!isLoading || !channels.data) return;
+
+    dispatch(setPositions(channels.data.map((channel) => channel.id)));
 
     const toFetch: number[] = [];
 
@@ -78,7 +77,7 @@ export default function ChannelList({ navigation }: Props) {
   });
 
   useEffect(() => {
-    if (isMe) return;
+    if (me !== null) return;
 
     AsyncStorage.getItem("token").then((token) => {
       if (token) {
@@ -90,7 +89,14 @@ export default function ChannelList({ navigation }: Props) {
         );
       }
     });
-  }, []);
+
+    if (meQuery.data) {
+      // dispatch(set({
+      //   ...me,
+      //   ...meQuery.data,
+      // }));
+    }
+  }, [meQuery]);
 
   if (isLoading) return <></>;
 
@@ -107,17 +113,19 @@ export default function ChannelList({ navigation }: Props) {
 
 const Container = styled.View`
   height: 100%;
-  background-color: #282C3B;
+  background-color: white;
   border-top-right-radius: 50px;
   border-top-left-radius: 50px;
   position: fixed;
   bottom: 0;
-  margin: 30px 0 0 0;
+  //margin: 50px 0 0 0;
   padding: 20px 10px 0 10px;
 `
 
 function List() {
-  const channels = useAppSelector((state) => Object.values(state.channels));
+  const channels = useAppSelector((state) => {
+    return state.notification.positions.map(id => state.channels[id])
+  });
   const me = useAppSelector((state) => state.me);
   const navigation = useNavigation<any>();
 
@@ -131,6 +139,8 @@ function List() {
     <FlatList
       data={channels}
       renderItem={({ item }) => {
+        if (item?.id === undefined) return null;
+
         return (
           <TouchableOpacity onPress={() => onChannelPress(item.id)}>
             <ChannelItem item={item} me={me} />
@@ -139,54 +149,6 @@ function List() {
       }}
       keyExtractor={(item) => item.id.toString()}
     />
+    <CreateGroupButton/>
   </Container>
-}
-
-interface ChannelProps {
-  item: IChannel;
-  me: Me | null;
-}
-
-function ChannelItem({ item, me }: ChannelProps) {
-  if (item.type === "group") {
-    return (
-      <UserContainer style={{ flex: 1 }} disabled>
-        <ProfilePictureContainer>
-          <FontAwesome name="group" size={24} />
-        </ProfilePictureContainer>
-        <InfoContainer>
-          <Group style={{ height: "100%" }}>
-            <FText
-              $size="18px"
-              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-            >
-              {item.title}
-            </FText>
-          </Group>
-        </InfoContainer>
-      </UserContainer>
-    );
-  }
-
-  const user = useAppSelector(
-    (state) => state.users[item.users.find((id) => id !== me?.id) || ""]
-  );
-
-  return (
-    <UserContainer style={{ flex: 1 }} disabled>
-      <ProfilePictureContainer>
-        <FontAwesome name="user" size={24} />
-      </ProfilePictureContainer>
-      <InfoContainer>
-        <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
-          <FText $size="18px" $color="#FFF" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
-            {user.surname} {user.name}
-          </FText>
-          <FText $size="15px" $color="#FFF">
-            {user.email}
-          </FText>
-        </Group>
-      </InfoContainer>
-    </UserContainer>
-  );
 }

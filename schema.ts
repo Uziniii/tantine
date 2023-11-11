@@ -11,6 +11,14 @@ export interface Message {
   nonce: number;
   createdAt: Date;
   updatedAt: Date;
+  system: boolean;
 }
 
-export type AllSchemaEvent = EventSchema<Message>;
+interface NewGroupTitle {
+  title: string;
+  channelId: number;
+}
+
+export type AllSchemaEvent = 
+  | EventSchema<Message>
+  | EventSchema<NewGroupTitle>

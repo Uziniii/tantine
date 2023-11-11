@@ -4,7 +4,7 @@ import { useAppSelector } from '../store/store';
 import DropdownComponent from '../utils/DropdownFactory';
 
 interface Props {
-  value: string;
+  value: number;
   setValue: (value: number) => void;
 }
 
@@ -15,13 +15,13 @@ export default function DropdownGender({ value, setValue }: Props) {
     return lang.gender.map((item, i) => {
       return {
         label: item,
-        value: i,
+        value: i + 1,
       };
     })
   }, [lang])
 
   return <DropdownComponent
-    value={value}
+    value={value as any}
     setValue={setValue as any}
     data={data}
     search={lang.search}

@@ -2,9 +2,11 @@ import { EventEmitter, Server } from "ws"
 import { prisma } from "./db";
 import { decode } from "jsonwebtoken";
 import { Payload, verifyJwtToken } from "./jwt";
-import { messageEvent } from "./events/message";
-import { IMapUser, messageSchema } from "./events/schema";
+import { createMessageEvent } from "./events/message";
+import { IMapUser, addMemberSchema, deleteGroupSchema, messageSchema, newGroupTitleSchema, removeMemberSchema } from "./events/schema";
 import z from "zod"
+import { sendFactory } from "./helpers/event";
+import { addMembersEvent, deleteGroupEvent, newGroupTitleEvent, removeMemberEvent } from "./events/channel";
 
 const users = new Map<string, IMapUser>()
 const idToTokens = new Map<string, Set<string>>()
@@ -84,6 +86,22 @@ wss.on("connection", async (ws) => {
       idToTokens.set(user.id.toString(), tokens.add(token));
     }
 
+    ws.once("close", () => {
+      users.delete(token);
+      
+      const tokens = idToTokens.get(user.id.toString())
+      
+      if (!tokens) return
+
+      tokens.delete(token)
+
+      if (tokens.size === 0) {
+        return idToTokens.delete(user.id.toString())
+      }
+      
+      idToTokens.set(user.id.toString(), tokens)
+    })
+
     users.set(token, {
       id: user.id,
       ws,
@@ -98,6 +116,8 @@ wss.on("connection", async (ws) => {
 const interval = setInterval(function ping() {
   wss.clients.forEach(function each(ws) {
     if ((ws as any).isAlive === false) {
+      console.log("❌ Terminating");
+      
       return ws.terminate();
     }
 
@@ -117,13 +137,54 @@ process.on("SIGTERM", () => {
   wss.close();
 });
 
+const sendToIds = sendFactory(idToTokens, users);
+
 export const ev = new EventEmitter()
 
 ev.on(
   "createMessage",
-  (message: z.infer<typeof messageSchema>) => messageEvent({
+  (message: z.infer<typeof messageSchema>) => createMessageEvent({
     payload: message,
     users,
     idToTokens,
+    sendToIds,
   })
 );
+
+ev.on(
+  "newGroupTitle",
+  (payload: z.infer<typeof newGroupTitleSchema>) => newGroupTitleEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+);
+
+ev.on(
+  "removeMember",
+  (payload: z.infer<typeof removeMemberSchema>) => removeMemberEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+)
+
+ev.on("addMembers", (payload: z.infer<typeof addMemberSchema>) =>
+  addMembersEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+);
+
+ev.on("deleteGroup", (payload: z.infer<typeof deleteGroupSchema>) => {
+  deleteGroupEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+})

@@ -98,6 +98,8 @@ const messagesSlice = createSlice({
         delete state[channelId].temp[message.nonce];
       }
 
+      if (state[channelId].messages[+message.id]) return state;
+
       state[channelId].messages[+message.id] = message;
       state[channelId].position.unshift(+message.id);
       return state;

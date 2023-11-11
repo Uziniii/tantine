@@ -16,6 +16,7 @@
     "password": "Password",
     "confirmPassword": "Confirm password",
     "alreadyHaveAccount": "Already have an account?",
+    "back": "Back",
     "error": {
       "nameSurnameMin": "The {} must be at least 2 characters long",
       "emailAlreadyExists": "The email already exists",
@@ -40,5 +41,39 @@
   "tab": {
     "chat": "Chat",
     "settings": "Settings"
+  },
+  "route": {
+    "info": "Informations",
+    "edit": "Edit group",
+    "manageMember": "Manage a member",
+    "addMember": "Add members",
+    "search": "Search",
+    "createGroup": "Create group"
+  },
+  "search": {
+    "search": "Search",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "hideList": "Hide list",
+    "showList": "Show list",
+    "createGroup": "Create group"
+  },
+  "groupLookup": {
+    "member": "member",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "addMembers": "Add members",
+    "deleteGroupButton": "Delete group",
+    "deleteGroupAlertTitle": "Delete group",
+    "deleteGroupAlertMessage": "Are you sure you want to delete this group?"
+  },
+  "memberLookup": {
+    "remove": "Remove from group",
+    "sendMessage": "Send a message"
+  },
+  "addMember": {
+    "search": "Search",
+    "next": "Next",
+    "confirm": "Confirm"
   }
 }

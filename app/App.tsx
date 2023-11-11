@@ -21,7 +21,27 @@ import AllRoute from './src/Routes/All';
 import { host } from './src/utils/host';
 import WSLayer from './src/WSLayer';
 
-LogBox.ignoreLogs(['Node of type']);
+const IGNORED_LOGS = [
+  "Node of type",
+  "Selector unknown returned"
+]
+
+LogBox.ignoreLogs(IGNORED_LOGS);
+
+if (__DEV__) {
+  const withoutIgnored = (logger: any) => (...args: any) => {
+    const output = args.join(' ');
+
+    if (!IGNORED_LOGS.some(log => output.includes(log))) {
+      logger(...args);
+    }
+  };
+
+  console.log = withoutIgnored(console.log);
+  console.info = withoutIgnored(console.info);
+  console.warn = withoutIgnored(console.warn);
+  console.error = withoutIgnored(console.error);
+}
 
 export default function App() {
   return <GestureHandlerRootView style={{ flex: 1 }}>
@@ -37,7 +57,7 @@ const Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#1B202D',
+    background: '#202E44',
   },
 }
 
@@ -100,7 +120,7 @@ function Base() {
           <Auth />
         </NavigationContainer>
       }
-      <StatusBar style={Platform.OS === "android" ? "light" : "dark"} hidden={false} translucent={false}/>
+      <StatusBar style={"light"} hidden={false} translucent={false}/>
     </QueryClientProvider>
   </trpc.Provider>
 }

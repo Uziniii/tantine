@@ -13,6 +13,8 @@ import { Message, addTempMessage, initMessages } from "../store/slices/messagesS
 import { isKeyboard } from "../hooks/isKeyboard";
 import Bubble from "../Components/Bubble";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import Loading from "../Components/Loading";
+import { clearNotifications } from "../store/slices/notificationSlice";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -25,6 +27,11 @@ const TitleContainer = styled(TouchableWithoutFeedback)`
   padding-bottom: 8px;
 `
 
+const Wrapper = styled.View`
+  flex: 1;
+  background-color: white;
+`
+
 function isMessageSystem(message: Message): message is Message & { system: true } {
   return Boolean(message.system)
 }
@@ -35,6 +42,7 @@ export default function Channel ({ navigation }: Props) {
   const [title, lookupId] = useAppSelector(state => {
     const channel = state.channels[route.params.id]
     
+    if (channel === undefined) return [undefined, undefined]
     if (channel.type === "group") {
       return [channel.title, channel.id]
     }
@@ -43,7 +51,8 @@ export default function Channel ({ navigation }: Props) {
 
     return [`${user.surname} ${user.name}`, user.id]
   })
-  const type = useAppSelector(state => state.channels[route.params.id].type)
+  
+  const type = useAppSelector(state => state.channels[route.params.id]?.type)
   const me = useAppSelector(state => state.me)
   const users = useAppSelector(state => state.users)
   const isKeyboardShow = isKeyboard()
@@ -75,15 +84,16 @@ export default function Channel ({ navigation }: Props) {
     }
   }
 
+  useEffect(() => {
+    dispatch(clearNotifications(+route.params.id))
+  }, [])
+
   useLayoutEffect(() => {
     navigation.setOptions({
-
       headerShadowVisible: false,
-    
       headerStyle: {
-        backgroundColor: '#1C202C'
+        backgroundColor: '#FFF',
       },
-
       headerTitle() {
         return <TitleContainer onPress={onTitlePress}>
           <ProfilePictureContainer $size="36px">
@@ -92,7 +102,7 @@ export default function Channel ({ navigation }: Props) {
           <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
-            $color="#FFF"
+            $color="#000"
           >
             {title}
           </FText>
@@ -116,12 +126,15 @@ export default function Channel ({ navigation }: Props) {
   })
 
   useEffect(() => {
-    if (msgState) return
+    if (msgState || retrieveMessages.isLoading) return
 
     retrieveMessages.mutate({
       channelId: +route.params.id,
     })
   })
+
+  if (title === undefined && lookupId === undefined) return null
+  if (retrieveMessages.status === "loading") return <Loading />
 
   const onSend = (content: string, createdAt: Date | number) => {
     if (content.length === 0) {
@@ -151,7 +164,7 @@ export default function Channel ({ navigation }: Props) {
     })
   }
 
-  return <>
+  return <Wrapper>
     <GiftedChat
       renderBubble={(props) => {
         let sumChars = 0;
@@ -208,5 +221,5 @@ export default function Channel ({ navigation }: Props) {
       renderUsernameOnMessage={true}
     />
     <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "white" }}></View>
-  </>
+  </Wrapper>
 }

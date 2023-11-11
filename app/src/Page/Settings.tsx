@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Button, View } from "react-native";
-import { store, useAppDispatch, useAppSelector } from "../store/store";
-import { setLogin } from "../store/slices/loginSlice";
+import { useAppDispatch, useAppSelector } from "../store/store";
 import { FText } from "../Components/FText";
 import { Container, Group } from "./css/lookup.css";
 import { ProfilePictureContainer } from "./css/user.css";
@@ -19,8 +18,8 @@ export default function Settings () {
         <FontAwesome name="user" size={50} color="black" />
       </ProfilePictureContainer>
       <Group>
-        <FText $size="24px">{me.surname} {me.name}</FText>
-        <FText $size="16px">{me.email}</FText>
+        <FText $size="24px" $color="white">{me.surname} {me.name}</FText>
+        <FText $size="16px" $color="white">{me.email}</FText>
       </Group>
     </Container>
     <Button color={"red"} title="Déconnexion" onPress={() => {

@@ -2,6 +2,8 @@ import { protectedProcedure, router, userIsInChannel } from "../trpc";
 import z from "zod";
 import { messageRouter } from "./channel/message";
 import { TRPCError } from "@trpc/server";
+import { groupRouter } from "./channel/group";
+import { ev } from "../ws";
 
 const createChannelInput = z.number()
   .or(
@@ -42,7 +44,10 @@ export const channelRouter = router({
     .output(createChannelOutput)
     .mutation(async ({ ctx, input }) => {
       if (input === ctx.user.id)
-        throw new Error("You can't create a channel with yourself");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You can't create a channel with yourself"
+        });
 
       if (isPrivateOrGroup(input)) {
         let channel = await ctx.prisma.channel.findFirst({
@@ -54,14 +59,12 @@ export const channelRouter = router({
                 },
               },
             },
+            privateId: {
+              not: null,
+            }
           },
           select: {
             id: true,
-            users: {
-              select: {
-                id: true,
-              },
-            },
             private: true,
           },
         });
@@ -70,7 +73,7 @@ export const channelRouter = router({
           return {
             type: "private",
             id: channel.id,
-            users: channel.users.map((user) => user.id),
+            users: [ctx.user.id, input],
           };
 
         channel = await ctx.prisma.channel.create({
@@ -84,14 +87,6 @@ export const channelRouter = router({
           },
           select: {
             id: true,
-            users: {
-              select: {
-                id: true,
-                name: true,
-                surname: true,
-                email: true,
-              },
-            },
             private: true,
           },
         });
@@ -99,7 +94,7 @@ export const channelRouter = router({
         return {
           type: "private",
           id: channel.id,
-          users: channel.users.map((user) => user.id),
+          users: [ctx.user.id, input],
         };
       }
 
@@ -128,21 +123,26 @@ export const channelRouter = router({
               authorId: true,
             },
           },
-          users: {
-            select: {
-              id: true,
-            },
-          },
           id: true,
         },
       });
 
       if (!channel.group) throw new Error("Group not created");
 
+      const message = await ctx.prisma.message.create({
+        data: {
+          content: `Le groupe ${channel.group.title} a été créé`,
+          system: true,
+          channelId: channel.id,
+        },
+      });
+
+      ev.emit("createMessage", message)
+
       return {
         type: "group",
         id: channel.id,
-        users: channel.users.map((user) => user.id),
+        users: [ctx.user.id, ...input],
         title: channel.group.title,
         description: channel.group.description,
         authorId: channel.group.authorId,
@@ -152,53 +152,75 @@ export const channelRouter = router({
   retrieveRecentChannel: protectedProcedure
     .output(channelsList)
     .query(async ({ ctx }) => {
-      const ids = await ctx.prisma.message.groupBy({
-        by: ["channelId"],
-        where: {
-          authorId: ctx.user.id,
-        },
-        orderBy: {
-          _max: {
-            createdAt: "desc",
-          },
-        },
-      });
+      interface QueryRaw {
+        channel_id: number;
+        message_id: number | null;
+        created_at: Date | null;
+      }
 
-      const channels = await ctx.prisma.privateChannel.findMany({
+      const channels = await ctx.prisma.$queryRaw<QueryRaw[] | null>`
+        SELECT c.id AS channel_id, m.message_id, m.created_at
+        FROM Channel c
+        LEFT JOIN (
+          SELECT channelId AS message_id, MAX(createdAt) AS created_at
+          FROM Message
+          GROUP BY channelId
+        ) m ON c.id = m.message_id
+        WHERE EXISTS (
+          SELECT 1
+          FROM _ChannelToUser cu
+          WHERE cu.A = c.id
+          AND cu.B = ${ctx.user.id}
+        )
+        ORDER BY m.created_at DESC;
+      `;
+
+      if (!channels || channels.length < 1) return []
+      console.log(channels);
+      
+      const mostRecentChannels = await ctx.prisma.channel.findMany({
         where: {
           id: {
-            in: ids.map((id) => id.channelId),
+            in: channels.filter((channel) => channel.created_at !== null).map((channel) => channel.channel_id),
           },
-        },
-        include: {
-          Channel: {
-            select: {
-              group: {
-                select: {
-                  authorId: true,
-                  title: true,
-                  description: true,
-                },
-              },
-              users: true,
-              id: true,
+          users: {
+            some: {
+              id: ctx.user.id,
             },
-          },
+          }
         },
-      });
+        select: {
+          id: true,
+          users: {
+            select: {
+              id: true
+            }
+          },
+          group: {
+            select: {
+              title: true,
+              description: true,
+              authorId: true
+            }
+          },
+          private: {
+            select: {
+              id: true
+            }
+          }
+        }
+      })
 
-      console.log([...channels].map(({ Channel }) => Channel[0].users));
+      return mostRecentChannels?.map((channel) => {
+        const { group, private: channelPrivate } = channel;
 
-      return channels.map(({ Channel }) => {
-        const [channel] = Channel;
-
-        if (!channel)
+        if (group === null && channelPrivate === null)
           throw new TRPCError({
             message: "Channel not found",
             code: "BAD_REQUEST",
           });
 
-        if (!channel.group) {
+        if (group === null) {
           return {
             type: "private",
             id: channel.id,
@@ -210,9 +232,9 @@ export const channelRouter = router({
           type: "group",
           id: channel.id,
           users: channel.users.map((user) => user.id),
-          title: channel.group.title,
-          description: channel.group.description,
-          authorId: channel.group.authorId,
+          title: group.title,
+          description: group.description,
+          authorId: group.authorId,
         };
       });
     }),
@@ -267,4 +289,5 @@ export const channelRouter = router({
     }),
 
   message: messageRouter,
+  group: groupRouter,
 });

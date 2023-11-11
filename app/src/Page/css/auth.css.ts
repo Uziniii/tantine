@@ -10,12 +10,15 @@ export const BottomContainer = styled.View`
   justify-content: center;
 `;
 
-export const Button = styled(TouchableOpacity)<{ $width?: string }>`
+export const Button = styled(TouchableOpacity)<{
+  $width?: string;
+  $background?: string;
+}>`
   width: ${({ $width }) => $width || "100%"};
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #2A2F3E;
+  background: ${({ $background }) => $background || "#2A2F3E"};
   border-radius: 8px;
   padding: 12px 0;
 `;

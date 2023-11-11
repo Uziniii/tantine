@@ -2,6 +2,7 @@ import { messageSchema } from '../../events/schema';
 import { z } from "zod";
 import { router, userIsInChannel } from "../../trpc";
 import { ev } from "../../ws";
+import { TRPCError } from '@trpc/server';
 
 interface Message {
   channelId: number | null;
@@ -46,6 +47,11 @@ export const messageRouter = router({
         },
       });
 
+      if (!message.authorId) throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Message authorId is null"
+      });
+
       ev.emit("createMessage", {
         id: message.id,
         content: message.content,
@@ -54,21 +60,17 @@ export const messageRouter = router({
         nonce: input.nonce,
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
+        system: false,
       } satisfies z.infer<typeof messageSchema>);
 
       return message;
     }),
 
   retrieveMessages: userIsInChannel
-    .input(
-      z.object({
-        channelId: z.number(),
-      })
-    )
     .mutation(async ({ ctx, input }) => {
       const messages = await ctx.prisma.message.findMany({
         where: {
-          channelId: input.channelId,
+          channelId: +input.channelId,
         },
         select: {
           id: true,
@@ -76,6 +78,7 @@ export const messageRouter = router({
           createdAt: true,
           updatedAt: true,
           authorId: true,
+          system: true,
         },
         orderBy: {
           createdAt: "asc",

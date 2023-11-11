@@ -30,11 +30,6 @@ const inputsReducer = (state: InputsReducerState, action: Action) => {
   };
 };
 
-type reducerReturn = [
-  InputsReducerState,
-  React.Dispatch<Action>
-]
-
 function arrToState<Keys extends string[]>(arr: Keys) {
   const result: Record<string, any> = {};
   for (const item of arr) {
@@ -49,11 +44,11 @@ function arrToState<Keys extends string[]>(arr: Keys) {
   }>;
 }
 
-export function useInputsReducer(keys: string[]): reducerReturn {
-  const [state, dispatcher] = useReducer(
+export function useInputsReducer<Keys extends string[]>(keys: Keys) {
+  const reducer = useReducer(
     inputsReducer,
     arrToState(keys)
   );
 
-  return [state, dispatcher];
+  return reducer;
 };

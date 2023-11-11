@@ -1,16 +1,19 @@
 import { Message } from "../../../../schema";
 import { trpc } from "../../utils/trpc";
 import { ChannelsState, addChannel } from "../slices/channelsSlice";
+import { Me } from "../slices/meSlice";
 import { addMessage, removeTempMessage } from "../slices/messagesSlice";
+import { addNotification, toFirstPosition } from "../slices/notificationSlice";
 import { UsersState, addUsers } from "../slices/usersSlice";
-import { useAppDispatch } from "../store";
+import { AppDispatch } from "../store";
 
 interface createMessageProps {
-  dispatch: ReturnType<typeof useAppDispatch>;
+  dispatch: AppDispatch;
   channels: ChannelsState;
   users: UsersState;
   fetchChannel: ReturnType<typeof trpc.channel.retrieve.useMutation>;
   fetchUsers: ReturnType<typeof trpc.user.retrieve.useMutation>;
+  me: Me;
 }
 
 export function createMessageEventFactory({
@@ -19,6 +22,7 @@ export function createMessageEventFactory({
   users,
   fetchChannel,
   fetchUsers,
+  me,
 }: createMessageProps) {
   return async function event(payload: Message) {
     if (!channels[payload.channelId]) {
@@ -40,7 +44,7 @@ export function createMessageEventFactory({
     }
 
     dispatch(
-      addMessage({
+      addMessage({  
         channelId: payload.channelId,
         message: {
           id: payload.id,
@@ -59,5 +63,11 @@ export function createMessageEventFactory({
         nonce: payload.nonce,
       })
     );
+    
+    if (payload.authorId !== me.id) {
+      dispatch(addNotification(payload.channelId))
+    } else {
+      dispatch(toFirstPosition(payload.channelId))
+    }
   };
 }

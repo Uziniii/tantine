@@ -15,9 +15,15 @@ model User {
   email          String   @unique
   name           String
   surname        String
+  gender         Int
   salt           String
   hashedPassword String
   createdAt      DateTime @default(now())
+  admin          Boolean  @default(false)
+  country        String
+  city           String
+  state          String
+  origin         String
 
   messages Message[]
   channels Channel[]
@@ -27,12 +33,13 @@ model User {
 
 model Message {
   id        Int      @id @default(autoincrement())
+  system    Boolean  @default(false)
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
-  channel   Channel @relation(fields: [channelId], references: [id])
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int?
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId Int
 }
 
@@ -40,9 +47,9 @@ model Channel {
   id        Int             @id @default(autoincrement())
   messages  Message[]
   users     User[]
-  private   PrivateChannel? @relation(fields: [privateId], references: [id])
+  private   PrivateChannel? @relation(fields: [privateId], references: [id], onDelete: Cascade)
   privateId Int?
-  group     GroupChannel?   @relation(fields: [groupId], references: [id])
+  group     GroupChannel?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int?
 }
 

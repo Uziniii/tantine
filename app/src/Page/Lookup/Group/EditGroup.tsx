@@ -39,11 +39,14 @@ export default function EditGroup () {
   const group = useAppSelector(state => state.channels[route.params.id])
   const [error, setError] = useState<string>("")
   const editName = trpc.channel.group.editTitle.useMutation()
+  const [input, setInput] = useState<string>("")
 
   if (group.type !== "group") return null
 
   const onInputChange = (text: string) => {
     const result = nameInput.safeParse(text)
+
+    setInput(text)
 
     if (!result.success) {
       setError(result.error.errors[0].message)
@@ -51,10 +54,12 @@ export default function EditGroup () {
     }
 
     setError("")
-  
+  }
+
+  const onTitleSubmit = () => {
     editName.mutate({
       channelId: group.id,
-      title: result.data
+      title: input
     })
   }
 
@@ -63,14 +68,14 @@ export default function EditGroup () {
   }
 
   return <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-    <Container $marginTop={16}>
-      <FText $size="20px">Nom du groupe</FText>
+    <Container $marginTop={50}>
       <TextInput $height="43.7px" $width="90%" $borderColor={error ? "red" : undefined} onChangeText={onInputChange} placeholder="Title" defaultValue={group.title} />
       {error && <FText $size="12px" $color="red">{error}</FText>}
       {/* {editName.status === "success" && <FText $size="12px" $color="green">Le nom du groupe a bien étais changé</FText>} */}
       <Button
         $width={`${width * 0.9}px`}
         disabled={!!error}
+        onPress={onTitleSubmit}
       >
         <FText $color='white'>Changer le nom</FText>
       </Button>
