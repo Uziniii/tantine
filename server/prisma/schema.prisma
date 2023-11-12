@@ -69,4 +69,6 @@ model GroupChannel {
   author      User      @relation(fields: [authorId], references: [id])
   authorId    Int
   Channel     Channel[]
+  // public = 0 & private = 1
+  type        Int       @default(0)
 }
