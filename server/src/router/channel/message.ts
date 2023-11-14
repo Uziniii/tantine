@@ -1,7 +1,7 @@
 import { messageSchema } from '../../events/schema';
 import { z } from "zod";
 import { router, userIsInChannel } from "../../trpc";
-import { ev } from "../../ws";
+import { ev } from "../../.";
 import { TRPCError } from '@trpc/server';
 
 interface Message {

@@ -22,3 +22,4 @@ interface NewGroupTitle {
 export type AllSchemaEvent = 
   | EventSchema<Message>
   | EventSchema<NewGroupTitle>
+  | EventSchema<undefined>

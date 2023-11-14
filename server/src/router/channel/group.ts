@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router, userIsAuthorOrAdmin } from "../../trpc";
 import z from "zod";
-import { ev } from "../../ws";
+import { ev } from "../../.";
 
 export const groupRouter = router({
   editTitle: userIsAuthorOrAdmin
@@ -181,17 +181,7 @@ export const groupRouter = router({
             title: {
               contains: input.query
             },
-            // author: {
-            //   city: {
-            //     contains: input.query
-            //   },
-            //   state: {
-            //     contains: input.query
-            //   },
-            //   country: {
-            //     contains: input.query
-            //   },
-            // }
+            visibility: 0
           }
         },
         select: {

@@ -20,12 +20,15 @@ const Wrapper = styled.View`
   background-color: white;
 `
 
-export const SearchInput = styled.TextInput`
-  width:95%;
-  height:7%;
-  padding:0 0 0 20px;
-  margin: 20px 0 0 0;
-  border-radius:9999px;
+export const SearchInput = styled.TextInput<{
+  $width?: string
+  $margin?: string
+}>`
+  width: ${({ $width }) => $width ?? "95%"};
+  height: 48px;
+  padding: 0 0 0 20px;
+  margin: ${({ $margin }) => $margin ?? "20px 0 0 0"};
+  border-radius: 9999px;
   background-color: #202E44;
   color: white;
   align-self: center;

@@ -48,7 +48,8 @@
     "manageMember": "Gérer un membre",
     "addMember": "Ajouter des membres",
     "search": "Rechercher",
-    "createGroup": "Nouveau groupe"
+    "createGroup": "Nouveau groupe",
+    "invite": "Invitation"
   },
   "search": {
     "search": "Rechercher",
@@ -66,7 +67,9 @@
     "deleteGroupButton": "Supprimer le groupe",
     "deleteGroupAlertTitle": "Supprimer le groupe",
     "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?",
+    "invite": "Inviter",
     "edit": {
+      "changeName": "Changer le nom",
       "visibility": "Visibilité",
       "public": "Publique",
       "private": "Privé"

@@ -1,5 +1,5 @@
 import { NavigationProp, useRoute } from "@react-navigation/native";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { View } from "react-native";
 import { ProfilePictureContainer } from "./css/user.css";
 import { FText } from "../Components/FText";
@@ -15,6 +15,7 @@ import Bubble from "../Components/Bubble";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Loading from "../Components/Loading";
 import { clearNotifications } from "../store/slices/notificationSlice";
+import { SearchInput } from "./CreateGroup";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -30,6 +31,15 @@ const TitleContainer = styled(TouchableWithoutFeedback)`
 const Wrapper = styled.View`
   flex: 1;
   background-color: white;
+`
+
+const InputContainer = styled.View`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 0 12px;
 `
 
 function isMessageSystem(message: Message): message is Message & { system: true } {
@@ -133,6 +143,8 @@ export default function Channel ({ navigation }: Props) {
     })
   })
 
+  // const [input, setInput] = useState("");
+
   if (title === undefined && lookupId === undefined) return null
   if (retrieveMessages.status === "loading") return <Loading />
 
@@ -183,6 +195,12 @@ export default function Channel ({ navigation }: Props) {
 
         return <Bubble color={colors[sumChars % colors.length]} {...props}/>
       }}
+      // renderInputToolbar={() => {
+      //   return <InputContainer>
+      //     <SearchInput multiline  $width="90%" $margin="0" style={{height:32}} placeholderTextColor={"white"} placeholder="Envoyer un message"/>
+      //     <FontAwesome size={24} name="send"/>
+      //   </InputContainer>
+      // }}
       messages={msgState?.map(message => {
         if (isMessageSystem(message)) {
           return {

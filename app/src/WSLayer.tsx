@@ -16,8 +16,7 @@ export default function WSLayer({ children }: PropsWithChildren) {
   const fetchUsers = trpc.user.retrieve.useMutation();
   const retrieveUsers = trpc.user.retrieve.useMutation()
 
-  const { sendJsonMessage } = useWebSocket(`ws://${host}:3001/${me?.token}`, {
-    protocols: "echo",
+  const { sendJsonMessage } = useWebSocket(`ws://${host}:3000/${me?.token}`, {
     onClose(event) {
       if (event.code === 1001) {
         console.log("La connexion a été fermée par le client.");
@@ -91,7 +90,7 @@ export default function WSLayer({ children }: PropsWithChildren) {
     },
     heartbeat: {
       message: "ping",
-      interval: 5000,
+      interval: 15000,
     },
   });
 

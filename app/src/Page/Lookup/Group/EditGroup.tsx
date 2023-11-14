@@ -57,9 +57,11 @@ export default function EditGroup () {
       title: input
     })
   }
-  console.log(group.visibility);
-  
+
   const onChangeVisibility = (visibility: 0 | 1) => {
+    if (changeVisibility.status === "loading") return
+    if (visibility === group.visibility) return
+
     changeVisibility.mutate({
       channelId: group.id,
       visibility
@@ -76,9 +78,9 @@ export default function EditGroup () {
         disabled={!!error}
         onPress={onTitleSubmit}
       >
-        <FText $color='white'>Changer le nom</FText>
+        <FText $color='white'>{lang.changeName}</FText>
       </Button>
-      <FText>{lang.visibility}</FText>
+      <FText $color="white">{lang.visibility}</FText>
       <ButtonGroup>
         <SpaceBetweenButton onPress={() => onChangeVisibility(0)} $width={`${width * 0.45}px`}  $background="#2A2F3E">
           <FText $color="white">{lang.public}</FText>
@@ -89,7 +91,7 @@ export default function EditGroup () {
         <SpaceBetweenButton onPress={() => onChangeVisibility(1)} $width={`${width * 0.45}px`} $background="#2A2F3E">
           <FText $color="white">{lang.private}</FText>
           {group.visibility === 1 && (
-            <FontAwesome name="arrow-right" size={16} color={"white"} />
+            <FontAwesome name="check" size={16} color={"green"} />
           )}
         </SpaceBetweenButton>
       </ButtonGroup>

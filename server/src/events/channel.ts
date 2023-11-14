@@ -1,5 +1,5 @@
 import { prisma } from "../db";
-import { ev } from "../ws";
+import { ev } from "../.";
 import { Args, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, newGroupTitleSchema, removeMemberSchema } from "./schema";
 import z from "zod"
 

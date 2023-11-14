@@ -3,7 +3,7 @@ import z from "zod";
 import { messageRouter } from "./channel/message";
 import { TRPCError } from "@trpc/server";
 import { groupRouter } from "./channel/group";
-import { ev } from "../ws";
+import { ev } from "../.";
 
 const createChannelInput = z.number()
   .or(
@@ -250,9 +250,7 @@ export const channelRouter = router({
         objectChannel[+channel.id] = channel
       }
 
-      console.log(objectChannel);
-
-      return [...Array(channels.length)].map((_, i) => objectChannel[channels[i].channel_id.toString()]);
+      return [...Array(arr.length)].map((_, i) => objectChannel[channels[i].channel_id]);
     }),
 
   retrieve: userIsInChannel
