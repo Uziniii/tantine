@@ -1,6 +1,6 @@
 import { prisma } from "../db";
 import { ev } from "../ws";
-import { Args, addMemberSchema, deleteGroupSchema, newGroupTitleSchema, removeMemberSchema } from "./schema";
+import { Args, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, newGroupTitleSchema, removeMemberSchema } from "./schema";
 import z from "zod"
 
 export const newGroupTitleEvent = async ({
@@ -98,4 +98,26 @@ export const deleteGroupEvent = async ({
   sendToIds(payload.users, "deleteGroup", {
     channelId: payload.channelId,
   });
+};
+
+export const changeVisibilityEvent = async ({
+  payload,
+  sendToIds,
+}: Args<z.infer<typeof changeVisibilitySchema>>) => {
+  const channel = await prisma.channel.findUnique({
+    where: {
+      id: +payload.channelId,
+    },
+    select: {
+      users: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (!channel) return;
+
+  sendToIds(channel.users.map(({ id }) => id), "changeVisibility", payload);
 };

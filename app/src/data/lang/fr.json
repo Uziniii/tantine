@@ -65,7 +65,12 @@
     "addMembers": "Ajouter des membres",
     "deleteGroupButton": "Supprimer le groupe",
     "deleteGroupAlertTitle": "Supprimer le groupe",
-    "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?"
+    "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?",
+    "edit": {
+      "visibility": "Visibilité",
+      "public": "Publique",
+      "private": "Privé"
+    }
   },
   "memberLookup": {
     "remove": "Retirer du groupe",

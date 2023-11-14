@@ -212,5 +212,49 @@ export const groupRouter = router({
         title: group?.title,
         users: users.map(({ id }) => id)
       }))
+    }),
+
+  changeVisibility: userIsAuthorOrAdmin
+    .input(z.object({
+      channelId: z.number(),
+      visibility: z.number()
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const channel = await ctx.prisma.channel.findUnique({
+        where: {
+          id: input.channelId
+        },
+        select: {
+          id: true,
+          group: {
+            select: {
+              visibility: true,
+            }
+          }
+        }
+      })
+
+      if (!channel || channel?.group === null) throw new TRPCError({ code: "NOT_FOUND" });
+      if (channel.group.visibility === input.visibility) return undefined;
+
+      await ctx.prisma.channel.update({
+        where: {
+          id: channel.id
+        },
+        data: {
+          group: {
+            update: {
+              visibility: input.visibility
+            }
+          }
+        }
+      })
+
+      ev.emit("changeVisibility", {
+        channelId: input.channelId,
+        visibility: input.visibility
+      })
+
+      return undefined
     })
 })

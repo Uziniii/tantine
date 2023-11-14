@@ -1,12 +1,12 @@
-import { EventEmitter, Server } from "ws"
+import { EventEmitter, WebSocketServer } from "ws"
 import { prisma } from "./db";
 import { decode } from "jsonwebtoken";
 import { Payload, verifyJwtToken } from "./jwt";
 import { createMessageEvent } from "./events/message";
-import { IMapUser, addMemberSchema, deleteGroupSchema, messageSchema, newGroupTitleSchema, removeMemberSchema } from "./events/schema";
+import { IMapUser, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, messageSchema, newGroupTitleSchema, removeMemberSchema } from "./events/schema";
 import z from "zod"
 import { sendFactory } from "./helpers/event";
-import { addMembersEvent, deleteGroupEvent, newGroupTitleEvent, removeMemberEvent } from "./events/channel";
+import { addMembersEvent, changeVisibilityEvent, deleteGroupEvent, newGroupTitleEvent, removeMemberEvent } from "./events/channel";
 
 const users = new Map<string, IMapUser>()
 const idToTokens = new Map<string, Set<string>>()
@@ -14,7 +14,7 @@ const idToTokens = new Map<string, Set<string>>()
 function heartbeat(this: { isAlive: boolean }) {
   this.isAlive = true;
 }
-const wss = new Server({
+const wss = new WebSocketServer({
   port: 3001,
 });
 
@@ -182,6 +182,15 @@ ev.on("addMembers", (payload: z.infer<typeof addMemberSchema>) =>
 
 ev.on("deleteGroup", (payload: z.infer<typeof deleteGroupSchema>) => {
   deleteGroupEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+})
+
+ev.on("changeVisibility", (payload: z.infer<typeof changeVisibilitySchema>) => {
+  changeVisibilityEvent({
     payload,
     users,
     idToTokens,

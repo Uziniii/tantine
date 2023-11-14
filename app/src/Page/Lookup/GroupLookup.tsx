@@ -52,6 +52,8 @@ export default function GroupLookup({ navigation }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => {
+        if (group !== undefined && group.type === "group" && me !== null && group.authorId !== me.id) return null
+
         return <View>
           <ButtonEdit onPress={
             () => navigation.navigate("editGroup", { id: route.params.id })

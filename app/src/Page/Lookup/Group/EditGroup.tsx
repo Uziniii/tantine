@@ -1,28 +1,20 @@
 import { useRoute } from "@react-navigation/native"
-import { useAppSelector } from "../../../store/store"
+import { useAppDispatch, useAppSelector } from "../../../store/store"
 import { Container } from "../../css/lookup.css"
-import styled from "styled-components/native"
 import { FText } from "../../../Components/FText"
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
+import { ScrollView } from "react-native-gesture-handler"
 import { Dimensions } from "react-native"
 import z from "zod"
 import { useState } from "react"
 import { TextInput } from "../../../utils/formHelpers"
 import { Button } from "../../css/auth.css"
 import { trpc } from "../../../utils/trpc"
+import { ButtonGroup } from "../../css/search.css"
+import { SpaceBetweenButton } from "../../Auth/LangSelect"
+import { FontAwesome } from "@expo/vector-icons"
+import { langData } from "../../../data/lang/lang"
 
 const { width } = Dimensions.get("window")
-
-const DeleteButton = styled(TouchableOpacity)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: red;
-  padding: 8px 0;
-  border-radius: 8px;
-  height: 43.7px;
-  width: ${width * 0.9}px;
-`
 
 const nameInput = z
   .string()
@@ -35,13 +27,16 @@ const nameInput = z
   })
 
 export default function EditGroup () {
+  const lang = useAppSelector(state => langData[state.language].groupLookup.edit)
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const group = useAppSelector(state => state.channels[route.params.id])
   const [error, setError] = useState<string>("")
-  const editName = trpc.channel.group.editTitle.useMutation()
   const [input, setInput] = useState<string>("")
+  
+  const editName = trpc.channel.group.editTitle.useMutation()
+  const changeVisibility = trpc.channel.group.changeVisibility.useMutation()
 
-  if (group.type !== "group") return null
+  if (group && group.type !== "group") return null
 
   const onInputChange = (text: string) => {
     const result = nameInput.safeParse(text)
@@ -62,9 +57,13 @@ export default function EditGroup () {
       title: input
     })
   }
-
-  const onDeleteGroup = () => {
-
+  console.log(group.visibility);
+  
+  const onChangeVisibility = (visibility: 0 | 1) => {
+    changeVisibility.mutate({
+      channelId: group.id,
+      visibility
+    })
   }
 
   return <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
@@ -79,9 +78,21 @@ export default function EditGroup () {
       >
         <FText $color='white'>Changer le nom</FText>
       </Button>
-      <DeleteButton onPress={onDeleteGroup}>
-        <FText $color="white" $size="16px">Supprimer le groupe</FText>
-      </DeleteButton>
+      <FText>{lang.visibility}</FText>
+      <ButtonGroup>
+        <SpaceBetweenButton onPress={() => onChangeVisibility(0)} $width={`${width * 0.45}px`}  $background="#2A2F3E">
+          <FText $color="white">{lang.public}</FText>
+          {group.visibility === 0 && (
+            <FontAwesome name="check" size={16} color={"green"} />
+          )}
+        </SpaceBetweenButton>
+        <SpaceBetweenButton onPress={() => onChangeVisibility(1)} $width={`${width * 0.45}px`} $background="#2A2F3E">
+          <FText $color="white">{lang.private}</FText>
+          {group.visibility === 1 && (
+            <FontAwesome name="arrow-right" size={16} color={"white"} />
+          )}
+        </SpaceBetweenButton>
+      </ButtonGroup>
     </Container>
   </ScrollView> 
 }

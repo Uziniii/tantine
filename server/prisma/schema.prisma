@@ -29,6 +29,7 @@ model User {
   channels Channel[]
 
   groupChannel GroupChannel[]
+  groupAdmins  GroupChannel[] @relation("GroupAdmin")
 }
 
 model Message {
@@ -70,5 +71,6 @@ model GroupChannel {
   authorId    Int
   Channel     Channel[]
   // public = 0 & private = 1
-  type        Int       @default(0)
+  visibility        Int       @default(0)
+  Admin            User[]     @relation("GroupAdmin")
 }

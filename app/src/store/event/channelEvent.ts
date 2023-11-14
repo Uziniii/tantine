@@ -1,5 +1,5 @@
 import { trpc } from "../../utils/trpc";
-import { addChannel, addMembers, editGroupTitle, removeChannel, removeMember } from "../slices/channelsSlice";
+import { addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeMember } from "../slices/channelsSlice";
 import { Me } from "../slices/meSlice";
 import { addPosition, removeChannelNotification } from "../slices/notificationSlice";
 import { addUsers } from "../slices/usersSlice";
@@ -106,5 +106,20 @@ export const deleteGroupEventFactory = ({
   }) {
     dispatch(removeChannelNotification(+payload.channelId))
     dispatch(removeChannel(+payload.channelId))
+  }
+}
+
+interface ChangeVisibilityProps {
+  dispatch: AppDispatch
+}
+
+export const changeVisibilityEventFactory = ({
+  dispatch
+}: ChangeVisibilityProps) => {
+  return function event(payload: {
+    channelId: number;
+    visibility: 0 | 1;
+  }) {
+    dispatch(changeVisibility(payload))
   }
 }
