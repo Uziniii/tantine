@@ -8,11 +8,11 @@ import { langData } from "../../../../data/lang/lang"
 import { View } from "react-native"
 import { SearchInput } from "../Add/AddMember"
 import { Channel } from "../../../../store/slices/channelsSlice"
-import GroupItem from "../../../../Components/GroupItem"
 import UserItem from "../../../../Components/UserItem"
 import { InfoContainer, ProfilePictureContainer, UserContainer } from "../../../css/user.css"
 import { Group } from "../../../css/lookup.css"
 import { FontAwesome } from "@expo/vector-icons"
+import { Radio, VerticalGroup } from "../../../css/search.css"
 
 interface Props {
   navigation: NavigationProp<any>
@@ -24,7 +24,26 @@ export default function Invite({ navigation }: Props) {
   const lang = useAppSelector(state => langData[state.language].addMember)
   const [search, setSearch] = useState("")
   const channels = useAppSelector((state) => {
-    return state.notification.positions.map(id => state.channels[id])
+    if (state.me === null) return []
+
+    const channels = state.notification.positions
+      .map(id => state.channels[id])
+      .filter(channel => channel.id !== +route.params.id)
+
+    if (search.trimStart() === "") return channels
+
+    return channels.filter(channel => {
+      if (channel.id === +route.params.id) return false
+      if (channel.type === "group") return channel.title.toLowerCase().includes(search.toLowerCase())
+      
+      const userId = channel.users.find(id => id !== state.me?.id)
+      
+      if (!userId) return false
+
+      const user = state.users[userId]
+
+      return `${user.name} ${user.surname}`.toLowerCase().includes(search.toLowerCase())
+    })
   });
 
   const onNextPress = () => {
@@ -33,7 +52,7 @@ export default function Invite({ navigation }: Props) {
 
     if (channelsToAdd.length === 0) return
 
-    navigation.navigate("addMemberConfirm", {
+    navigation.navigate("inviteConfirm", {
       id: route.params.id,
       addedChannels,
     })
@@ -61,22 +80,38 @@ export default function Invite({ navigation }: Props) {
       }}
       contentInsetAdjustmentBehavior="automatic"
       data={channels}
-      renderItem={({ item }) => <Item item={item} addedChannels={addedChannels} setAddedChannels={setAddedChannels} />}
+      renderItem={({ item }) => <ChannelItem
+        item={item}
+        addedChannels={addedChannels}
+        setAddedChannels={setAddedChannels}
+      />}
       keyExtractor={item => item.id.toString()}
     />
   </View>;
 }
 
-interface ItemProps {
+interface ViewModeItemProps {
+  viewMode: true
+  item: Channel
+  addedChannels: Record<number, boolean>
+  setAddedChannels: undefined
+}
+
+interface NoViewModeItemProps {
+  viewMode?: false
   item: Channel
   addedChannels: Record<number, boolean>
   setAddedChannels: React.Dispatch<React.SetStateAction<Record<number, boolean>>>
 }
 
-function Item ({ item, addedChannels, setAddedChannels }: ItemProps) {
+type ItemProps = ViewModeItemProps | NoViewModeItemProps
+
+export function ChannelItem ({ viewMode, item, addedChannels, setAddedChannels }: ItemProps) {
   const lang = useAppSelector(state => langData[state.language].groupLookup)
 
   const onAdd = () => {
+    if (viewMode) return
+    
     setAddedChannels(val => ({
       ...val,
       [item.id]: !val[item.id]
@@ -85,18 +120,27 @@ function Item ({ item, addedChannels, setAddedChannels }: ItemProps) {
 
   if (item.type === "group") {
     return <UserContainer onPress={onAdd} style={{ flex: 1 }}>
-      <ProfilePictureContainer>
-        <FontAwesome name="group" size={24} />
-      </ProfilePictureContainer>
-      <InfoContainer>
-        <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
-          <FText $size="18px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
-            {item.title}
-          </FText>
-          <FText $size="15px" $color="white">
-            {`${item.users.length} ${item.users.length <= 1 ? lang.member : `${lang.member}s`}`}
-          </FText>
-        </Group>
+      <InfoContainer style={{ flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
+        <VerticalGroup>
+          <ProfilePictureContainer>
+            <FontAwesome name="group" size={24} />
+          </ProfilePictureContainer>
+          <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
+            <FText $size="18px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+              {item.title}
+            </FText>
+            <FText $size="15px" $color="white">
+              {`${item.users.length} ${item.users.length <= 1 ? lang.member : `${lang.member}s`}`}
+            </FText>
+          </Group>
+        </VerticalGroup>
+        <VerticalGroup>
+          <Radio style={{
+            backgroundColor: addedChannels[item.id] ? "#202E44" : undefined,
+          }}>
+            {addedChannels[item.id] && <FontAwesome name="check" color={"white"} size={16} />}
+          </Radio>
+        </VerticalGroup>
       </InfoContainer>
     </UserContainer>
   }
@@ -115,5 +159,14 @@ function Item ({ item, addedChannels, setAddedChannels }: ItemProps) {
 
   if (user === undefined) return null
 
-  return <UserItem strong theme="dark" groupMode addedUsers={addedChannels} userPress={onAdd} item={user} />
+  return <UserItem
+    strong
+    groupMode
+    theme="dark"
+    addedUsers={{
+      [user.id]: addedChannels[item.id]
+    }}
+    userPress={onAdd}
+    item={user}
+  />
 }

@@ -1,10 +1,10 @@
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, router, userIsAuthorOrAdmin } from "../../trpc";
+import { groupIsPrivate, groupIsPublic, protectedProcedure, router, userIsAuthorOrSuperAdmin } from "../../trpc";
 import z from "zod";
 import { ev } from "../../.";
 
 export const groupRouter = router({
-  editTitle: userIsAuthorOrAdmin
+  editTitle: userIsAuthorOrSuperAdmin
     .input(z.object({
       title: z.string().trim().min(2).max(50)
     }))
@@ -41,7 +41,7 @@ export const groupRouter = router({
       return undefined
     }),
 
-  removeMember: userIsAuthorOrAdmin
+  removeMember: userIsAuthorOrSuperAdmin
     .input(z.object({
       channelId: z.number(),
       memberId: z.number()
@@ -86,7 +86,7 @@ export const groupRouter = router({
       return true
     }),
 
-  addMembers: userIsAuthorOrAdmin
+  addMembers: userIsAuthorOrSuperAdmin
     .input(z.object({
       channelId: z.number(),
       membersIds: z.array(z.number())
@@ -128,7 +128,7 @@ export const groupRouter = router({
       return undefined
     }),
   
-  delete: userIsAuthorOrAdmin
+  delete: userIsAuthorOrSuperAdmin
     .mutation(async ({ ctx, input }) => {
       const group = await ctx.prisma.channel.findUnique({
         where: {
@@ -204,7 +204,7 @@ export const groupRouter = router({
       }))
     }),
 
-  changeVisibility: userIsAuthorOrAdmin
+  changeVisibility: userIsAuthorOrSuperAdmin
     .input(z.object({
       channelId: z.number(),
       visibility: z.number()
@@ -246,5 +246,38 @@ export const groupRouter = router({
       })
 
       return undefined
+    }),
+
+  join: groupIsPublic
+    .mutation(async ({ ctx, input }) => {
+      await ctx.prisma.channel.update({
+        where: {
+          id: input.channelId
+        },
+        data: {
+          users: {
+            connect: {
+              id: ctx.user.id
+            }
+          }
+        }
+      })
+
+      ev.emit("memberJoin", {
+        channelId: input.channelId,
+        userId: ctx.user.id,
+      })
+    }),
+  
+  createJoinRequest: groupIsPrivate
+    .mutation(async ({ ctx, input }) => {
+      const joinRequest = await ctx.prisma.joinRequest.create({
+        data: {
+          userId: ctx.user.id,
+          groupId: input.channelId,
+        },
+      })
+
+      ev.emit("")
     })
 })

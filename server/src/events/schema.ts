@@ -24,6 +24,10 @@ export const changeVisibilitySchema = z.object({
   channelId: z.number(),
   visibility: z.number(),
 })
+export const memberJoinSchema = z.object({
+  channelId: z.number(),
+  userId: z.number(),
+})
 
 const allSchema = z.union([
   messageSchema,
@@ -32,6 +36,7 @@ const allSchema = z.union([
   addMemberSchema,
   deleteGroupSchema,
   changeVisibilitySchema,
+  memberJoinSchema,
 ]);
 
 export interface IMapUser {

@@ -23,8 +23,8 @@ export default function Settings () {
       </Group>
     </Container>
     <Button color={"red"} title="Déconnexion" onPress={() => {
-      AsyncStorage.removeItem("token")
       dispatch({ type: "RESET" })
+      AsyncStorage.removeItem("token")
     }} />
   </View>
 }

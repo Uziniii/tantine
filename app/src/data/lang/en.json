@@ -83,5 +83,12 @@
     "search": "Search",
     "next": "Next",
     "confirm": "Confirm"
+  },
+  "inviteConfirm": {
+    "send": "Send",
+    "messagePlaceholder": "Send an invitation"
+  },
+  "messageText": {
+    "joinInvite": "Join the group"
   }
 }

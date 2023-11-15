@@ -8,6 +8,7 @@ export interface Message {
   authorId: number | null;
   nonce?: number;
   system: boolean;
+  invite?: number | null;
 }
 
 export interface MessageStateSchema {

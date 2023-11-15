@@ -12,7 +12,6 @@ import z from "zod"
 
 export const createContext = async ({
   req,
-  res,
 }:
   | CreateHTTPContextOptions
   | NodeHTTPCreateContextFnOptions<IncomingMessage, ws>) => {
@@ -28,6 +27,7 @@ export const createContext = async ({
         },
         select: {
           hashedPassword: true,
+          admin: true,
         },
       });
 
@@ -35,7 +35,10 @@ export const createContext = async ({
         return null;
       }
 
-      return user;
+      return {
+        ...user,
+        admin: dbUser.admin,
+      };
     }
 
     return null;
@@ -55,8 +58,9 @@ export const createContext = async ({
  */
 const t = initTRPC.context<typeof createContext>().create({
   transformer: superjson,
-  errorFormatter({ shape, error }) {
+  errorFormatter({ shape, error, path }) {
     return {
+      path,
       ...shape,
       data: {
         ...shape.data,
@@ -96,10 +100,6 @@ export const userIsInChannel = protectedProcedure
     })
   )
   .use(async ({ ctx, input, next, path }) => {
-    if (input.channelId === undefined) {
-      throw new TRPCError({ code: "BAD_REQUEST" });
-    }
-
     const channel = await ctx.prisma.channel.findUnique({
       where: {
         id: +input.channelId,
@@ -116,7 +116,8 @@ export const userIsInChannel = protectedProcedure
     if (!channel) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
-console.log(path, channel.id);
+  
+    console.log(path, channel.id);
 
     if (!channel.users.find(user => user.id === ctx.user.id)) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -130,8 +131,17 @@ console.log(path, channel.id);
     });
   })
 
-export const userIsAuthorOrAdmin = userIsInChannel
+export const userIsAuthorOrSuperAdmin = userIsInChannel
   .use(async ({ ctx, input, next }) => {
+    if (ctx.user.admin) {
+      return next({
+        ctx: {
+          prisma,
+          user: ctx.user,
+        },
+      });
+    }
+
     const channel = await ctx.prisma.channel.findUnique({
       where: {
         id: +input.channelId,
@@ -160,3 +170,97 @@ export const userIsAuthorOrAdmin = userIsInChannel
       },
     });
   });
+
+export const userHasAdminRights = userIsInChannel.use(async ({ ctx, input, next }) => {
+  if (ctx.user.admin) {
+    return next({
+      ctx: {
+        prisma,
+        user: ctx.user,
+      },
+    });
+  }
+
+  const channel = await ctx.prisma.channel.findUnique({
+    where: {
+      id: +input.channelId,
+    },
+    select: {
+      group: {
+        select: {
+          authorId: true,
+        },
+      },
+    },
+  });
+
+  if (!channel) {
+    throw new TRPCError({ code: "NOT_FOUND" });
+  }
+
+  if (channel.group?.authorId !== ctx.user.id) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      prisma,
+      user: ctx.user,
+    },
+  });
+});
+
+const groupVisibility = protectedProcedure
+  .input(z.object({
+    channelId: z.number()
+  }))
+  .use(async ({ ctx, input, next }) => {
+    const group = await ctx.prisma.channel.findUnique({
+      where: {
+        id: +input.channelId
+      },
+      select: {
+        group: {
+          select: {
+            visibility: true
+          }
+        }
+      }
+    })
+
+    if (!group || !group.group) throw new TRPCError({ code: "NOT_FOUND" });
+
+    return next({
+      ctx: {
+        prisma,
+        user: ctx.user,
+        visibility: group.group.visibility,
+      },
+    });
+  })
+
+export const groupIsPublic = groupVisibility.use(async ({ ctx, next }) => {
+  if (ctx.visibility === 0) {
+    return next({
+      ctx: {
+        prisma,
+        user: ctx.user,
+      },
+    });
+  }
+
+  throw new TRPCError({ code: "UNAUTHORIZED" });
+})
+
+export const groupIsPrivate = groupVisibility.use(async ({ ctx, next }) => {
+  if (ctx.visibility === 0) {
+    return next({
+      ctx: {
+        prisma,
+        user: ctx.user,
+      },
+    });
+  }
+
+  throw new TRPCError({ code: "UNAUTHORIZED" });
+});

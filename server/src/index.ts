@@ -14,6 +14,7 @@ import {
   addMemberSchema,
   changeVisibilitySchema,
   deleteGroupSchema,
+  memberJoinSchema,
   messageSchema,
   newGroupTitleSchema,
   removeMemberSchema,
@@ -24,6 +25,7 @@ import {
   addMembersEvent,
   changeVisibilityEvent,
   deleteGroupEvent,
+  memberJoinEvent,
   newGroupTitleEvent,
   removeMemberEvent,
 } from "./events/channel";
@@ -65,8 +67,6 @@ wss.on("connection", async (ws) => {
 
   ws.on("message", async (message) => {
     if (message.toString() === "ping") {
-      console.log("pong");
-      
       ws.send(JSON.stringify({ event: "pong" }));
       heartbeat.bind(ws as any)();
       return;
@@ -168,10 +168,6 @@ const interval = setInterval(function ping() {
       return ws.terminate();
     }
 
-
-    console.log("ping");
-    
-
     (ws as any).isAlive = false;
     ws.ping();
   });
@@ -245,6 +241,15 @@ ev.on("changeVisibility", (payload: z.infer<typeof changeVisibilitySchema>) => {
     sendToIds,
   });
 });
+
+ev.on("memberJoin", (payload: z.infer<typeof memberJoinSchema>) => {
+  memberJoinEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+})
 
 server.listen(3000);
 console.log("Server started");
