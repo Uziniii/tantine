@@ -8,7 +8,7 @@ import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { Alert, Dimensions, View } from "react-native";
 import { useLayoutEffect, useMemo } from "react";
-import { langData } from "../../data/lang/lang";
+import { langData, replace } from "../../data/lang/lang";
 import { Button } from "../css/auth.css";
 import { trpc } from "../../utils/trpc";
 import { removeChannelNotification } from "../../store/slices/notificationSlice";
@@ -48,6 +48,9 @@ export default function GroupLookup({ navigation }: Props) {
       });
     }
   })
+  const users = useAppSelector(state => state.users)
+
+  const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -80,6 +83,20 @@ export default function GroupLookup({ navigation }: Props) {
   //     id: route.params.id
   //   })
   // }
+
+  const onPressTurnWheel = async () => {
+    const winner = await turnWheel.mutateAsync({
+      channelId: route.params.id
+    })
+
+    Alert.alert(
+      lang.winnerPopup.title,
+      replace(lang.winnerPopup.message, `${users[winner].surname} ${users[winner].name}`),
+      [{
+        text: "OK",
+      }]
+    )
+  }
 
   const onInvitePress = () => {
     navigation.navigate("invite", {
@@ -120,6 +137,9 @@ export default function GroupLookup({ navigation }: Props) {
         </Button>
       </>}
       {group.authorId === me.id && <>
+        <Button onPress={onPressTurnWheel} $width={`${width * 0.8}px`}>
+          <FText $color="white">{lang.wheelButton}</FText>
+        </Button>
         {/* <Button onPress={onAddPress} $width={`${width * 0.8}px`}>
           <FText $color="white">{lang.addMembers}</FText>
         </Button> */}

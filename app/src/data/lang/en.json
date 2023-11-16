@@ -69,6 +69,10 @@
     "deleteGroupAlertMessage": "Are you sure you want to delete this group?",
     "invite": "Invite",
     "wheelButton": "Turn the wheel",
+    "winnerPopup": {
+      "title": "Result",
+      "message": "The winner is {} !"
+    },
     "edit": {
       "changeName": "Change name",
       "visibility": "Visibility",

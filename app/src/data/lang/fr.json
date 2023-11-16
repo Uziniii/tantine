@@ -69,6 +69,10 @@
     "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?",
     "invite": "Inviter",
     "wheelButton": "Tourner la roue",
+    "winnerPopup": {
+      "title": "Résultat",
+      "message": "Le gagnant est {} !"
+    },
     "edit": {
       "changeName": "Changer le nom",
       "visibility": "Visibilité",

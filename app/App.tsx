@@ -67,18 +67,20 @@ function Base() {
     prefixes: [prefix],
   };
 
-  const [token, setToken] = useState<string | undefined>()
-  const [oldToken, setOldToken] = useState<string | undefined>()
+  const me = useAppSelector(state => state.me)
+
+  const [token, setToken] = useState<string | undefined>(me?.token)
   const login = useAppSelector(state => state.login)
+  const [isReady, setIsReady] = useState(false)
   const dispatch = useDispatch()
-console.log("login", login);
 
   useEffect(() => {
+    setIsReady(false)
+
     AsyncStorage.getItem("token").then(token => {
       if (token) {
-        console.log("token", token);
-        
         setToken(token)
+        setIsReady(true)
 
         dispatch(setLogin(true))
         dispatch(set({
@@ -95,17 +97,22 @@ console.log("login", login);
     })
   }, [login])
   
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient, setQueryClient] = useState(() => new QueryClient());
+  const [trpcClient, setTrpcClient] = useState(() => createTrpcClient(''));
 
-  const trpcClient = useMemo(() => {
+  useEffect(() => {
+    if (!token) return
+
+    setQueryClient(new QueryClient());
+    setTrpcClient(createTrpcClient(token));
+  }, [token]);
+
+  function createTrpcClient(token: string) {
     return trpc.createClient({
       links: [
         httpBatchLink<any>({
           url: `http://${host}:3000`,
           async headers() {
-            console.log("trpc", token);
-            setOldToken(token);
-
             if (!token) return {}
 
             return {
@@ -115,12 +122,10 @@ console.log("login", login);
         }),
       ],
       transformer: superjson
-    })
-  }, [token])
+    });
+  }
 
-  console.log(oldToken, token)
-
-  // if (oldToken !== token) return <Loading />
+  if (login === true && !isReady) return <Loading />
   if (login === true && !token) return <Loading />
 
   return <trpc.Provider client={trpcClient} queryClient={queryClient}>
