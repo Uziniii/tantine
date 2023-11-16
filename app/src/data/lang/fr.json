@@ -68,6 +68,7 @@
     "deleteGroupAlertTitle": "Supprimer le groupe",
     "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?",
     "invite": "Inviter",
+    "wheelButton": "Tourner la roue",
     "edit": {
       "changeName": "Changer le nom",
       "visibility": "Visibilité",

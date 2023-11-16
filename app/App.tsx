@@ -68,6 +68,7 @@ function Base() {
   };
 
   const [token, setToken] = useState<string | undefined>()
+  const [oldToken, setOldToken] = useState<string | undefined>()
   const login = useAppSelector(state => state.login)
   const dispatch = useDispatch()
 console.log("login", login);
@@ -102,7 +103,8 @@ console.log("login", login);
         httpBatchLink<any>({
           url: `http://${host}:3000`,
           async headers() {
-            console.log("create", token);
+            console.log("trpc", token);
+            setOldToken(token);
 
             if (!token) return {}
 
@@ -113,9 +115,12 @@ console.log("login", login);
         }),
       ],
       transformer: superjson
-    }) 
+    })
   }, [token])
 
+  console.log(oldToken, token)
+
+  // if (oldToken !== token) return <Loading />
   if (login === true && !token) return <Loading />
 
   return <trpc.Provider client={trpcClient} queryClient={queryClient}>
