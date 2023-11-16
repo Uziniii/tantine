@@ -7,8 +7,9 @@ import { FText } from '../../Components/FText';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Container, Form, Button } from '../css/auth.css';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAppDispatch } from '../../store/store';
+import { useAppDispatch, useAppSelector } from '../../store/store';
 import { setLogin } from '../../store/slices/loginSlice';
+import { set } from '../../store/slices/meSlice';
 
 export default function Login() {
   const dispatch = useAppDispatch()
@@ -16,12 +17,20 @@ export default function Login() {
     "email",
     "password",
   ])
+  const me = useAppSelector(state => state.me)
   
   const login = trpc.user.login.useMutation({
     async onSuccess(data) {
       await AsyncStorage.setItem("token", data)
 
       dispatch(setLogin(true))
+      
+      if (!me) return
+      
+      dispatch(set({
+        ...me,
+        token: data
+      }))
     },
     onError(err) {
       if (err.message === "INVALID_CREDENTIALS") {

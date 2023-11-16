@@ -3,7 +3,7 @@ import z from "zod";
 import { messageRouter } from "./channel/message";
 import { TRPCError } from "@trpc/server";
 import { groupRouter } from "./channel/group";
-import { ev } from "../ws";
+import { ev } from "../.";
 
 const createChannelInput = z.number()
   .or(
@@ -27,6 +27,7 @@ const groupChannel = z.object({
   title: z.string(),
   description: z.string(),
   authorId: z.number(),
+  visibility: z.number(),
 });
 
 const createChannelOutput = privateChannel.or(groupChannel)
@@ -112,6 +113,7 @@ export const channelRouter = router({
                   id: ctx.user.id,
                 },
               },
+              visibility: 1
             },
           },
         },
@@ -121,6 +123,7 @@ export const channelRouter = router({
               title: true,
               description: true,
               authorId: true,
+              visibility: true,
             },
           },
           id: true,
@@ -146,6 +149,7 @@ export const channelRouter = router({
         title: channel.group.title,
         description: channel.group.description,
         authorId: channel.group.authorId,
+        visibility: channel.group.visibility,
       };
     }),
 
@@ -176,7 +180,6 @@ export const channelRouter = router({
       `;
 
       if (!channels || channels.length < 1) return []
-      console.log(channels);
       
       const mostRecentChannels = await ctx.prisma.channel.findMany({
         where: {
@@ -200,7 +203,8 @@ export const channelRouter = router({
             select: {
               title: true,
               description: true,
-              authorId: true
+              authorId: true,
+              visibility: true,
             }
           },
           private: {
@@ -211,32 +215,42 @@ export const channelRouter = router({
         }
       })
 
-      return mostRecentChannels?.map((channel) => {
-        const { group, private: channelPrivate } = channel;
+      let objectChannel: any = {}
 
-        if (group === null && channelPrivate === null)
-          throw new TRPCError({
-            message: "Channel not found",
-            code: "BAD_REQUEST",
-          });
+      const arr = mostRecentChannels
+        ?.map((channel) => {
+          const { group, private: channelPrivate } = channel;
 
-        if (group === null) {
+          if (group === null && channelPrivate === null)
+            throw new TRPCError({
+              message: "Channel not found",
+              code: "BAD_REQUEST",
+            });
+
+          if (group === null) {
+            return {
+              type: "private",
+              id: channel.id,
+              users: channel.users.map((user) => user.id),
+            };
+          }
+
           return {
-            type: "private",
+            type: "group",
             id: channel.id,
             users: channel.users.map((user) => user.id),
+            title: group.title,
+            description: group.description,
+            authorId: group.authorId,
+            visibility: group.visibility,
           };
-        }
+        });
 
-        return {
-          type: "group",
-          id: channel.id,
-          users: channel.users.map((user) => user.id),
-          title: group.title,
-          description: group.description,
-          authorId: group.authorId,
-        };
-      });
+      for (const channel of arr) {
+        objectChannel[+channel.id] = channel
+      }
+
+      return [...Array(arr.length)].map((_, i) => objectChannel[channels[i].channel_id]);
     }),
 
   retrieve: userIsInChannel
@@ -254,6 +268,7 @@ export const channelRouter = router({
               title: true,
               description: true,
               authorId: true,
+              visibility: true
             },
           },
           users: {
@@ -285,6 +300,7 @@ export const channelRouter = router({
         title: channel.group.title,
         description: channel.group.description,
         authorId: channel.group.authorId,
+        visibility: channel.group.visibility,
       };
     }),
 

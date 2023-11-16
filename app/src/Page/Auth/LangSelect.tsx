@@ -11,9 +11,13 @@ import { langData } from "../../data/lang/lang";
 
 const green = "#22c954"
 
-const LangButton = styled.TouchableOpacity<{ $borderColor?: boolean }>`
-  background: white;
-  width: 65%;
+export const SpaceBetweenButton = styled.TouchableOpacity<{
+  $borderColor?: boolean,
+  $width?: string,
+  $background?: string,
+}>`
+  background: ${({ $background }) => $background ?? "white"};
+  width: ${({ $width }) => $width ?? "65%"};
   padding: 10px;
   border: 1px solid ${props => (props.$borderColor && green) || "#DADBDD"};
   border-radius: 8px;
@@ -62,10 +66,10 @@ export default function LangSelect ({ navigation }: Props) {
       <FText $size="15px" $color="#FFF">{lang.sub}</FText>
     </View>
     {(Object.keys(langData) as Language[]).map((lc) => {
-      return <LangButton key={lc} onPress={() => onLangChoose(lc)} $borderColor={lc === langCode}>
+      return <SpaceBetweenButton key={lc} onPress={() => onLangChoose(lc)} $borderColor={lc === langCode}>
         <FText>{langData[lc].langSelect.lang}</FText>
         {lc === langCode && <FontAwesome name="check-circle" size={20} color={green} />}
-      </LangButton>
+      </SpaceBetweenButton>
     })}
     <NextButton onPress={onContinue} $width="65%">
       <FText $color="white" >{lang.next}</FText>

@@ -23,6 +23,8 @@ const rootReducer = (state: any, action: AnyAction) => {
   if (action.type === "RESET") {
     //We are calling this RESET, but call what you like!
     state = {};
+    console.log("RESET");
+    
   }
   return combinedReducer(state, action);
 };

@@ -3,7 +3,7 @@ import React from 'react';
 import { Text, Clipboard, StyleSheet, TouchableWithoutFeedback, View, } from 'react-native';
 import { GiftedChatContext } from 'react-native-gifted-chat/lib/GiftedChatContext';
 import { QuickReplies } from 'react-native-gifted-chat/lib/QuickReplies';
-import { MessageText } from 'react-native-gifted-chat/lib/MessageText';
+import { MessageText } from './MessageText';
 import { MessageImage } from 'react-native-gifted-chat/lib/MessageImage';
 import { MessageVideo } from 'react-native-gifted-chat/lib/MessageVideo';
 import { MessageAudio } from 'react-native-gifted-chat/lib/MessageAudio';
@@ -91,6 +91,9 @@ export default class Bubble extends React.Component {
     };
     this.onLongPress = () => {
       const { currentMessage } = this.props;
+      if (this.props.onJoinPress) {
+        this.props.onJoinPress(currentMessage);
+      }
       if (this.props.onLongPress) {
         this.props.onLongPress(this.context, this.props.currentMessage);
       }
@@ -160,7 +163,7 @@ export default class Bubble extends React.Component {
       if (this.props.renderMessageText) {
         return this.props.renderMessageText(messageTextProps);
       }
-      return <MessageText {...messageTextProps} />;
+      return <MessageText onJoinPress={this.props.onJoinPress} {...messageTextProps} />;
     }
     return null;
   }

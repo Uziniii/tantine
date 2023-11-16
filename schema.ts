@@ -12,6 +12,7 @@ export interface Message {
   createdAt: Date;
   updatedAt: Date;
   system: boolean;
+  invite?: number;
 }
 
 interface NewGroupTitle {
@@ -22,3 +23,4 @@ interface NewGroupTitle {
 export type AllSchemaEvent = 
   | EventSchema<Message>
   | EventSchema<NewGroupTitle>
+  | EventSchema<undefined>

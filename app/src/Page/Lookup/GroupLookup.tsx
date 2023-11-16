@@ -7,8 +7,8 @@ import { Container, Group } from "../css/lookup.css";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { Alert, Dimensions, View } from "react-native";
-import { useLayoutEffect } from "react";
-import { langData } from "../../data/lang/lang";
+import { useLayoutEffect, useMemo } from "react";
+import { langData, replace } from "../../data/lang/lang";
 import { Button } from "../css/auth.css";
 import { trpc } from "../../utils/trpc";
 import { removeChannelNotification } from "../../store/slices/notificationSlice";
@@ -48,10 +48,15 @@ export default function GroupLookup({ navigation }: Props) {
       });
     }
   })
+  const users = useAppSelector(state => state.users)
+
+  const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => {
+        if (group !== undefined && group.type === "group" && me !== null && group.authorId !== me.id) return null
+
         return <View>
           <ButtonEdit onPress={
             () => navigation.navigate("editGroup", { id: route.params.id })
@@ -72,9 +77,29 @@ export default function GroupLookup({ navigation }: Props) {
       channelId: route.params.id
     })
   }
-  
-  const onAddPress = () => {
-    navigation.navigate("addMember", {
+
+  // const onAddPress = () => {
+  //   navigation.navigate("addMember", {
+  //     id: route.params.id
+  //   })
+  // }
+
+  const onPressTurnWheel = async () => {
+    const winner = await turnWheel.mutateAsync({
+      channelId: route.params.id
+    })
+
+    Alert.alert(
+      lang.winnerPopup.title,
+      replace(lang.winnerPopup.message, `${users[winner].surname} ${users[winner].name}`),
+      [{
+        text: "OK",
+      }]
+    )
+  }
+
+  const onInvitePress = () => {
+    navigation.navigate("invite", {
       id: route.params.id
     })
   }
@@ -106,10 +131,18 @@ export default function GroupLookup({ navigation }: Props) {
         <FText $color="white" $size="24px">{group.title}</FText>
         <FText $color="white" $size="16px">{group.users.length} {group.users.length <= 1 ? lang.member : `${lang.member}s`}</FText>
       </Group>
-      {group.authorId === me.id && <>
-        <Button onPress={onAddPress} $width={`${width * 0.8}px`}>
-          <FText>{lang.addMembers}</FText>
+      {(group.visibility === 0 || group.authorId === me.id) && <>
+        <Button onPress={onInvitePress} $width={`${width * 0.8}px`}>
+          <FText $color="white">{lang.invite}</FText>
         </Button>
+      </>}
+      {group.authorId === me.id && <>
+        <Button onPress={onPressTurnWheel} $width={`${width * 0.8}px`}>
+          <FText $color="white">{lang.wheelButton}</FText>
+        </Button>
+        {/* <Button onPress={onAddPress} $width={`${width * 0.8}px`}>
+          <FText $color="white">{lang.addMembers}</FText>
+        </Button> */}
         <Button onPress={createConfirmAlert} $width={`${width * 0.8}px`} $background="red">
           <FText $color="white">{lang.deleteGroupButton}</FText>
         </Button>

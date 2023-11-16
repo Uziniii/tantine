@@ -5,7 +5,7 @@ import useWebSocket from "react-use-websocket";
 import { host } from "./utils/host";
 import { allSchemaEvent } from "../schema";
 import { createMessageEventFactory } from "./store/event/messageEvent";
-import { addMembersEventFactory, deleteGroupEventFactory, newGroupTitleEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
+import { addMembersEventFactory, changeVisibilityEventFactory, deleteGroupEventFactory, newGroupTitleEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
 
 export default function WSLayer({ children }: PropsWithChildren) {
   const dispatch = useAppDispatch();
@@ -16,7 +16,7 @@ export default function WSLayer({ children }: PropsWithChildren) {
   const fetchUsers = trpc.user.retrieve.useMutation();
   const retrieveUsers = trpc.user.retrieve.useMutation()
 
-  const { sendJsonMessage } = useWebSocket(`ws://${host}:3001/${me?.token}`, {
+  const { sendJsonMessage } = useWebSocket(`ws://${host}:3000/${me?.token}`, {
     onClose(event) {
       if (event.code === 1001) {
         console.log("La connexion a été fermée par le client.");
@@ -76,7 +76,10 @@ export default function WSLayer({ children }: PropsWithChildren) {
         }),
         deleteGroup: deleteGroupEventFactory({
           dispatch,
-        })
+        }),
+        changeVisibility: changeVisibilityEventFactory({
+          dispatch
+        }),
       } as const;
 
       const eventFn = events[event.data.event];
@@ -87,7 +90,7 @@ export default function WSLayer({ children }: PropsWithChildren) {
     },
     heartbeat: {
       message: "ping",
-      interval: 5000,
+      interval: 15000,
     },
   });
 

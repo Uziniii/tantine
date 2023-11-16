@@ -1,28 +1,62 @@
 import { messageSchema } from '../../events/schema';
 import { z } from "zod";
 import { router, userIsInChannel } from "../../trpc";
-import { ev } from "../../ws";
+import { ev } from "../../.";
 import { TRPCError } from '@trpc/server';
-
-interface Message {
-  channelId: number | null;
-  content: string;
-  id: number;
-  createdAt: Date;
-  updatedAt: Date;
-  authorId: number;
-}
 
 export const messageRouter = router({
   create: userIsInChannel
     .input(
       z.object({
-        content: z.string(),
+        content: z.string().trim().min(1).max(2000),
         channelId: z.number().or(z.string()),
         nonce: z.number(),
-      })
+        invite: z.undefined()
+      }).or(z.object({
+        content: z.string().trim().max(2000),
+        channelId: z.number().or(z.string()),
+        nonce: z.number(),
+        invite: z.number()
+      }))
     )
     .mutation(async ({ ctx, input }) => {
+      if (input.invite) {
+        if (input.invite === input.channelId) {
+          throw new TRPCError({ code: "BAD_REQUEST" });
+        }
+
+        const channel = await ctx.prisma.channel.findUnique({
+          where: {
+            id: +input.invite,
+          },
+          select: {
+            group: {
+              select: {
+                authorId: true,
+                Admin: {
+                  where: {
+                    id: ctx.user.id,
+                  },
+                  select: {
+                    id: true,
+                  }
+                }
+              },
+            },
+          },
+        });
+
+        if (!channel || !channel.group) {
+          throw new TRPCError({ code: "NOT_FOUND" });
+        }
+        
+        if (channel.group.authorId !== ctx.user.id) {
+          if (!channel.group.Admin.find((user) => user.id === ctx.user.id)) {
+            throw new TRPCError({ code: "UNAUTHORIZED" });
+          }
+        }
+      }
+
       const message = await ctx.prisma.message.create({
         data: {
           content: input.content,
@@ -36,6 +70,7 @@ export const messageRouter = router({
               id: +input.channelId,
             },
           },
+          invite: input.invite
         },
         select: {
           id: true,
@@ -61,6 +96,7 @@ export const messageRouter = router({
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
         system: false,
+        invite: input.invite,
       } satisfies z.infer<typeof messageSchema>);
 
       return message;
@@ -79,6 +115,7 @@ export const messageRouter = router({
           updatedAt: true,
           authorId: true,
           system: true,
+          invite: true,
         },
         orderBy: {
           createdAt: "asc",

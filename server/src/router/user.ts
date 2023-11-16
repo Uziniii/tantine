@@ -4,7 +4,7 @@ import { generateAccessToken } from '../jwt';
 import { hashPassword, verifyPassword } from '../password';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { TRPCError } from '@trpc/server';
-import { ev } from '../ws';
+import { ev } from '../.';
 import country from "../data/country.json"
 
 type Required = [

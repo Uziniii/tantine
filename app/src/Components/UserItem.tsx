@@ -2,6 +2,7 @@ import { Radio, VerticalGroup } from "../Page/css/search.css";
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "../Page/css/user.css";
 import { FontAwesome } from '@expo/vector-icons'
 import { FText } from "./FText";
+import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 
 interface IUser {
   id: number,
@@ -14,6 +15,7 @@ interface BasicProps {
   item: IUser,
   userPress: (id: number) => void,
   theme?: "light" | "dark",
+  strong?: boolean,
 }
 
 interface NormalProps extends BasicProps {
@@ -28,7 +30,7 @@ interface GroupModeProps extends BasicProps {
 
 type Props = NormalProps | GroupModeProps
 
-export default function UserItem({ item, addedUsers, groupMode, userPress, theme }: Props) {
+export default function UserItem({ item, addedUsers, groupMode, userPress, theme, strong }: Props) {
   return <UserContainer style={{ justifyContent: "space-between" }} onPress={() => userPress(item.id)}>
     <VerticalGroup>
       <ProfilePictureContainer>
@@ -36,7 +38,7 @@ export default function UserItem({ item, addedUsers, groupMode, userPress, theme
       </ProfilePictureContainer>
       <InfoContainer>
         <Group>
-          <FText $color={theme === "dark" ? "white" : "black"}>{item.surname} {item.name}</FText>
+          <FText font={strong ? [Montserrat_700Bold, "Montserrat_700Bold"] : undefined} $color={theme === "dark" ? "white" : "black"}>{item.surname} {item.name}</FText>
         </Group>
         <FText $color={theme === "dark" ? "white" : "black"}>{item.email}</FText>
       </InfoContainer>

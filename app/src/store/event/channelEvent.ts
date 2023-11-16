@@ -1,5 +1,5 @@
 import { trpc } from "../../utils/trpc";
-import { addChannel, addMembers, editGroupTitle, removeChannel, removeMember } from "../slices/channelsSlice";
+import { addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeMember } from "../slices/channelsSlice";
 import { Me } from "../slices/meSlice";
 import { addPosition, removeChannelNotification } from "../slices/notificationSlice";
 import { addUsers } from "../slices/usersSlice";
@@ -108,3 +108,59 @@ export const deleteGroupEventFactory = ({
     dispatch(removeChannel(+payload.channelId))
   }
 }
+
+interface ChangeVisibilityProps {
+  dispatch: AppDispatch
+}
+
+export const changeVisibilityEventFactory = ({
+  dispatch
+}: ChangeVisibilityProps) => {
+  return function event(payload: {
+    channelId: number;
+    visibility: 0 | 1;
+  }) {
+    dispatch(changeVisibility(payload))
+  }
+}
+
+interface MemberJoinProps {
+  dispatch: AppDispatch;
+  usersId: string[];
+  retrieveUsers: ReturnType<typeof trpc.user.retrieve.useMutation>;
+  me: Me;
+  fetchChannel: ReturnType<typeof trpc.channel.retrieve.useMutation>;
+}
+
+export const memberJoinEventFactory = ({
+  dispatch,
+  usersId,
+  retrieveUsers,
+  me,
+  fetchChannel,
+}: MemberJoinProps) => {
+  return async function event(payload: {
+    channelId: number;
+    userId: number;
+  }) {
+    if (!usersId.includes(payload.userId.toString())) {
+      let fetchedUsers = await retrieveUsers.mutateAsync([payload.userId]);
+
+      dispatch(addUsers(fetchedUsers));
+    }
+
+    if (payload.userId === me.id) {
+      const channel = await fetchChannel.mutateAsync({
+        channelId: payload.channelId,
+      });
+
+      dispatch(addChannel(channel));
+      dispatch(addPosition(channel.id));
+    }
+
+    dispatch(addMembers({
+      channelId: payload.channelId,
+      membersIds: [payload.userId]
+    }));
+  };
+};

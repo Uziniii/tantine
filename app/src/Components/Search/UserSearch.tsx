@@ -62,6 +62,7 @@ export default function UserSearch({ search, isSearchEmpty }: Props) {
           title: data.title,
           description: data.description,
           authorId: data.authorId,
+          visibility: data.visibility
         }))
       } else {
         dispatch(addChannel({

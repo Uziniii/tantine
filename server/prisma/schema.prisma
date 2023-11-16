@@ -29,6 +29,9 @@ model User {
   channels Channel[]
 
   groupChannel GroupChannel[]
+  groupAdmins  GroupChannel[] @relation("GroupAdmin")
+
+  joinRequests JoinRequest[]
 }
 
 model Message {
@@ -41,6 +44,7 @@ model Message {
   authorId  Int?
   channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId Int
+  invite    Int?
 }
 
 model Channel {
@@ -69,4 +73,19 @@ model GroupChannel {
   author      User      @relation(fields: [authorId], references: [id])
   authorId    Int
   Channel     Channel[]
+  // public = 0 & private = 1
+  visibility  Int       @default(0)
+
+  Admin       User[]        @relation("GroupAdmin")
+  JoinRequest JoinRequest[]
+}
+
+model JoinRequest {
+  id        Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  user      User         @relation(fields: [userId], references: [id])
+  userId    Int
+  group     GroupChannel @relation(fields: [groupId], references: [id])
+  groupId   Int
 }

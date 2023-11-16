@@ -53,6 +53,7 @@ export function createMessageEventFactory({
           createdAt: payload.createdAt.toString(),
           updatedAt: payload.updatedAt.toString(),
           system: payload.system,
+          invite: payload.invite,
         },
       })
     );

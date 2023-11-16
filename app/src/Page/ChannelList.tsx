@@ -17,6 +17,7 @@ import styled from "styled-components/native";
 import { setPositions } from "../store/slices/notificationSlice";
 import CreateGroupButton from "../Components/CreateGroupButton";
 import ChannelItem from "../Components/ChannelItem";
+import Loading from "../Components/Loading";
 
 const Stack = createNativeStackNavigator();
 
@@ -77,6 +78,11 @@ export default function ChannelList({ navigation }: Props) {
   });
 
   useEffect(() => {
+    if (meQuery.isError && meQuery.error?.data?.code === "UNAUTHORIZED") {
+      AsyncStorage.removeItem("token");
+      dispatch({ type: "RESET" })
+    }
+
     if (me !== null) return;
 
     AsyncStorage.getItem("token").then((token) => {
@@ -85,20 +91,14 @@ export default function ChannelList({ navigation }: Props) {
           set({
             ...jwtDecode(token),
             token,
+            ...(meQuery.data ?? {})
           })
         );
       }
     });
-
-    if (meQuery.data) {
-      // dispatch(set({
-      //   ...me,
-      //   ...meQuery.data,
-      // }));
-    }
   }, [meQuery]);
 
-  if (isLoading) return <></>;
+  if (isLoading) return <Loading />;
 
   return <Stack.Navigator initialRouteName="channelList">
     <Stack.Screen

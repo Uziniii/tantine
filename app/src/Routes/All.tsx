@@ -16,6 +16,8 @@ import { AddMember } from "../Page/Lookup/Group/Add/AddMember";
 import styled from "styled-components/native";
 import AddMemberConfirm from "../Page/Lookup/Group/Add/AddMemberConfirm";
 import { FontAwesome, Feather } from "@expo/vector-icons";
+import Invite from "../Page/Lookup/Group/Invite/Invite";
+import InviteConfirm from "../Page/Lookup/Group/Invite/InviteConfirm";
 
 const Stack = createNativeStackNavigator();
 
@@ -183,11 +185,9 @@ export default function AllRoute () {
       name="addMember"
       component={AddMember}
       options={{
-
         headerStyle: {
           backgroundColor: "#202E44",
         },
-
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
         headerTitle() {
@@ -222,6 +222,52 @@ export default function AllRoute () {
               $color="white"
             >
               {lang.addMember}
+            </FText>
+          </Container>
+        },
+        animation: Platform.OS === "android" ? "slide_from_right" : "default"
+      }}
+    />
+    <Stack.Screen
+      name="invite"
+      component={Invite}
+      options={{
+        headerStyle: {
+          backgroundColor: "#202E44",
+        },
+        headerBackTitleVisible: false,
+        headerTitleAlign: "left",
+        headerTitle() {
+          return <Container>
+            <FText
+              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+              $size={"20px"}
+              $color="white"
+            >
+              {lang.invite}
+            </FText>
+          </Container>
+        },
+        animation: Platform.OS === "android" ? "slide_from_right" : "default"
+      }}
+    />
+    <Stack.Screen
+      name="inviteConfirm"
+      component={InviteConfirm}
+      options={{
+        headerStyle: {
+          backgroundColor: "#202E44",
+        },
+        headerBackTitleVisible: false,
+        headerTitleAlign: "left",
+        headerTitle() {
+          return <Container>
+            <FText
+              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+              $size={"20px"}
+              $color="white"
+            >
+              {lang.invite}
             </FText>
           </Container>
         },

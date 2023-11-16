@@ -13,6 +13,7 @@ interface Group {
   title: string;
   description: string;
   authorId: number;
+  visibility: number;
 }
 
 export type Channel = Private | Group;
@@ -76,11 +77,36 @@ const channelsSlice = createSlice({
       channel.users.push(...membersIds);
 
       return state;
+    },
+    changeVisibility: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        visibility: 0 | 1;
+      }>
+    ) => {
+      const { channelId, visibility } = action.payload;
+      const channel = state[channelId];
+      console.log("action", action.payload);
+      
+
+      if (channel && channel.type !== "group") return state;
+console.log(channel);
+
+      channel.visibility = visibility;
+
+      return state;
     }
   },
 });
 
-export const { addChannel, editGroupTitle, removeMember, removeChannel, addMembers } =
-  channelsSlice.actions;
+export const {
+  addChannel,
+  editGroupTitle,
+  removeMember,
+  removeChannel,
+  addMembers,
+  changeVisibility,
+} = channelsSlice.actions;
 
 export default channelsSlice.reducer;

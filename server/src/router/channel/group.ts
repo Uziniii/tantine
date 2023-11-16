@@ -1,10 +1,11 @@
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, router, userIsAuthorOrAdmin } from "../../trpc";
+import { groupIsPrivate, groupIsPublic, protectedProcedure, router, userIsAuthorOrSuperAdmin } from "../../trpc";
 import z from "zod";
-import { ev } from "../../ws";
+import { ev } from "../../.";
+import { randomInt } from "crypto"
 
 export const groupRouter = router({
-  editTitle: userIsAuthorOrAdmin
+  editTitle: userIsAuthorOrSuperAdmin
     .input(z.object({
       title: z.string().trim().min(2).max(50)
     }))
@@ -41,7 +42,7 @@ export const groupRouter = router({
       return undefined
     }),
 
-  removeMember: userIsAuthorOrAdmin
+  removeMember: userIsAuthorOrSuperAdmin
     .input(z.object({
       channelId: z.number(),
       memberId: z.number()
@@ -86,7 +87,7 @@ export const groupRouter = router({
       return true
     }),
 
-  addMembers: userIsAuthorOrAdmin
+  addMembers: userIsAuthorOrSuperAdmin
     .input(z.object({
       channelId: z.number(),
       membersIds: z.array(z.number())
@@ -128,7 +129,7 @@ export const groupRouter = router({
       return undefined
     }),
   
-  delete: userIsAuthorOrAdmin
+  delete: userIsAuthorOrSuperAdmin
     .mutation(async ({ ctx, input }) => {
       const group = await ctx.prisma.channel.findUnique({
         where: {
@@ -181,17 +182,7 @@ export const groupRouter = router({
             title: {
               contains: input.query
             },
-            // author: {
-            //   city: {
-            //     contains: input.query
-            //   },
-            //   state: {
-            //     contains: input.query
-            //   },
-            //   country: {
-            //     contains: input.query
-            //   },
-            // }
+            visibility: 0
           }
         },
         select: {
@@ -212,5 +203,106 @@ export const groupRouter = router({
         title: group?.title,
         users: users.map(({ id }) => id)
       }))
+    }),
+
+  changeVisibility: userIsAuthorOrSuperAdmin
+    .input(z.object({
+      channelId: z.number(),
+      visibility: z.number()
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const channel = await ctx.prisma.channel.findUnique({
+        where: {
+          id: input.channelId
+        },
+        select: {
+          id: true,
+          group: {
+            select: {
+              visibility: true,
+            }
+          }
+        }
+      })
+
+      if (!channel || channel?.group === null) throw new TRPCError({ code: "NOT_FOUND" });
+      if (channel.group.visibility === input.visibility) return undefined;
+
+      await ctx.prisma.channel.update({
+        where: {
+          id: channel.id
+        },
+        data: {
+          group: {
+            update: {
+              visibility: input.visibility
+            }
+          }
+        }
+      })
+
+      ev.emit("changeVisibility", {
+        channelId: input.channelId,
+        visibility: input.visibility
+      })
+
+      return undefined
+    }),
+
+  join: groupIsPublic
+    .mutation(async ({ ctx, input }) => {
+      await ctx.prisma.channel.update({
+        where: {
+          id: input.channelId
+        },
+        data: {
+          users: {
+            connect: {
+              id: ctx.user.id
+            }
+          }
+        }
+      })
+
+      ev.emit("memberJoin", {
+        channelId: input.channelId,
+        userId: ctx.user.id,
+      })
+    }),
+  
+  createJoinRequest: groupIsPrivate
+    .mutation(async ({ ctx, input }) => {
+      const joinRequest = await ctx.prisma.joinRequest.create({
+        data: {
+          userId: ctx.user.id,
+          groupId: input.channelId,
+        },
+      })
+
+      ev.emit("")
+    }),
+
+  turnTheWheel: userIsAuthorOrSuperAdmin
+    .mutation(async ({ ctx, input }) => {
+      const group = await ctx.prisma.channel.findUnique({
+        where: {
+          id: +input.channelId
+        },
+        select: {
+          id: true,
+          users: {
+            select: {
+              id: true
+            }
+          }
+        }
+      })
+
+      if (!group) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const users = group.users.map(({ id }) => id);
+      const winnerId = users[randomInt(0, users.length - 1)];
+
+      return winnerId;
     })
 })

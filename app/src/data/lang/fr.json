@@ -48,7 +48,8 @@
     "manageMember": "Gérer un membre",
     "addMember": "Ajouter des membres",
     "search": "Rechercher",
-    "createGroup": "Nouveau groupe"
+    "createGroup": "Nouveau groupe",
+    "invite": "Invitation"
   },
   "search": {
     "search": "Rechercher",
@@ -65,7 +66,19 @@
     "addMembers": "Ajouter des membres",
     "deleteGroupButton": "Supprimer le groupe",
     "deleteGroupAlertTitle": "Supprimer le groupe",
-    "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?"
+    "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?",
+    "invite": "Inviter",
+    "wheelButton": "Tourner la roue",
+    "winnerPopup": {
+      "title": "Résultat",
+      "message": "Le gagnant est {} !"
+    },
+    "edit": {
+      "changeName": "Changer le nom",
+      "visibility": "Visibilité",
+      "public": "Publique",
+      "private": "Privé"
+    }
   },
   "memberLookup": {
     "remove": "Retirer du groupe",
@@ -75,5 +88,12 @@
     "search": "Rechercher",
     "next": "Suivant",
     "confirm": "Valider"
+  },
+  "inviteConfirm": {
+    "send": "Envoyer",
+    "messagePlaceholder": "Envoyer une invitation"
+  },
+  "messageText": {
+    "joinInvite": "Rejoindre le groupe"
   }
 }

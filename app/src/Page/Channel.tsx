@@ -1,6 +1,6 @@
 import { NavigationProp, useRoute } from "@react-navigation/native";
-import { useEffect, useLayoutEffect } from "react";
-import { View } from "react-native";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { Alert, View } from "react-native";
 import { ProfilePictureContainer } from "./css/user.css";
 import { FText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
@@ -11,7 +11,7 @@ import { trpc } from "../utils/trpc";
 import { GiftedChat } from "react-native-gifted-chat";
 import { Message, addTempMessage, initMessages } from "../store/slices/messagesSlice";
 import { isKeyboard } from "../hooks/isKeyboard";
-import Bubble from "../Components/Bubble";
+import Bubble from "../Components/GiftedChat/Bubble";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Loading from "../Components/Loading";
 import { clearNotifications } from "../store/slices/notificationSlice";
@@ -31,6 +31,15 @@ const Wrapper = styled.View`
   flex: 1;
   background-color: white;
 `
+
+// const InputContainer = styled.View`
+//   display: flex;
+//   flex-direction: row;
+//   align-items: center;
+//   justify-content: space-between;
+//   margin-top: 8px;
+//   padding: 0 12px;
+// `
 
 function isMessageSystem(message: Message): message is Message & { system: true } {
   return Boolean(message.system)
@@ -52,6 +61,7 @@ export default function Channel ({ navigation }: Props) {
     return [`${user.surname} ${user.name}`, user.id]
   })
   
+  const channels = useAppSelector(state => state.channels)
   const type = useAppSelector(state => state.channels[route.params.id]?.type)
   const me = useAppSelector(state => state.me)
   const users = useAppSelector(state => state.users)
@@ -67,6 +77,7 @@ export default function Channel ({ navigation }: Props) {
           createdAt: message.createdAt.toString(),
           updatedAt: message.updatedAt.toString(),
           system: message.system,
+          invite: message.invite,
         })),
       }))
     },
@@ -133,6 +144,8 @@ export default function Channel ({ navigation }: Props) {
     })
   })
 
+  // const [input, setInput] = useState("");
+
   if (title === undefined && lookupId === undefined) return null
   if (retrieveMessages.status === "loading") return <Loading />
 
@@ -181,8 +194,27 @@ export default function Channel ({ navigation }: Props) {
           '#E6E6E6',
         ];
 
+        (props as any).onJoinPress = (invite: number) => {
+          const channel = channels[invite]
+
+          if (channel.type !== "group") return
+
+          // public
+          if (channel.visibility === 0) {
+            
+          }
+
+          Alert.alert("")
+        }
+
         return <Bubble color={colors[sumChars % colors.length]} {...props}/>
       }}
+      // renderInputToolbar={() => {
+      //   return <InputContainer>
+      //     <SearchInput multiline  $width="90%" $margin="0" style={{height:32}} placeholderTextColor={"white"} placeholder="Envoyer un message"/>
+      //     <FontAwesome size={24} name="send"/>
+      //   </InputContainer>
+      // }}
       messages={msgState?.map(message => {
         if (isMessageSystem(message)) {
           return {
@@ -200,7 +232,8 @@ export default function Channel ({ navigation }: Props) {
         return {
           _id: message.id.toString(),
           received: message.nonce !== undefined ? false : true,
-          text: message.content,
+          text: message.content || " ",
+          invite: message.invite,
           createdAt: new Date(message.createdAt),
           user: {
             _id: message.authorId as number,

@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { trpc } from './src/utils/trpc';
 import { httpBatchLink } from '@trpc/client';
 import superjson from "superjson";
@@ -20,6 +20,7 @@ import Auth from './src/Routes/Auth';
 import AllRoute from './src/Routes/All';
 import { host } from './src/utils/host';
 import WSLayer from './src/WSLayer';
+import Loading from './src/Components/Loading';
 
 const IGNORED_LOGS = [
   "Node of type",
@@ -66,12 +67,21 @@ function Base() {
     prefixes: [prefix],
   };
 
+  const me = useAppSelector(state => state.me)
+
+  const [token, setToken] = useState<string | undefined>(me?.token)
   const login = useAppSelector(state => state.login)
+  const [isReady, setIsReady] = useState(false)
   const dispatch = useDispatch()
 
   useEffect(() => {
+    setIsReady(false)
+
     AsyncStorage.getItem("token").then(token => {
       if (token) {
+        setToken(token)
+        setIsReady(true)
+
         dispatch(setLogin(true))
         dispatch(set({
           ...jwtDecode(token),
@@ -85,17 +95,24 @@ function Base() {
         dispatch(setLanguage(lang as any))
       }
     })
-  }, [])
+  }, [login])
   
-  const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
+  const [queryClient, setQueryClient] = useState(() => new QueryClient());
+  const [trpcClient, setTrpcClient] = useState(() => createTrpcClient(''));
+
+  useEffect(() => {
+    if (!token) return
+
+    setQueryClient(new QueryClient());
+    setTrpcClient(createTrpcClient(token));
+  }, [token]);
+
+  function createTrpcClient(token: string) {
+    return trpc.createClient({
       links: [
         httpBatchLink<any>({
           url: `http://${host}:3000`,
           async headers() {
-            const token = await AsyncStorage.getItem("token")
-
             if (!token) return {}
 
             return {
@@ -105,17 +122,25 @@ function Base() {
         }),
       ],
       transformer: superjson
-    }),
-  );
+    });
+  }
+
+  if (login === true && !isReady) return <Loading />
+  if (login === true && !token) return <Loading />
 
   return <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
-      {login 
-        ? <WSLayer>
-          <NavigationContainer theme={Theme} linking={linking}>
-            <AllRoute />
-          </NavigationContainer>
-        </WSLayer>
+      {login
+        ? token 
+          ? (
+            <WSLayer>
+              <NavigationContainer theme={Theme} linking={linking}>
+                <AllRoute />
+              </NavigationContainer>
+            </WSLayer>
+          ) : (
+            <Loading />
+          )
         : <NavigationContainer theme={Theme} linking={linking}> 
           <Auth />
         </NavigationContainer>

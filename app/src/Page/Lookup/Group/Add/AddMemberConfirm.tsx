@@ -55,7 +55,6 @@ export default function AddMemberConfirm({ navigation }: Props) {
       [id]: !addedUsers[id],
     })
   }
-console.log(users);
 
   return <FlatList  
     style={{
