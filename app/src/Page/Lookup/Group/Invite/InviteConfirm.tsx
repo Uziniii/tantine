@@ -14,16 +14,26 @@ interface Props {
   navigation: NavigationProp<any>
 }
 
+interface Route {
+  params: {
+    id: string;
+    addedChannels: Record<number, boolean>;
+    addedUsers: Record<number, boolean>;
+  };
+  key: string;
+  name: string;
+}
+
 export default function InviteConfirm({ navigation }: Props) {
   const lang = useAppSelector(state => langData[state.language].inviteConfirm)
-  const route = useRoute<{ params: { id: string, addedChannels: Record<number, boolean> }, key: string, name: string }>()
+  const route = useRoute<Route>()
   const group = useAppSelector(state => state.channels[+route.params.id])
   const channels = useAppSelector(state => {
     const channelsToAdd = Object.entries(route.params.addedChannels)
       .filter(([_, val]) => val)
       .map(([key, _]) => +key)
 
-    return channelsToAdd.map(id => state.channels[id])
+    return [...channelsToAdd.map(id => state.channels[id]), route.params.addedUsers]
   })
   const [input, setInput] = useState("")
 

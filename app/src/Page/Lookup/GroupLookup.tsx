@@ -44,7 +44,7 @@ export default function GroupLookup({ navigation }: Props) {
       
       navigation.reset({
         index: 0,
-        routes: [{ name: 'home' }], // replace 'ChannelList' with the name of your screen
+        routes: [{ name: 'home' }],
       });
     }
   })

@@ -1,6 +1,6 @@
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
 import { NavigationProp, useRoute } from "@react-navigation/native"
-import { useLayoutEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler"
 import { FText } from "../../../../Components/FText"
 import { useAppSelector } from "../../../../store/store"
@@ -13,48 +13,75 @@ import { InfoContainer, ProfilePictureContainer, UserContainer } from "../../../
 import { Group } from "../../../css/lookup.css"
 import { FontAwesome } from "@expo/vector-icons"
 import { Radio, VerticalGroup } from "../../../css/search.css"
+import { trpc } from "../../../../utils/trpc"
+import debounce from "lodash.debounce"
+import { useDispatch } from "react-redux"
+import { addUsers } from "../../../../store/slices/usersSlice"
 
 interface Props {
   navigation: NavigationProp<any>
 }
 
 export default function Invite({ navigation }: Props) {
+  const dispatch = useDispatch()
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const [addedChannels, setAddedChannels] = useState<Record<number, boolean>>({})
+  const [addedUsers, setAddedUsers] = useState<Record<number, boolean>>({})
   const lang = useAppSelector(state => langData[state.language].addMember)
   const [search, setSearch] = useState("")
+  const channelsToUsers = useAppSelector(state => {
+    const users = []
+
+    for (const id in addedChannels) {
+      if (!addedChannels[id]) continue
+
+      const channel = state.channels[id]
+
+      if (!channel) continue
+
+      users.push(...channel.users)
+    }
+
+    return users
+  })
+  const users = useAppSelector(state => state.users)
+
+  const debouncedResults = useMemo(() => {
+    return debounce(setSearch, 300);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      debouncedResults.cancel();
+    };
+  });
+
   const channels = useAppSelector((state) => {
     if (state.me === null) return []
 
-    const channels = state.notification.positions
+    return state.notification.positions
       .map(id => state.channels[id])
       .filter(channel => channel.id !== +route.params.id)
-
-    if (search.trimStart() === "") return channels
-
-    return channels.filter(channel => {
-      if (channel.id === +route.params.id) return false
-      if (channel.type === "group") return channel.title.toLowerCase().includes(search.toLowerCase())
-      
-      const userId = channel.users.find(id => id !== state.me?.id)
-      
-      if (!userId) return false
-
-      const user = state.users[userId]
-
-      return `${user.name} ${user.surname}`.toLowerCase().includes(search.toLowerCase())
-    })
   });
+  const usersSearch = trpc.user.search.useQuery({
+    input: search,
+    not: channelsToUsers,
+  }, {
+    enabled: search.trimStart().length > 1
+  })
 
   const onNextPress = () => {
     const channelsToAdd = Object.entries(addedChannels)
       .filter(([_, val]) => val)
 
-    if (channelsToAdd.length === 0) return
+    const usersToAdd = Object.entries(addedUsers)
+
+    if (channelsToAdd.length === 0 && usersToAdd.length === 0) return
 
     navigation.navigate("inviteConfirm", {
       id: route.params.id,
       addedChannels,
+      addedUsers,
     })
   }
 
@@ -68,25 +95,54 @@ export default function Invite({ navigation }: Props) {
     })
   })
 
+  const onUserPress = (id: number) => {
+    if (!users[id]) {
+      if (!usersSearch.data) return
+
+      const user = usersSearch.data.find(user => user.id === id)
+
+      if (!user) return
+
+      dispatch(addUsers([user]))
+    }
+
+    setAddedUsers(val => ({
+      ...val,
+      [id]: !val[id]
+    }))
+  }
+
   return <View>
     <SearchInput
       placeholder={lang.search}
       onChangeText={setSearch}
       value={search}
     />
-    <FlatList
-      style={{
-        marginTop: 20
-      }}
-      contentInsetAdjustmentBehavior="automatic"
-      data={channels}
-      renderItem={({ item }) => <ChannelItem
-        item={item}
-        addedChannels={addedChannels}
-        setAddedChannels={setAddedChannels}
-      />}
-      keyExtractor={item => item.id.toString()}
-    />
+    {search.trimStart().length > 1 ? (
+      <FlatList
+        style={{
+          marginTop: 20
+        }}
+        contentInsetAdjustmentBehavior="automatic"
+        data={usersSearch.data}
+        renderItem={({ item }) => <UserItem strong theme="dark" addedUsers={addedUsers} groupMode={true} userPress={onUserPress} item={item} />}
+        keyExtractor={item => item.id.toString()}
+      />
+    ) : (
+      <FlatList
+        style={{
+          marginTop: 20
+        }}
+        contentInsetAdjustmentBehavior="automatic"
+        data={channels}
+        renderItem={({ item }) => <ChannelItem
+          item={item}
+          addedChannels={addedChannels}
+          setAddedChannels={setAddedChannels}
+        />}
+        keyExtractor={item => item.id.toString()}
+      />
+    )}
   </View>;
 }
 
