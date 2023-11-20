@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { setLogin } from '../../store/slices/loginSlice';
 import { set } from '../../store/slices/meSlice';
+import TitleSubAuth from '../../Components/TitleSubAuth';
 
 export default function Login() {
   const dispatch = useAppDispatch()
@@ -56,6 +57,7 @@ export default function Login() {
   return <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}>  
+      <TitleSubAuth title="Ravis de vour revoir !" sub="Entrez vos informations, pour poursuivre" />
       <Container>
         <Form>
           {renderInput({
@@ -84,7 +86,9 @@ export default function Login() {
 
           <Button
             disabled={!Object.values(inputs).every(x => x.error === undefined) || Object.values(inputs).length <= 0}
-            onPress={sendLoginData}>
+            onPress={sendLoginData}
+            $background='#333541'
+            >
             <FText $color='white'>Se connecter</FText>
           </Button>
         </Form>

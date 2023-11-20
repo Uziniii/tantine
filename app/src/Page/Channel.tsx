@@ -15,6 +15,7 @@ import Bubble from "../Components/GiftedChat/Bubble";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Loading from "../Components/Loading";
 import { clearNotifications } from "../store/slices/notificationSlice";
+import { langData, replace } from "../data/lang/lang";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -47,6 +48,7 @@ function isMessageSystem(message: Message): message is Message & { system: true 
 
 export default function Channel ({ navigation }: Props) {  
   const dispatch = useAppDispatch()
+  const lang = useAppSelector(state => langData[state.language].channel)
   const route = useRoute<{params: { id: string }, key: string, name: string}>()
   const [title, lookupId] = useAppSelector(state => {
     const channel = state.channels[route.params.id]
@@ -194,14 +196,31 @@ export default function Channel ({ navigation }: Props) {
           '#E6E6E6',
         ];
 
-        (props as any).onJoinPress = (invite: number) => {
-          const channel = channels[invite]
+        interface Invite {
+          id: number
+          title: string
+          visibility: number
+        }
 
-          if (channel.type !== "group") return
+        (props as any).onJoinPress = (invite: Invite) => {
+          if (channels[invite.id]) return
 
           // public
-          if (channel.visibility === 0) {
-            
+          if (invite.visibility === 0) {
+            Alert.alert(replace(lang.publicJoin.title, invite.title), undefined, [
+              {
+                text: "cancek",
+                style: "cancel",
+              },
+              {
+                text: "join",
+                onPress: () => {
+                  
+                },
+              },
+            ])
+
+            return
           }
 
           Alert.alert("")

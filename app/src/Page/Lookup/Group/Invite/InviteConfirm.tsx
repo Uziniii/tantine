@@ -1,5 +1,5 @@
 import { NavigationProp, useRoute } from "@react-navigation/native"
-import { useAppSelector } from "../../../../store/store"
+import { useAppDispatch, useAppSelector } from "../../../../store/store"
 import { View } from "react-native"
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler"
 import { ChannelItem } from "./Invite"
@@ -9,6 +9,9 @@ import { langData } from "../../../../data/lang/lang"
 import { FText } from "../../../../Components/FText"
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
 import { trpc } from "../../../../utils/trpc"
+import UserItem from "../../../../Components/UserItem"
+import Loading from "../../../../Components/Loading"
+import { addChannel } from "../../../../store/slices/channelsSlice"
 
 interface Props {
   navigation: NavigationProp<any>
@@ -25,22 +28,46 @@ interface Route {
 }
 
 export default function InviteConfirm({ navigation }: Props) {
+  const dispatch = useAppDispatch()
   const lang = useAppSelector(state => langData[state.language].inviteConfirm)
   const route = useRoute<Route>()
   const group = useAppSelector(state => state.channels[+route.params.id])
   const channels = useAppSelector(state => {
     const channelsToAdd = Object.entries(route.params.addedChannels)
       .filter(([_, val]) => val)
-      .map(([key, _]) => +key)
+      .map(([key, _]) => state.channels[key])
 
-    return [...channelsToAdd.map(id => state.channels[id]), route.params.addedUsers]
+    const addedUsers = Object.entries(route.params.addedUsers)
+      .filter(([_, val]) => val)
+      .map(([key, _]) => [state.users[key]])
+
+    return [...channelsToAdd, ...addedUsers]
   })
   const [input, setInput] = useState("")
+  const [sending, setSending] = useState(false)
 
   const sendMessage = trpc.channel.message.create.useMutation()
+  const createMessage = trpc.channel.create.useMutation()
 
   const onSendPress = async () => {
+    setSending(true)
+
     for (const channel of channels) {
+      if (Array.isArray(channel)) {
+        const newChannel = await createMessage.mutateAsync(channel[0].id)
+        
+        dispatch(addChannel(newChannel))
+
+        sendMessage.mutate({
+          channelId: newChannel.id,
+          content: input,
+          nonce: 0,
+          invite: +route.params.id,
+        })
+
+        continue
+      }
+
       sendMessage.mutate({
         channelId: channel.id,
         content: input,
@@ -51,6 +78,8 @@ export default function InviteConfirm({ navigation }: Props) {
 
     navigation.goBack()
     navigation.goBack()
+
+    setSending(false)
   }
 
   useLayoutEffect(() => {
@@ -65,6 +94,7 @@ export default function InviteConfirm({ navigation }: Props) {
     })
   })
 
+  if (sending) return <Loading />
   if (group.type !== "group") return null
 
   return <View style={{ flex: 1, alignItems: "center" }}>
@@ -86,8 +116,18 @@ export default function InviteConfirm({ navigation }: Props) {
       }}
       contentInsetAdjustmentBehavior="automatic"
       data={channels}
-      renderItem={({ item }) => <ChannelItem viewMode item={item} addedChannels={route.params.addedChannels} setAddedChannels={undefined} />}
-      keyExtractor={item => item.id.toString()}
+      renderItem={({ item }) => {
+        if (Array.isArray(item)) return (
+          <UserItem theme="dark" strong groupMode={false} addedUsers={undefined} item={item[0]} userPress={() => null} />
+        )
+
+        return <ChannelItem viewMode item={item} addedChannels={{}} setAddedChannels={undefined} />
+      }}
+      keyExtractor={item => {
+        if (Array.isArray(item)) return "user-" + item[0].id.toString()
+        
+        return item.id.toString()
+      }}
     />
   </View>
 }

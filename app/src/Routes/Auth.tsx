@@ -6,6 +6,7 @@ import Register from "../Page/Auth/Register";
 import Login from "../Page/Auth/Login";
 import LangSelect from "../Page/Auth/LangSelect";
 import { useAppSelector } from "../store/store";
+import Welcome from "../Page/Auth/Welcome";
 
 const Stack = createNativeStackNavigator();
 
@@ -52,6 +53,21 @@ export default function Auth() {
         },
       }}
     />
+
+    <Stack.Screen
+      name="welcome"
+      key={"welcome"}
+      component={Welcome}
+      options={{
+        headerTitleAlign: "center",
+        headerShadowVisible: false,
+        headerShown: false,
+        headerStyle: {
+          backgroundColor: '#202E44'
+        },
+      }}
+    />
+
     <Stack.Screen
       name="login"
       key={"login"}
@@ -60,20 +76,7 @@ export default function Auth() {
         headerBackTitleVisible: false,
         headerShadowVisible: false,
         headerTitleAlign: "center",
-
-        headerStyle: {
-          backgroundColor: '#202E44'
-        },
-
-        headerTitle() {
-          return <FText
-            font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-            $size={"24px"}
-            $color='#FFFF'
-          >
-            {lang.login}
-          </FText>
-        },
+        headerShown: false,
       }}
     />
   </Stack.Navigator>

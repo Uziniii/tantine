@@ -51,6 +51,7 @@ export default function GroupLookup({ navigation }: Props) {
   const users = useAppSelector(state => state.users)
 
   const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
+  const quitGroup = trpc.channel.group.quit.useMutation()
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -111,11 +112,32 @@ export default function GroupLookup({ navigation }: Props) {
         style: "cancel",
       },
       {
-        text: lang.confirm,
+        text: lang.deleteConfirm,
         onPress() {
           deleteGroup.mutate({
             channelId: route.params.id
           })
+        },
+        style: "destructive",
+      }
+    ])
+  }
+
+  const onQuitGroupPress = () => {
+    Alert.alert(lang.quitAlert.title, lang.quitAlert.message, [
+      {
+        text: lang.cancel,
+        style: "cancel",
+      },
+      {
+        text: lang.quitAlert.quitConfirm,
+        async onPress() {
+          await quitGroup.mutateAsync({
+            channelId: route.params.id
+          })
+          
+          navigation.goBack()
+          navigation.goBack()
         },
         style: "destructive",
       }
@@ -136,7 +158,7 @@ export default function GroupLookup({ navigation }: Props) {
           <FText $color="white">{lang.invite}</FText>
         </Button>
       </>}
-      {group.authorId === me.id && <>
+      {group.authorId === me.id ? <>
         <Button onPress={onPressTurnWheel} $width={`${width * 0.8}px`}>
           <FText $color="white">{lang.wheelButton}</FText>
         </Button>
@@ -145,6 +167,10 @@ export default function GroupLookup({ navigation }: Props) {
         </Button> */}
         <Button onPress={createConfirmAlert} $width={`${width * 0.8}px`} $background="red">
           <FText $color="white">{lang.deleteGroupButton}</FText>
+        </Button>
+      </> : <>
+        <Button onPress={onQuitGroupPress} $width={`${width * 0.8}px`} $background="red">
+          <FText $color="white">{lang.quitGroup}</FText>
         </Button>
       </>}
     </Container>

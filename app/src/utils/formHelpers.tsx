@@ -19,13 +19,11 @@ export const TextInput = styled(DefaultTextInput)<{
   height: ${props => props.$height || "auto"};
   padding: 12px;
   border: 1px solid ${props => props.$borderColor || "#DADBDD"};
-  border-radius: 8px;
+  border-radius: 10px;
   color: black;
+  background-color:transparent;
+  border: solid 2px #D4B216;
   box-shadow: 0px 1px 1.41px rgba(0, 0, 0, 0.2);
-
-  ::placeholder {
-    color: #DADBDD;
-  }
 `
 
 type set = (action: Action) => void;

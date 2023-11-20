@@ -49,7 +49,8 @@
     "addMember": "Ajouter des membres",
     "search": "Rechercher",
     "createGroup": "Nouveau groupe",
-    "invite": "Invitation"
+    "invite": "Invitation",
+    "chooseLanguage": "Choissisez votre langue"
   },
   "search": {
     "search": "Rechercher",
@@ -62,13 +63,19 @@
   "groupLookup": {
     "member": "membre",
     "cancel": "Annuler",
-    "confirm": "Supprimer",
+    "deleteConfirm": "Supprimer",
     "addMembers": "Ajouter des membres",
     "deleteGroupButton": "Supprimer le groupe",
     "deleteGroupAlertTitle": "Supprimer le groupe",
     "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?",
     "invite": "Inviter",
     "wheelButton": "Tourner la roue",
+    "quitGroup": "Quitter le groupe",
+    "quitAlert": {
+      "title": "Quitter le groupe",
+      "message": "Êtes-vous sûr de vouloir quitter ce groupe ?",
+      "quitConfirm": "Quitter"
+    },
     "winnerPopup": {
       "title": "Résultat",
       "message": "Le gagnant est {} !"
@@ -95,5 +102,13 @@
   },
   "messageText": {
     "joinInvite": "Rejoindre le groupe"
+  },
+  "channel": {
+    "publicJoin": {
+      "title": "Etes-vous sûr de vouloir rejoindre le groupe {} ?"
+    }
+  },
+  "settings": {
+    "language": "Langue"
   }
 }

@@ -34,7 +34,7 @@ export const InputGroup = styled.View`
 
 export const Container = styled.View`
   width: 100%;
-  height: 90%;
+  height: 70%;
   margin-top: 50px;
   border-top-right-radius: 20px;
   border-top-left-radius: 20px;
@@ -45,6 +45,6 @@ export const Container = styled.View`
 
 export const Form = styled.View`
   gap: 16px;
-  width: 80%;
+  width: 90%;
   display: flex;
 `;

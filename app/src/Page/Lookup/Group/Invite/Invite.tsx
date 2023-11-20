@@ -136,6 +136,7 @@ export default function Invite({ navigation }: Props) {
         contentInsetAdjustmentBehavior="automatic"
         data={channels}
         renderItem={({ item }) => <ChannelItem
+          groupMode={true}
           item={item}
           addedChannels={addedChannels}
           setAddedChannels={setAddedChannels}
@@ -148,6 +149,7 @@ export default function Invite({ navigation }: Props) {
 
 interface ViewModeItemProps {
   viewMode: true
+  groupMode?: boolean
   item: Channel
   addedChannels: Record<number, boolean>
   setAddedChannels: undefined
@@ -155,6 +157,7 @@ interface ViewModeItemProps {
 
 interface NoViewModeItemProps {
   viewMode?: false
+  groupMode?: boolean
   item: Channel
   addedChannels: Record<number, boolean>
   setAddedChannels: React.Dispatch<React.SetStateAction<Record<number, boolean>>>
@@ -162,7 +165,7 @@ interface NoViewModeItemProps {
 
 type ItemProps = ViewModeItemProps | NoViewModeItemProps
 
-export function ChannelItem ({ viewMode, item, addedChannels, setAddedChannels }: ItemProps) {
+export function ChannelItem ({ viewMode, item, addedChannels, setAddedChannels, groupMode }: ItemProps) {
   const lang = useAppSelector(state => langData[state.language].groupLookup)
 
   const onAdd = () => {
@@ -190,13 +193,15 @@ export function ChannelItem ({ viewMode, item, addedChannels, setAddedChannels }
             </FText>
           </Group>
         </VerticalGroup>
-        <VerticalGroup>
-          <Radio style={{
-            backgroundColor: addedChannels[item.id] ? "#202E44" : undefined,
-          }}>
-            {addedChannels[item.id] && <FontAwesome name="check" color={"white"} size={16} />}
-          </Radio>
-        </VerticalGroup>
+        {groupMode && (
+          <VerticalGroup>
+            <Radio style={{
+              backgroundColor: addedChannels[item.id] ? "#202E44" : undefined,
+            }}>
+              {addedChannels[item.id] && <FontAwesome name="check" color={"white"} size={16} />}
+            </Radio>
+          </VerticalGroup>
+        )}
       </InfoContainer>
     </UserContainer>
   }

@@ -113,11 +113,11 @@ export const userIsInChannel = protectedProcedure
       }
     })
 
+    console.log(path, channel?.id);
     if (!channel) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
   
-    console.log(path, channel.id);
 
     if (!channel.users.find(user => user.id === ctx.user.id)) {
       throw new TRPCError({ code: "UNAUTHORIZED" });

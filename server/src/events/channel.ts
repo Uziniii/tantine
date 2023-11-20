@@ -1,6 +1,6 @@
 import { prisma } from "../db";
 import { ev } from "../.";
-import { Args, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, newGroupTitleSchema, removeMemberSchema } from "./schema";
+import { Args, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, memberQuitSchema, newGroupTitleSchema, removeMemberSchema } from "./schema";
 import z from "zod"
 
 export const newGroupTitleEvent = async ({

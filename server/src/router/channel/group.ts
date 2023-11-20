@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { groupIsPrivate, groupIsPublic, protectedProcedure, router, userIsAuthorOrSuperAdmin } from "../../trpc";
+import { groupIsPrivate, groupIsPublic, protectedProcedure, router, userIsAuthorOrSuperAdmin, userIsInChannel } from "../../trpc";
 import z from "zod";
 import { ev } from "../../.";
 import { randomInt } from "crypto"
@@ -304,5 +304,71 @@ export const groupRouter = router({
       const winnerId = users[randomInt(0, users.length - 1)];
 
       return winnerId;
+    }),
+
+  quit: userIsInChannel
+    .mutation(async ({ ctx, input }) => {
+      const channel = await ctx.prisma.channel.findUnique({
+        where: {
+          id: +input.channelId
+        },
+        select: {
+          id: true,
+          group: {
+            select: {
+              id: true,
+              authorId: true,
+            }
+          }
+        }
+      })
+
+      if (!channel?.group) throw new TRPCError({ code: "NOT_FOUND" });
+      if (channel.group.authorId === ctx.user.id) throw new TRPCError({ code: "BAD_REQUEST" });
+
+      await ctx.prisma.channel.update({
+        where: {
+          id: channel.id
+        },
+        data: {
+          users: {
+            disconnect: {
+              id: ctx.user.id
+            }
+          }
+        }
+      })
+
+      ev.emit("removeMember", {
+        channelId: input.channelId,
+        memberId: ctx.user.id,
+      });
+    }),
+  
+  getInfo: protectedProcedure
+    .input(z.number())
+    .query(async ({ ctx, input }) => {
+      const group = await ctx.prisma.channel.findUnique({
+        where: {
+          id: input
+        },
+        select: {
+          id: true,
+          group: {
+            select: {
+              title: true,
+              visibility: true,
+            }
+          },
+        }
+      })
+
+      if (!group?.group) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return {
+        id: group.id,
+        title: group.group.title,
+        visibility: group.group.visibility,
+      }
     })
 })

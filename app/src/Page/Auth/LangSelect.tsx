@@ -35,7 +35,7 @@ export const NextButton = styled.TouchableOpacity<{ $width?: string }>`
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
-  background: #2A2F3E;
+  background: #333541;
   border-radius: 8px;
   margin-top: 8px;
   padding: 12px;
@@ -57,7 +57,7 @@ export default function LangSelect ({ navigation }: Props) {
   }
 
   const onContinue = () => {
-    navigation.navigate("register")
+    navigation.navigate("welcome")
   }
 
   return <Container>
