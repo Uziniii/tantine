@@ -32,7 +32,7 @@ export default function ChannelList({ navigation }: Props) {
     key: string;
     name: string;
   }>();
-  const channels = trpc.channel.retrieveRecentChannel.useQuery(undefined, {
+  const channels = trpc.channel.retrieveRecentChannels.useQuery(undefined, {
     staleTime: Infinity,
   });
   const meQuery = trpc.user.me.useQuery(undefined, {

@@ -2,8 +2,8 @@ import { createContext, router } from "./trpc";
 import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import cors from "cors"
 import dotenv from "dotenv"
-import { userRouter } from "./router/user";
-import { channelRouter } from "./router/channel";
+import { userRouter } from "./router/user/user";
+import { channelRouter } from "./router/channel/channel";
 import { EventEmitter, WebSocketServer } from "ws";
 import { prisma } from "./db";
 import { decode } from "jsonwebtoken";
@@ -27,6 +27,7 @@ import {
   deleteGroupEvent,
   memberJoinEvent,
   newGroupTitleEvent,
+  putAdminEvent,
   removeMemberEvent,
 } from "./events/channel";
 
@@ -244,6 +245,15 @@ ev.on("changeVisibility", (payload: z.infer<typeof changeVisibilitySchema>) => {
 
 ev.on("memberJoin", (payload: z.infer<typeof memberJoinSchema>) => {
   memberJoinEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+})
+
+ev.on("putAdmin", (payload: z.infer<typeof memberJoinSchema>) => {
+  putAdminEvent({
     payload,
     users,
     idToTokens,

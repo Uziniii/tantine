@@ -46,6 +46,8 @@ export const createContext = async ({
 
   const user = await getUserFromHeader();
 
+  console.log(req.url);
+
   return {
     prisma,
     user,
@@ -131,13 +133,14 @@ export const userIsInChannel = protectedProcedure
     });
   })
 
-export const userIsAuthorOrSuperAdmin = userIsInChannel
+const userIsAuthorOrSuperAdminCheck = userIsInChannel
   .use(async ({ ctx, input, next }) => {
     if (ctx.user.admin) {
       return next({
         ctx: {
           prisma,
           user: ctx.user,
+          channel: undefined
         },
       });
     }
@@ -150,6 +153,14 @@ export const userIsAuthorOrSuperAdmin = userIsInChannel
         group: {
           select: {
             authorId: true,
+            Admin: {
+              where: {
+                id: ctx.user.id
+              },
+              select: {
+                id: true
+              }
+            }
           }
         }
       }
@@ -160,16 +171,51 @@ export const userIsAuthorOrSuperAdmin = userIsInChannel
     }
 
     if (channel.group?.authorId !== ctx.user.id) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+      return next({
+        ctx: {
+          prisma,
+          user: ctx.user,
+          channel
+        },
+      });
     }
 
     return next({
       ctx: {
         prisma,
         user: ctx.user,
+        channel: undefined
       },
     });
   });
+
+export const userIsAuthorOrSuperAdmin = userIsAuthorOrSuperAdminCheck.use(async ({ ctx, input, next }) => {
+  if (ctx.channel !== undefined) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      prisma,
+      user: ctx.user,
+    },
+  });
+});
+
+export const userIsAuthorOrSuperAdminOrAdmin = userIsAuthorOrSuperAdminCheck.use(
+  async ({ ctx, input, next }) => {
+    if (ctx.channel && (ctx.channel as any).group?.Admin[0].id === ctx.user.id) {
+      return next({
+        ctx: {
+          prisma,
+          user: ctx.user,
+        },
+      });
+    }
+
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+);
 
 export const userHasAdminRights = userIsInChannel.use(async ({ ctx, input, next }) => {
   if (ctx.user.admin) {
@@ -264,3 +310,5 @@ export const groupIsPrivate = groupVisibility.use(async ({ ctx, next }) => {
 
   throw new TRPCError({ code: "UNAUTHORIZED" });
 });
+
+

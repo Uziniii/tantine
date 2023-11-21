@@ -1,5 +1,5 @@
 import { trpc } from "../../utils/trpc";
-import { addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeMember } from "../slices/channelsSlice";
+import { addAdmin, addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeMember } from "../slices/channelsSlice";
 import { Me } from "../slices/meSlice";
 import { addPosition, removeChannelNotification } from "../slices/notificationSlice";
 import { addUsers } from "../slices/usersSlice";
@@ -164,3 +164,18 @@ export const memberJoinEventFactory = ({
     }));
   };
 };
+
+interface PutAdminProps {
+  dispatch: AppDispatch
+}
+
+export const putAdminEventFactory = ({
+  dispatch,
+}: PutAdminProps) => {
+  return function event(payload: {
+    channelId: number;
+    memberId: number;
+  }) {
+    dispatch(addAdmin(payload))
+  }
+}

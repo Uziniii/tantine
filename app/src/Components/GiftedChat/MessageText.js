@@ -101,7 +101,7 @@ export function MessageText({ currentMessage = {}, optionTitles = DEFAULT_OPTION
         linkStyleProp && linkStyleProp[position],
     ];
     const lang = useAppSelector(state => langData[state.language].messageText)
-    const groupInfo = trpc.channel.group.getInfo.useQuery(currentMessage.in)
+    const groupInfo = trpc.channel.group.getInfo.useQuery(currentMessage.invite)
     const randomId = useId()
     return (<View style={[
             styles[position].container,
@@ -122,7 +122,7 @@ export function MessageText({ currentMessage = {}, optionTitles = DEFAULT_OPTION
               onPress: (match) => {
                 if (match !== randomId) return
 
-                onJoinPress(currentMessage.invite)
+                onJoinPress(groupInfo.data)
               },
               renderText: () => {
                 return `${lang.joinInvite} ${"ezaeza"}`

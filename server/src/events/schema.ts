@@ -28,6 +28,7 @@ export const memberJoinSchema = z.object({
   channelId: z.number(),
   userId: z.number(),
 })
+export const putAdminSchema = removeMemberSchema;
 
 const allSchema = z.union([
   messageSchema,
@@ -37,6 +38,7 @@ const allSchema = z.union([
   deleteGroupSchema,
   changeVisibilitySchema,
   memberJoinSchema,
+  putAdminSchema,
 ]);
 
 export interface IMapUser {

@@ -89,7 +89,12 @@
   },
   "memberLookup": {
     "remove": "Retirer du groupe",
-    "sendMessage": "Envoyer un message"
+    "sendMessage": "Envoyer un message",
+    "putAdmin": "Rendre administrateur",
+    "removeAdmin": "Retirer les droits d'admin",
+    "member": "Membre",
+    "admin": "Administrateur",
+    "author": "Propriétaire du groupe"
   },
   "addMember": {
     "search": "Rechercher",
@@ -104,8 +109,18 @@
     "joinInvite": "Rejoindre le groupe"
   },
   "channel": {
+    "alreadyInThisGroupAlertTitle": "Vous êtes déjà dans ce groupe",
     "publicJoin": {
-      "title": "Etes-vous sûr de vouloir rejoindre le groupe {} ?"
+      "title": "Rejoindre le groupe",
+      "message": "Etes-vous sûr de vouloir rejoindre le groupe {} ?",
+      "cancel": "Annuler",
+      "join": "Rejoindre"
+    },
+    "privateJoin": {
+      "title": "Envoyer une demande",
+      "message": "Etes-vous sûr de vouloir envoyer une demande pour rejoindre le groupe {} ?",
+      "cancel": "Annuler",
+      "send": "Envoyer"
     }
   },
   "settings": {

@@ -16,8 +16,8 @@ export const InfoContainer = styled.View`
   flex-direction: column;
 `;
 
-export const ProfilePictureContainer = styled.View<{ $size?: string }>`
-  margin-right: 10px;
+export const ProfilePictureContainer = styled.View<{ $size?: string, $margin?: string }>`
+  margin-right: ${({ $margin }) => $margin ?? "10px"};
   width: ${({ $size }) => $size ?? "50px"};
   height: ${({ $size }) => $size ?? "50px"};
   border-radius: 200px;

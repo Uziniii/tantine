@@ -203,17 +203,23 @@ export default function Channel ({ navigation }: Props) {
         }
 
         (props as any).onJoinPress = (invite: Invite) => {
-          if (channels[invite.id]) return
+          if (invite === null) return;
+
+          if (channels[invite.id]) {
+            Alert.alert(lang.alreadyInThisGroupAlertTitle)
+
+            return
+          }
 
           // public
           if (invite.visibility === 0) {
-            Alert.alert(replace(lang.publicJoin.title, invite.title), undefined, [
+            Alert.alert(lang.publicJoin.title, replace(lang.publicJoin.message, invite.title), [
               {
-                text: "cancek",
+                text: lang.publicJoin.cancel,
                 style: "cancel",
               },
               {
-                text: "join",
+                text: lang.publicJoin.join,
                 onPress: () => {
                   
                 },
@@ -223,7 +229,18 @@ export default function Channel ({ navigation }: Props) {
             return
           }
 
-          Alert.alert("")
+          Alert.alert(lang.privateJoin.title, replace(lang.privateJoin.message, invite.title), [
+            {
+              text: lang.privateJoin.cancel,
+              style: "cancel",
+            },
+            {
+              text: lang.privateJoin.send,
+              onPress: () => {
+                
+              },
+            },
+          ])
         }
 
         return <Bubble color={colors[sumChars % colors.length]} {...props}/>

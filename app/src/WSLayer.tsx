@@ -5,7 +5,7 @@ import useWebSocket from "react-use-websocket";
 import { host } from "./utils/host";
 import { allSchemaEvent } from "../schema";
 import { createMessageEventFactory } from "./store/event/messageEvent";
-import { addMembersEventFactory, changeVisibilityEventFactory, deleteGroupEventFactory, newGroupTitleEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
+import { addMembersEventFactory, changeVisibilityEventFactory, deleteGroupEventFactory, newGroupTitleEventFactory, putAdminEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
 
 export default function WSLayer({ children }: PropsWithChildren) {
   const dispatch = useAppDispatch();
@@ -80,6 +80,9 @@ export default function WSLayer({ children }: PropsWithChildren) {
         changeVisibility: changeVisibilityEventFactory({
           dispatch
         }),
+        putAdmin: putAdminEventFactory({
+          dispatch,
+        })
       } as const;
 
       const eventFn = events[event.data.event];
