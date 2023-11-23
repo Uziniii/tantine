@@ -43,10 +43,10 @@ export default function ChannelItem({ item, me }: ChannelProps) {
       </ProfilePictureContainer>
       <InfoContainer>
         <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
-          <FText $size="18px" $color="#202E44" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+          <FText $size="15px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
             {item.type === "group" ? item.title : `${user.surname} ${user.name}`}
           </FText>
-          <FText $size="15px" $color="#202E44">
+          <FText $size="15px" $color="white">
             {item.type === "group" ? `${item.users.length} ${lang.member}` : user.email}
           </FText>
         </Group>

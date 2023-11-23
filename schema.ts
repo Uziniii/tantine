@@ -12,7 +12,10 @@ export interface Message {
   createdAt: Date;
   updatedAt: Date;
   system: boolean;
-  invite?: number;
+  invite?: {
+    id: number;
+    groupId: number;
+  };
 }
 
 interface NewGroupTitle {

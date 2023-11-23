@@ -79,7 +79,7 @@ export default function Channel ({ navigation }: Props) {
           createdAt: message.createdAt.toString(),
           updatedAt: message.updatedAt.toString(),
           system: message.system,
-          invite: message.invite,
+          invite: message.JoinRequest[0]
         })),
       }))
     },

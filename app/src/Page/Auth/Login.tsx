@@ -66,7 +66,7 @@ export default function Login() {
             parser: z.string()
               .email({ message: "L'email est incorrect" }),
             state: "email",
-            placeholder: "Adresse email",
+            label: "Adresse email",
             inputMode: "email",
             maxLength: 200,
           })}
@@ -75,10 +75,10 @@ export default function Login() {
           {renderInput({
             setInputs,
             inputs,
+            label: "Mot de passe",
             parser: z.string()
               .min(8, { message: "Le mot de passe doit faire minimum 8 caractère" }),
             state: "password",
-            placeholder: "Mot de passe",
             maxLength: 64,
             secureTextEntry: true,
           })}

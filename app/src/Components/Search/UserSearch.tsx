@@ -103,7 +103,7 @@ export default function UserSearch({ search, isSearchEmpty }: Props) {
       style={{
         borderTopWidth: 1,
         borderTopColor: "#ccc",
-        backgroundColor: 'white'
+        backgroundColor: 'red'
       }}
       contentInsetAdjustmentBehavior="automatic"
       data={isSearchEmpty && Platform.OS === "android" ? [] : usersSearch.data}

@@ -17,7 +17,7 @@ const ButtonSearch = styled(TouchableOpacity)`
   width: 50px;
   height: 50px;
   border-radius: 10px;
-  background-color: #334055;
+  background-color: #333541;
   display: flex;
   align-items: center;
   justify-content:center;
@@ -31,11 +31,11 @@ export function Home() {
     tabBarStyle: {
       height: '10%',
       paddingBottom: 16,
-      backgroundColor: '#202E44',
+      backgroundColor: '#24252D',
       borderTopWidth: 0
     },
     headerStyle: {
-      backgroundColor: "#202E44",
+      backgroundColor: "#24252D",
       height: 150
     },
   }}>
@@ -76,6 +76,14 @@ export function Home() {
             </ButtonSearch>
           </View>
         },
+
+        headerLeft(){
+          return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginLeft: 16 }}>
+            <ButtonSearch onPress={() => navigation.navigate("search" as never)}>
+              <Feather name="search" size={25} color={"#fff"} />
+            </ButtonSearch>
+          </View>
+        }
       }}
     />
     <Tab.Screen

@@ -20,11 +20,29 @@ export const TextInput = styled(DefaultTextInput)<{
   padding: 12px;
   border: 1px solid ${props => props.$borderColor || "#DADBDD"};
   border-radius: 10px;
-  color: black;
+  color: white;
   background-color:transparent;
   border: solid 2px #D4B216;
   box-shadow: 0px 1px 1.41px rgba(0, 0, 0, 0.2);
 `
+
+const TextInputLabel = styled.View<{$length: number}>`
+  left: 10px;
+  width: ${props => props.$length ? `${30 + props.$length * 10}px` : 'auto'};
+  height: 18px;
+  transform: translate(0, 10px);
+  padding: 0 0 0 15px;
+  display:flex;
+  align-items: flex-start;
+  justify-content: center;
+  background-color:#24252D;
+  position: relative;
+  z-index: 1;
+`;
+
+const Container = styled.View`
+  display:flex;
+`;
 
 type set = (action: Action) => void;
 
@@ -32,18 +50,17 @@ interface Props {
   setInputs: set,
   inputs: InputsReducerState,
   state: string,
-  placeholder: string,
   maxLength: number,
   secureTextEntry?: boolean,
   inputMode?: InputModeOptions,
-  parser: any
+  parser: any,
+  label: string,
 }
 
 export const renderInput = ({
   setInputs,
   inputs,
   state,
-  placeholder,
   maxLength,
   secureTextEntry,
   inputMode,
@@ -51,26 +68,29 @@ export const renderInput = ({
   onFocus,
   onChangeText,
   $width,
+  label
 }: Props & typeof TextInput.defaultProps) => {
-  return <TextInput
-    onChangeText={(e) => {
-      if (onChangeText) onChangeText(e)
-      
-      setInputs({
-        key: state,
-        input: e,
-        parser
-      })
-    }}
-    value={inputs[state]?.input || ""}
-    placeholder={placeholder}
-    maxLength={maxLength}
-    secureTextEntry={secureTextEntry}
-    inputMode={inputMode}
-    onFocus={onFocus}
-    {...{
-      $width,
-      $borderColor: inputs[state]?.error ? "red" : undefined
-    }}
-  />
+  return <Container>
+    <TextInputLabel $length={label.length}><FText $color="white" $size="15">{label}</FText></TextInputLabel>
+    <TextInput
+      onChangeText={(e) => {
+        if (onChangeText) onChangeText(e)
+        
+        setInputs({
+          key: state,
+          input: e,
+          parser
+        })
+      }}
+      value={inputs[state]?.input || ""}
+      maxLength={maxLength}
+      secureTextEntry={secureTextEntry}
+      inputMode={inputMode}
+      onFocus={onFocus}
+      {...{
+        $width,
+        $borderColor: inputs[state]?.error ? "red" : undefined
+      }}
+    />
+  </Container>
 }

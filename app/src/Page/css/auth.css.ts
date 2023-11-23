@@ -27,15 +27,15 @@ export const InputGroup = styled.View`
   width: 100%;
   display: flex;
   flex-direction: row;
-  gap: 16px;
-  justify-content: center;
+  gap: 20px;
+  justify-content: space-between;
   align-items: center;
 `;
 
 export const Container = styled.View`
   width: 100%;
   height: 70%;
-  margin-top: 50px;
+  margin-top: 40px;
   border-top-right-radius: 20px;
   border-top-left-radius: 20px;
   display: flex;

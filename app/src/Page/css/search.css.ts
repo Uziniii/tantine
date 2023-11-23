@@ -19,6 +19,7 @@ export const AndroidSearchBarContainer = styled.View`
 
 export const Container = styled.View<{ $pad?: string }>`
   flex: 1;
+  background-color:red;
   padding-top: ${({ $pad }) => Platform.OS === "android" ? 0 : $pad};
 `;
 

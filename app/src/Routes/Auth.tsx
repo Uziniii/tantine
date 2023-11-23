@@ -39,6 +39,7 @@ export default function Auth() {
       options={{
         headerTitleAlign: "center",
         headerShadowVisible: false,
+        headerShown: false,
         headerStyle: {
           backgroundColor: '#202E44'
         },

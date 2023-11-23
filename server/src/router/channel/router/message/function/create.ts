@@ -10,13 +10,8 @@ export const create = userIsInChannel
       content: z.string().trim().min(1).max(2000),
       channelId: z.number().or(z.string()),
       nonce: z.number(),
-      invite: z.undefined()
-    }).or(z.object({
-      content: z.string().trim().max(2000),
-      channelId: z.number().or(z.string()),
-      nonce: z.number(),
-      invite: z.number()
-    }))
+      invite: z.number().or(z.undefined())
+    })
   )
   .mutation(async ({ ctx, input }) => {
     if (input.invite) {
@@ -69,6 +64,12 @@ export const create = userIsInChannel
             id: +input.channelId,
           },
         },
+        JoinRequest: input.invite ? {
+          create: {
+            groupId: +input.invite,
+            userId: ctx.user.id,
+          }
+        } : undefined,
         invite: input.invite
       },
       select: {
@@ -78,6 +79,12 @@ export const create = userIsInChannel
         updatedAt: true,
         authorId: true,
         channelId: true,
+        JoinRequest: {
+          select: {
+            id: true,
+            groupId: true,
+          }
+        }
       },
     });
 
@@ -95,7 +102,7 @@ export const create = userIsInChannel
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
       system: false,
-      invite: input.invite,
+      invite: message.JoinRequest[0],
     } satisfies z.infer<typeof messageSchema>);
 
     return message;

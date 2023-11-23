@@ -18,6 +18,7 @@ import { setPositions } from "../store/slices/notificationSlice";
 import CreateGroupButton from "../Components/CreateGroupButton";
 import ChannelItem from "../Components/ChannelItem";
 import Loading from "../Components/Loading";
+import { FText } from "../Components/FText";
 
 const Stack = createNativeStackNavigator();
 
@@ -111,9 +112,13 @@ export default function ChannelList({ navigation }: Props) {
   </Stack.Navigator>
 }
 
+const ContainerTitle = styled.View`
+  padding: 10px 0 20px 15px;
+`;
+
 const Container = styled.View`
   height: 100%;
-  background-color: white;
+  background-color: #333541;
   border-top-right-radius: 50px;
   border-top-left-radius: 50px;
   position: fixed;
@@ -136,11 +141,14 @@ function List() {
   };
 
   return <Container>
+    <ContainerTitle>
+      <FText $color="white" $size="18">Messages récent</FText>
+    </ContainerTitle>
     <FlatList
       data={channels}
       renderItem={({ item }) => {
         if (item?.id === undefined) return null;
-
+        
         return (
           <TouchableOpacity onPress={() => onChannelPress(item.id)}>
             <ChannelItem item={item} me={me} />
@@ -148,7 +156,7 @@ function List() {
         );
       }}
       keyExtractor={(item) => item.id.toString()}
-    />
+      />
     <CreateGroupButton/>
   </Container>
 }

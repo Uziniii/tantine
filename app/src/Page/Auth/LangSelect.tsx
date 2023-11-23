@@ -1,6 +1,7 @@
 import { FText } from "../../Components/FText";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { Container } from "../css/auth.css";
+import { StatusBar } from 'expo-status-bar';
 import { useMemo } from "react";
 import styled from "styled-components/native"
 import { FontAwesome } from "@expo/vector-icons"

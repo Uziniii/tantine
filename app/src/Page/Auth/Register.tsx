@@ -1,7 +1,8 @@
 import { trpc } from '../../utils/trpc';
-import { Pressable, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { Pressable, KeyboardAvoidingView, Platform, Dimensions, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import z from "zod"
+import TitleSubAuth from '../../Components/TitleSubAuth';
 import { renderInput, showError } from "../../utils/formHelpers"
 import { useInputsReducer } from '../../hooks/inputsReducer';
 import { FText } from '../../Components/FText';
@@ -86,28 +87,147 @@ export default function Register({ navigation }: Props) {
     return [inputs.country, inputs.state, inputs.city, inputs.origin].every(x => x.error === undefined)
   }, [inputs.country, inputs.state, inputs.city, inputs.origin])
 
-  return <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+  return <View>
+    <TitleSubAuth title="S’inscrire" sub="Crée votre compte afin pouvoir accéder afin d’acceder à l’application" />
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <Container style={{ justifyContent: "flex-start" }}>
-        <Form>
-          {phase === 1 && <>
-            <InputGroup>
+      behavior={Platform.OS === "ios" ? "padding" : "position"}>
+      <ScrollView
+        automaticallyAdjustKeyboardInsets
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Container style={{ justifyContent: "flex-start" }}>
+          <Form>
+            {phase === 1 && <>
+              <InputGroup>
+                {renderInput({
+                  setInputs,
+                  inputs,
+                  parser:
+                    z.string()
+                      .trim()
+                      .min(2, { message: replace(lang.error.nameSurnameMin, lang.surname.toLowerCase()) }),
+                  state: "surname",
+                  
+                  placeholder: lang.surname,
+                  maxLength: 18,
+                  $width: inputWidth,
+                  onFocus() {
+                    setLastFocus("surname")
+                  },
+                  label: "Prénom"
+                })}
+
+                {renderInput({
+                  setInputs,
+                  inputs,
+                  parser: 
+                    z.string()
+                      .trim()
+                      .min(2, { message: replace(lang.error.nameSurnameMin, lang.name.toLowerCase()) }),
+                  state: "name",
+                  label: lang.name,
+                  maxLength: 32,
+                  $width: inputWidth,
+                  onFocus() {
+                    setLastFocus("name")
+                  },
+                })}
+              </InputGroup>
+
+              {showError(lastFocus === "name" ? inputs.name : inputs.surname)}
+
+              <DropdownGender
+                value={+inputs.gender?.input}
+                setValue={(gender) => {
+                  console.log(gender);
+                  
+                  setInputs({
+                    key: "gender",
+                    input: gender.toString(),
+                    parser: z.string(),
+                  })
+                }}
+              />
+
+              <DropdownCountry
+                value={inputs.country?.input || ""}
+                setValue={(country) => {
+                  setInputs({
+                    key: "country",
+                    input: country,
+                    parser: z.string()
+                  })
+                }}
+              />
+
+              <DropdownCountry
+                placeholder={lang.originCountryPlaceholder}
+                value={inputs.origin?.input || ""}
+                setValue={(origin) => {
+                  setInputs({
+                    key: "origin",
+                    input: origin,
+                    parser: z.string()
+                  })
+                }}
+              />
+              
               {renderInput({
                 setInputs,
                 inputs,
                 parser:
                   z.string()
                     .trim()
-                    .min(2, { message: replace(lang.error.nameSurnameMin, lang.surname.toLowerCase()) }),
-                state: "surname",
-                placeholder: lang.surname,
-                maxLength: 18,
-                $width: inputWidth,
-                onFocus() {
-                  setLastFocus("surname")
+                    .min(2, { message: lang.error.stateMin }),
+                state: "state",
+                label: lang.state,
+                maxLength: 48,
+              })}
+              {showError(inputs.state)}
+
+              {renderInput({
+                setInputs,
+                inputs,
+                parser:
+                  z.string()
+                    .trim()
+                    .min(2, { message: lang.error.cityMin }),
+                state: "city",
+                label: lang.city,
+                maxLength: 48,
+              })}
+              {showError(inputs.city)}
+
+              <NextButton disabled={!firstPhaseVeify} onPress={() => setPhase(2)} style={{ marginTop: 0 }}>
+                <FText $color="white" >{lang.next}</FText>
+                <FontAwesome name="arrow-right" size={16} color={"white"} />
+              </NextButton>
+            </>}
+
+            {phase === 3 && <>
+              {renderInput({
+                setInputs,
+                inputs,
+                parser: 
+                  z.string()
+                    .trim()
+                    .email({ message: lang.error.emailInvalid }),
+                state: "email",
+                label: lang.email,
+                inputMode: "email",
+                maxLength: 200,
+                onChangeText() {
+                  setAlreadyUsedEmail(false)
                 },
               })}
+              {showError(
+                inputs.email?.error
+                  ? inputs.email
+                  : alreadyUsedEmail
+                    ? { error: lang.error.emailAlreadyExists } 
+                    : undefined 
+              )}
 
               {renderInput({
                 setInputs,
@@ -115,177 +235,54 @@ export default function Register({ navigation }: Props) {
                 parser: 
                   z.string()
                     .trim()
-                    .min(2, { message: replace(lang.error.nameSurnameMin, lang.name.toLowerCase()) }),
-                state: "name",
-                placeholder: lang.name,
-                maxLength: 32,
-                $width: inputWidth,
-                onFocus() {
-                  setLastFocus("name")
-                },
+                    .min(8, { message: lang.error.passwordMin }),
+                state: "password",
+                label: lang.password,
+                maxLength: 64,
+                secureTextEntry: true,
               })}
-            </InputGroup>
+              {showError(inputs.password)}
 
-            {showError(lastFocus === "name" ? inputs.name : inputs.surname)}
+              {renderInput({
+                setInputs,
+                inputs,
+                parser: 
+                  z.string()
+                    .trim()
+                    .refine((val) => val === inputs.password.input, { message: lang.error.passwordNotMatch }),
+                state: "passwordConfirm",
+                label: lang.confirmPassword,
+                maxLength: 64,
+                secureTextEntry: true,
+              })}
+              {showError(inputs.passwordConfirm)}
 
-            <DropdownGender
-              value={+inputs.gender?.input}
-              setValue={(gender) => {
-                console.log(gender);
-                
-                setInputs({
-                  key: "gender",
-                  input: gender.toString(),
-                  parser: z.string(),
-                })
-              }}
-            />
-
-            <NextButton disabled={!firstPhaseVeify} onPress={() => setPhase(2)} style={{ marginTop: 0 }}>
-              <FText $color="white" >{lang.next}</FText>
-              <FontAwesome name="arrow-right" size={16} color={"white"} />
-            </NextButton>
-          </>}
-
-          {phase === 2 && <>
-            <DropdownCountry
-              value={inputs.country?.input || ""}
-              setValue={(country) => {
-                setInputs({
-                  key: "country",
-                  input: country,
-                  parser: z.string()
-                })
-              }}
-            />
-
-            {renderInput({
-              setInputs,
-              inputs,
-              parser: 
-                z.string()
-                  .trim()
-                  .min(2, { message: lang.error.stateMin }),
-              state: "state",
-              placeholder: lang.state,
-              maxLength: 48,
-            })}
-            {showError(inputs.state)}
-
-            {renderInput({
-              setInputs,
-              inputs,
-              parser: 
-                z.string()
-                  .trim()
-                  .min(2, { message: lang.error.cityMin }),
-              state: "city",
-              placeholder: lang.city,
-              maxLength: 48,
-            })}
-            {showError(inputs.city)}
-
-            <DropdownCountry
-              placeholder={lang.originCountryPlaceholder}
-              value={inputs.origin?.input || ""}
-              setValue={(origin) => {
-                setInputs({
-                  key: "origin",
-                  input: origin,
-                  parser: z.string()
-                })
-              }}
-            />
-
-            <InputGroup>
-              <NextButton onPress={() => setPhase(1)} $width={inputWidth} style={{ marginTop: 0 }}>
-                <FText $color="white">{lang.back}</FText>
-                <FontAwesome name="arrow-left" size={16} color={"white"} />
-              </NextButton>
-              <NextButton disabled={!secondPhaseVeify} onPress={() => setPhase(3)} $width={inputWidth} style={{ marginTop: 0 }}>
-                <FText $color="white">{lang.next}</FText>
-                <FontAwesome name="arrow-right" size={16} color={"white"} />
-              </NextButton>
-            </InputGroup>
-          </>}
-
-          {phase === 3 && <>
-            {renderInput({
-              setInputs,
-              inputs,
-              parser: 
-                z.string()
-                  .trim()
-                  .email({ message: lang.error.emailInvalid }),
-              state: "email",
-              placeholder: lang.email,
-              inputMode: "email",
-              maxLength: 200,
-              onChangeText() {
-                setAlreadyUsedEmail(false)
-              },
-            })}
-            {showError(
-              inputs.email?.error
-                ? inputs.email
-                : alreadyUsedEmail
-                  ? { error: lang.error.emailAlreadyExists } 
-                  : undefined 
-            )}
-
-            {renderInput({
-              setInputs,
-              inputs,
-              parser: 
-                z.string()
-                  .trim()
-                  .min(8, { message: lang.error.passwordMin }),
-              state: "password",
-              placeholder: lang.password,
-              maxLength: 64,
-              secureTextEntry: true,
-            })}
-            {showError(inputs.password)}
-
-            {renderInput({
-              setInputs,
-              inputs,
-              parser: 
-                z.string()
-                  .trim()
-                  .refine((val) => val === inputs.password.input, { message: lang.error.passwordNotMatch }),
-              state: "passwordConfirm",
-              placeholder: lang.confirmPassword,
-              maxLength: 64,
-              secureTextEntry: true,
-            })}
-            {showError(inputs.passwordConfirm)}
-
-            <InputGroup>
-              <NextButton onPress={() => setPhase(2)} $width={inputWidth} style={{ marginTop: 0 }}>
-                <FText $color="white">{lang.back}</FText>
-                <FontAwesome name="arrow-left" size={16} color={"white"} />
-              </NextButton>
-              <Button
-                $width={inputWidth}
-                disabled={!Object.values(inputs).every(x => x.error === undefined) || Object.values(inputs).length <= 0}
-                onPress={sendRegisterData}>
-                <FText $color='white'>{lang.register}</FText>
-              </Button>
-            </InputGroup>
-          </>}
-        </Form>
-        {!isKeyboardOpen && 
-          <BottomContainer>
-            <FText $color='white' $size='18px'>
-              {lang.alreadyHaveAccount}
-            </FText>
-            <Pressable onPress={() => navigation.navigate("login")}>
-              <FText $size='18px' $color='#575BFD'>{lang.login}</FText>
-            </Pressable>
-          </BottomContainer>
-        }
-      </Container>
+              <InputGroup>
+                <NextButton onPress={() => setPhase(2)} $width={inputWidth} style={{ marginTop: 0 }}>
+                  <FText $color="white">{lang.back}</FText>
+                  <FontAwesome name="arrow-left" size={16} color={"white"} />
+                </NextButton>
+                <Button
+                  $width={inputWidth}
+                  disabled={!Object.values(inputs).every(x => x.error === undefined) || Object.values(inputs).length <= 0}
+                  onPress={sendRegisterData}>
+                  <FText $color='white'>{lang.register}</FText>
+                </Button>
+              </InputGroup>
+            </>}
+          </Form>
+          {!isKeyboardOpen && (<>
+            {/*  <BottomContainer>
+              <FText $color='white' $size='18px'>
+                {lang.alreadyHaveAccount}
+              </FText>
+              <Pressable onPress={() => navigation.navigate("login")}>
+                <FText $size='18px' $color='#575BFD'>{lang.login}</FText>
+              </Pressable>
+            </BottomContainer> */}
+          </>)}
+        </Container>
+      </ScrollView>
     </KeyboardAvoidingView>
-  </ScrollView>
+  </View>
 }

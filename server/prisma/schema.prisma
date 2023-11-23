@@ -35,16 +35,17 @@ model User {
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  system    Boolean  @default(false)
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  Int?
-  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  channelId Int
-  invite    Int?
+  id          Int           @id @default(autoincrement())
+  system      Boolean       @default(false)
+  content     String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  author      User?         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    Int?
+  channel     Channel       @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId   Int
+  invite      Int?
+  JoinRequest JoinRequest[]
 }
 
 model Channel {
@@ -88,4 +89,6 @@ model JoinRequest {
   userId    Int
   group     GroupChannel @relation(fields: [groupId], references: [id])
   groupId   Int
+  message   Message      @relation(fields: [messageId], references: [id])
+  messageId Int
 }

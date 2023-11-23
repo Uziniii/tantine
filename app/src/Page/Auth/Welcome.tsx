@@ -47,6 +47,7 @@ const ContainerButton = styled.View`
   display: flex;
   align-items: center;
   margin:0 0 70px 0;
+  margin:${Platform.OS === 'android' ? '0 0 20px 0' : '0 0 70px 0' };
 `;
 
 export default function Welcome({ navigation }: Props) {

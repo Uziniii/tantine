@@ -52,6 +52,7 @@ export default function AllRoute () {
       name='search'
       component={Search}
       options={{
+        headerShown: false,
         headerTitle() {
           return <TitleCreateGroup> 
             <FontAwesome name="search" size={30} color="#14213d"/>

@@ -204,6 +204,15 @@ export const userIsAuthorOrSuperAdmin = userIsAuthorOrSuperAdminCheck.use(async 
 
 export const userIsAuthorOrSuperAdminOrAdmin = userIsAuthorOrSuperAdminCheck.use(
   async ({ ctx, input, next }) => {
+    if (ctx.channel === undefined) {
+      return next({
+        ctx: {
+          prisma,
+          user: ctx.user,
+        },
+      });
+    }
+
     if (ctx.channel && (ctx.channel as any).group?.Admin[0].id === ctx.user.id) {
       return next({
         ctx: {

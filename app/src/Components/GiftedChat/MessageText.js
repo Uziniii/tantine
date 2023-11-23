@@ -100,8 +100,9 @@ export function MessageText({ currentMessage = {}, optionTitles = DEFAULT_OPTION
         styles[position].link,
         linkStyleProp && linkStyleProp[position],
     ];
+    console.log(currentMessage.invite);
     const lang = useAppSelector(state => langData[state.language].messageText)
-    const groupInfo = trpc.channel.group.getInfo.useQuery(currentMessage.invite)
+    const groupInfo = trpc.channel.group.getInfo.useQuery(currentMessage.invite?.groupId)
     const randomId = useId()
     return (<View style={[
             styles[position].container,
