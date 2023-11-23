@@ -125,5 +125,8 @@
   },
   "settings": {
     "language": "Langue"
+  },
+  "channelList": {
+    "recentMessage": "Message récent"
   }
 }

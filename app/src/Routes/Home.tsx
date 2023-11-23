@@ -50,12 +50,7 @@ export function Home() {
         tabBarLabel() {
           return <FText $color='#FFFF' $size='12px'>{lang.chat}</FText>
         },
-        // headerTitle() {
-        //   return <></>
-        // },
-
-        //style={{ marginLeft: 16}}
-
+        headerTitleAlign: "center",
         headerTitle() {
           return <View>
             <FText
@@ -78,9 +73,11 @@ export function Home() {
         },
 
         headerLeft(){
+          const navigation = useNavigation()
+
           return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginLeft: 16 }}>
-            <ButtonSearch onPress={() => navigation.navigate("search" as never)}>
-              <Feather name="search" size={25} color={"#fff"} />
+            <ButtonSearch onPress={() => navigation.navigate("createGroup" as never)}>
+              <Feather name="plus" size={25} color={"#fff"} />
             </ButtonSearch>
           </View>
         }

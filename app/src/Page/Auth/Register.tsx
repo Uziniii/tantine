@@ -3,6 +3,7 @@ import { Pressable, KeyboardAvoidingView, Platform, Dimensions, View } from 'rea
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import z from "zod"
 import TitleSubAuth from '../../Components/TitleSubAuth';
+import styled from 'styled-components/native';
 import { renderInput, showError } from "../../utils/formHelpers"
 import { useInputsReducer } from '../../hooks/inputsReducer';
 import { FText } from '../../Components/FText';
@@ -24,6 +25,15 @@ interface Props {
 }
 
 const inputWidth = Dimensions.get("window").width * 0.4 - 8 + "px"
+
+
+const ButtonBottomContainer = styled.View`
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  position:relative;
+  bottom:0;
+`;
 
 export default function Register({ navigation }: Props) {
   const dispatch = useAppDispatch()
@@ -80,12 +90,8 @@ export default function Register({ navigation }: Props) {
   }
 
   const firstPhaseVeify = useMemo(() => {
-    return [inputs.name, inputs.surname, inputs.gender].every(x => x.error === undefined)
-  }, [inputs.name, inputs.surname, inputs.gender])
-
-  const secondPhaseVeify = useMemo(() => {
-    return [inputs.country, inputs.state, inputs.city, inputs.origin].every(x => x.error === undefined)
-  }, [inputs.country, inputs.state, inputs.city, inputs.origin])
+    return [inputs.name, inputs.surname, inputs.gender, inputs.country, inputs.origin, inputs.state, inputs.city].every(x => x.error === undefined)
+  }, [inputs.name, inputs.surname, inputs.gender, inputs.country, inputs.origin, inputs.state, inputs.city])
 
   return <View>
     <TitleSubAuth title="S’inscrire" sub="Crée votre compte afin pouvoir accéder afin d’acceder à l’application" />
@@ -96,7 +102,7 @@ export default function Register({ navigation }: Props) {
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <Container style={{ justifyContent: "flex-start" }}>
+        <Container style={{ justifyContent: "flex-start"}}>
           <Form>
             {phase === 1 && <>
               <InputGroup>
@@ -108,14 +114,12 @@ export default function Register({ navigation }: Props) {
                       .trim()
                       .min(2, { message: replace(lang.error.nameSurnameMin, lang.surname.toLowerCase()) }),
                   state: "surname",
-                  
-                  placeholder: lang.surname,
                   maxLength: 18,
                   $width: inputWidth,
                   onFocus() {
                     setLastFocus("surname")
                   },
-                  label: "Prénom"
+                  label: lang.surname
                 })}
 
                 {renderInput({
@@ -140,8 +144,6 @@ export default function Register({ navigation }: Props) {
               <DropdownGender
                 value={+inputs.gender?.input}
                 setValue={(gender) => {
-                  console.log(gender);
-                  
                   setInputs({
                     key: "gender",
                     input: gender.toString(),
@@ -205,7 +207,7 @@ export default function Register({ navigation }: Props) {
               </NextButton>
             </>}
 
-            {phase === 3 && <>
+            {phase === 2 && <>
               {renderInput({
                 setInputs,
                 inputs,
@@ -257,18 +259,19 @@ export default function Register({ navigation }: Props) {
               })}
               {showError(inputs.passwordConfirm)}
 
-              <InputGroup>
+              <ButtonBottomContainer>
                 <NextButton onPress={() => setPhase(2)} $width={inputWidth} style={{ marginTop: 0 }}>
                   <FText $color="white">{lang.back}</FText>
                   <FontAwesome name="arrow-left" size={16} color={"white"} />
                 </NextButton>
                 <Button
+                  $background='#333541'
                   $width={inputWidth}
                   disabled={!Object.values(inputs).every(x => x.error === undefined) || Object.values(inputs).length <= 0}
                   onPress={sendRegisterData}>
                   <FText $color='white'>{lang.register}</FText>
                 </Button>
-              </InputGroup>
+              </ButtonBottomContainer>
             </>}
           </Form>
           {!isKeyboardOpen && (<>

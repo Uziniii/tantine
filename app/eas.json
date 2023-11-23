@@ -10,7 +10,10 @@
     },
     "preview": {
       "distribution": "internal",
-      "node": "21.0.0"
+      "node": "21.0.0",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
       "node": "21.0.0"

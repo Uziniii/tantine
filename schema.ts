@@ -15,7 +15,7 @@ export interface Message {
   invite?: {
     id: number;
     groupId: number;
-  };
+  } | null;
 }
 
 interface NewGroupTitle {

@@ -22,16 +22,16 @@ export default function GroupItem ({ item }: Props) {
     
   }
 
-  return <UserContainer onPress={onGroupPress} style={{ flex: 1 }}>
+  return <UserContainer onPress={onGroupPress} style={{ flex: 1, paddingTop: 40 }}>
     <ProfilePictureContainer>
       <FontAwesome name="group" size={24} />
     </ProfilePictureContainer>
     <InfoContainer>
       <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
-        <FText $size="18px" $color="#202E44" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+        <FText $size="18px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
           {item.title}
         </FText>
-        <FText $size="15px" $color="#202E44">
+        <FText $size="15px" $color="white">
           {`${item.users.length} ${item.users.length <= 1 ? lang.member : `${lang.member}s`}`}
         </FText>
       </Group>

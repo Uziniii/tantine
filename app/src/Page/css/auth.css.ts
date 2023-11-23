@@ -27,7 +27,7 @@ export const InputGroup = styled.View`
   width: 100%;
   display: flex;
   flex-direction: row;
-  gap: 20px;
+  gap: 16px;
   justify-content: space-between;
   align-items: center;
 `;
@@ -47,4 +47,5 @@ export const Form = styled.View`
   gap: 16px;
   width: 90%;
   display: flex;
+  justify-content: flex-start;
 `;

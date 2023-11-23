@@ -45,7 +45,7 @@ model Message {
   channel     Channel       @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId   Int
   invite      Int?
-  JoinRequest JoinRequest[]
+  JoinRequest JoinRequest?
 }
 
 model Channel {
@@ -90,5 +90,5 @@ model JoinRequest {
   group     GroupChannel @relation(fields: [groupId], references: [id])
   groupId   Int
   message   Message      @relation(fields: [messageId], references: [id])
-  messageId Int
+  messageId Int @unique
 }

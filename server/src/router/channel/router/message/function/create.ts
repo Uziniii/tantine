@@ -10,8 +10,13 @@ export const create = userIsInChannel
       content: z.string().trim().min(1).max(2000),
       channelId: z.number().or(z.string()),
       nonce: z.number(),
-      invite: z.number().or(z.undefined())
-    })
+      invite: z.undefined()
+    }).or(z.object({
+      content: z.string().trim().min(0).max(2000),
+      channelId: z.number().or(z.string()),
+      nonce: z.number(),
+      invite: z.number()
+    }))
   )
   .mutation(async ({ ctx, input }) => {
     if (input.invite) {
@@ -102,7 +107,7 @@ export const create = userIsInChannel
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
       system: false,
-      invite: message.JoinRequest[0],
+      invite: message.JoinRequest,
     } satisfies z.infer<typeof messageSchema>);
 
     return message;

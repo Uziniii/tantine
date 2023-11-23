@@ -45,7 +45,7 @@ export default function UserItem({ item, addedUsers, groupMode, userPress, theme
     </VerticalGroup>
     {groupMode && <VerticalGroup>
       <Radio style={{
-        backgroundColor: addedUsers[item.id] ? "#202E44" : undefined,
+        backgroundColor: addedUsers[item.id] ? "#333541" : undefined,
       }}>
         {addedUsers[item.id] && <FontAwesome name="check" color={theme === "dark" ? "white" : "white"} size={16} />}
       </Radio>

@@ -74,13 +74,18 @@ export default function AllRoute () {
       name='createGroup'
       component={CreateGroup}
       options={{
+        headerShadowVisible: false,
+
+        headerStyle: {
+          backgroundColor: "#24252D",
+        },
+
         headerTitle() {
           return <TitleCreateGroup> 
-            <FontAwesome name="comments" size={30} color="#14213d"/>
             <FText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
-              $color="#14213d"
+              $color="white"
             >{lang.createGroup}</FText>
           </TitleCreateGroup>
         },
@@ -92,9 +97,13 @@ export default function AllRoute () {
       name="channel"
       component={Channel}
       options={{
+        headerStyle: {
+          backgroundColor: "#24252D",
+        },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
     />
+
     <Stack.Screen
       name="userLookup"
       component={UserLookup}

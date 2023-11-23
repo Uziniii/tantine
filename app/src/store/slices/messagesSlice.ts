@@ -8,10 +8,10 @@ export interface Message {
   authorId: number | null;
   nonce?: number;
   system: boolean;
-  invite?: {
+  JoinRequest?: {
     id: number;
     groupId: number;
-  };
+  } | null;
 }
 
 export interface MessageStateSchema {

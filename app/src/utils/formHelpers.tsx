@@ -18,17 +18,17 @@ export const TextInput = styled(DefaultTextInput)<{
   width: ${props => props.$width || "100%"};
   height: ${props => props.$height || "auto"};
   padding: 12px;
-  border: 1px solid ${props => props.$borderColor || "#DADBDD"};
+  /* border: 1px solid ${props => props.$borderColor || "#DADBDD"}; */
   border-radius: 10px;
   color: white;
   background-color:transparent;
-  border: solid 2px #D4B216;
+  border: solid 2px ${props => props.$borderColor || "#D4B216"};
   box-shadow: 0px 1px 1.41px rgba(0, 0, 0, 0.2);
 `
 
 const TextInputLabel = styled.View<{$length: number}>`
   left: 10px;
-  width: ${props => props.$length ? `${30 + props.$length * 10}px` : 'auto'};
+  width: ${props => props.$length ? `${35 + props.$length * 8}px` : 'auto'};
   height: 18px;
   transform: translate(0, 10px);
   padding: 0 0 0 15px;
@@ -71,7 +71,9 @@ export const renderInput = ({
   label
 }: Props & typeof TextInput.defaultProps) => {
   return <Container>
-    <TextInputLabel $length={label.length}><FText $color="white" $size="15">{label}</FText></TextInputLabel>
+    <TextInputLabel $length={label.length}>
+      <FText $color="white" $size="16px">{label}</FText>
+    </TextInputLabel>
     <TextInput
       onChangeText={(e) => {
         if (onChangeText) onChangeText(e)

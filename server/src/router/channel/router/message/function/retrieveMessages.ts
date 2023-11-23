@@ -20,7 +20,6 @@ export const retrieveMessages = userIsInChannel
               groupId: true,
             },
           },
-          invite: true,
         },
         orderBy: {
           createdAt: "asc",

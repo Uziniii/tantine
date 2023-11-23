@@ -16,6 +16,7 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Loading from "../Components/Loading";
 import { clearNotifications } from "../store/slices/notificationSlice";
 import { langData, replace } from "../data/lang/lang";
+import { SearchInput } from "./CreateGroup";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -30,17 +31,17 @@ const TitleContainer = styled(TouchableWithoutFeedback)`
 
 const Wrapper = styled.View`
   flex: 1;
-  background-color: white;
+  background-color:#24252D;
 `
 
-// const InputContainer = styled.View`
-//   display: flex;
-//   flex-direction: row;
-//   align-items: center;
-//   justify-content: space-between;
-//   margin-top: 8px;
-//   padding: 0 12px;
-// `
+const InputContainer = styled.View`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 0 12px;
+`
 
 function isMessageSystem(message: Message): message is Message & { system: true } {
   return Boolean(message.system)
@@ -79,7 +80,7 @@ export default function Channel ({ navigation }: Props) {
           createdAt: message.createdAt.toString(),
           updatedAt: message.updatedAt.toString(),
           system: message.system,
-          invite: message.JoinRequest[0]
+          JoinRequest: message.JoinRequest
         })),
       }))
     },
@@ -105,7 +106,7 @@ export default function Channel ({ navigation }: Props) {
     navigation.setOptions({
       headerShadowVisible: false,
       headerStyle: {
-        backgroundColor: '#FFF',
+        backgroundColor: "#24252D",
       },
       headerTitle() {
         return <TitleContainer onPress={onTitlePress}>
@@ -115,7 +116,7 @@ export default function Channel ({ navigation }: Props) {
           <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
-            $color="#000"
+            $color="white"
           >
             {title}
           </FText>
@@ -245,12 +246,12 @@ export default function Channel ({ navigation }: Props) {
 
         return <Bubble color={colors[sumChars % colors.length]} {...props}/>
       }}
-      // renderInputToolbar={() => {
-      //   return <InputContainer>
-      //     <SearchInput multiline  $width="90%" $margin="0" style={{height:32}} placeholderTextColor={"white"} placeholder="Envoyer un message"/>
-      //     <FontAwesome size={24} name="send"/>
-      //   </InputContainer>
-      // }}
+      renderInputToolbar={() => {
+        return <InputContainer>
+          <SearchInput multiline  $width="90%" $margin="0" style={{height:32}} placeholderTextColor={"white"} placeholder="Envoyer un message"/>
+          <FontAwesome size={24} name="send"/>
+        </InputContainer>
+      }}
       messages={msgState?.map(message => {
         if (isMessageSystem(message)) {
           return {
@@ -269,7 +270,7 @@ export default function Channel ({ navigation }: Props) {
           _id: message.id.toString(),
           received: message.nonce !== undefined ? false : true,
           text: message.content || " ",
-          invite: message.invite,
+          JoinRequest: message.JoinRequest,
           createdAt: new Date(message.createdAt),
           user: {
             _id: message.authorId as number,
@@ -289,6 +290,6 @@ export default function Channel ({ navigation }: Props) {
       timeFormat="HH:mm"
       renderUsernameOnMessage={true}
     />
-    <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "white" }}></View>
+    <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "#24252D" }}></View>
   </Wrapper>
 }
