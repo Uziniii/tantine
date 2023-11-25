@@ -5,6 +5,7 @@ import { ProfilePictureContainer } from "./css/user.css";
 import { FText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { FontAwesome } from '@expo/vector-icons'; 
+import { MaterialIcons } from '@expo/vector-icons'; 
 import styled from "styled-components/native"
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { trpc } from "../utils/trpc";
@@ -16,11 +17,56 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Loading from "../Components/Loading";
 import { clearNotifications } from "../store/slices/notificationSlice";
 import { langData, replace } from "../data/lang/lang";
-import { SearchInput } from "./CreateGroup";
+import RecordVoiceMessage from "../Components/RecordVoiceMessage";
+import { addChannel } from "../store/slices/channelsSlice";
+import Invite from "../Components/Search/InvitGroup";
 
 interface Props {
   navigation: NavigationProp<any>
 }
+
+
+const SendChatContaier = styled.View`
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const SearchInput = styled.TextInput<{
+  $width: string
+}>`
+  height: 80px;
+  width: ${props => props.$width ?? "250px"};
+  padding: 10px 5px 10px 20px;
+  border-radius: 50px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  background-color: #333541;
+  color: white;
+  align-self: center;
+`;
+
+const ContainerButtonSend = styled(TouchableWithoutFeedback)`
+  height: 40px;
+  width: 40px;
+  background-color:#333541;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px 0 0;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+`;
+
+const ContainerButtonRecord = styled(TouchableWithoutFeedback)`
+  height: 40px;
+  width: 40px;
+  background-color:#333541;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+`;
 
 const TitleContainer = styled(TouchableWithoutFeedback)`
   display: flex;
@@ -38,9 +84,8 @@ const InputContainer = styled.View`
   display: flex;
   flex-direction: row;
   align-items: center;
+  padding: 0 15px 0 15px;
   justify-content: space-between;
-  margin-top: 8px;
-  padding: 0 12px;
 `
 
 function isMessageSystem(message: Message): message is Message & { system: true } {
@@ -63,6 +108,8 @@ export default function Channel ({ navigation }: Props) {
 
     return [`${user.surname} ${user.name}`, user.id]
   })
+
+  const [close, setClose] = useState(true)
   
   const channels = useAppSelector(state => state.channels)
   const type = useAppSelector(state => state.channels[route.params.id]?.type)
@@ -80,8 +127,25 @@ export default function Channel ({ navigation }: Props) {
           createdAt: message.createdAt.toString(),
           updatedAt: message.updatedAt.toString(),
           system: message.system,
-          JoinRequest: message.JoinRequest
+          invite: message.invite,
         })),
+      }))
+    },
+  })
+
+  const join = trpc.channel.group.join.useMutation({
+    onSuccess(data) {
+      if (data.group === null) return
+
+      dispatch(addChannel({
+        id: data.id,
+        title: data.group.title,
+        description: data.group.description,
+        admins: data.group.Admin.map(admin => admin.id),
+        authorId: data.group.authorId,
+        visibility: data.group.visibility,
+        type: "group",
+        users: data.users.map(user => user.id),
       }))
     },
   })
@@ -115,7 +179,7 @@ export default function Channel ({ navigation }: Props) {
           </ProfilePictureContainer>
           <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-            $size={"24px"}
+            $size={"20px"}
             $color="white"
           >
             {title}
@@ -197,32 +261,32 @@ export default function Channel ({ navigation }: Props) {
           '#E6E6E6',
         ];
 
-        interface Invite {
-          id: number
-          title: string
-          visibility: number
+        interface GroupInfo {
+          id: number;
+          title: string;
+          visibility: number;
         }
 
-        (props as any).onJoinPress = (invite: Invite) => {
-          if (invite === null) return;
+        (props as any).onJoinPress = (groupInfo: GroupInfo | null) => {
+          if (groupInfo === null) return;
 
-          if (channels[invite.id]) {
+          if (channels[groupInfo.id] !== undefined) {
             Alert.alert(lang.alreadyInThisGroupAlertTitle)
 
             return
           }
 
           // public
-          if (invite.visibility === 0) {
-            Alert.alert(lang.publicJoin.title, replace(lang.publicJoin.message, invite.title), [
+          if (groupInfo.visibility === 0) {
+            Alert.alert(lang.publicJoin.title, replace(lang.publicJoin.message, groupInfo.title), [
               {
                 text: lang.publicJoin.cancel,
                 style: "cancel",
               },
               {
                 text: lang.publicJoin.join,
-                onPress: () => {
-                  
+                async onPress() {
+                  await join.mutateAsync(groupInfo.id)
                 },
               },
             ])
@@ -230,7 +294,7 @@ export default function Channel ({ navigation }: Props) {
             return
           }
 
-          Alert.alert(lang.privateJoin.title, replace(lang.privateJoin.message, invite.title), [
+          Alert.alert(lang.privateJoin.title, replace(lang.privateJoin.message, groupInfo.title), [
             {
               text: lang.privateJoin.cancel,
               style: "cancel",
@@ -238,7 +302,7 @@ export default function Channel ({ navigation }: Props) {
             {
               text: lang.privateJoin.send,
               onPress: () => {
-                
+                setClose(false)
               },
             },
           ])
@@ -248,8 +312,19 @@ export default function Channel ({ navigation }: Props) {
       }}
       renderInputToolbar={() => {
         return <InputContainer>
-          <SearchInput multiline  $width="90%" $margin="0" style={{height:32}} placeholderTextColor={"white"} placeholder="Envoyer un message"/>
-          <FontAwesome size={24} name="send"/>
+          <SendChatContaier>
+            <SearchInput
+              multiline 
+              $width="76%"
+              style={{height:40}} 
+              placeholderTextColor={"white"} 
+              placeholder="Envoyer un message"
+            />
+            <ContainerButtonSend>
+              <FontAwesome size={20} color="#707179" name="send"/>
+            </ContainerButtonSend>
+          </SendChatContaier>
+          <RecordVoiceMessage/>
         </InputContainer>
       }}
       messages={msgState?.map(message => {
@@ -270,7 +345,7 @@ export default function Channel ({ navigation }: Props) {
           _id: message.id.toString(),
           received: message.nonce !== undefined ? false : true,
           text: message.content || " ",
-          JoinRequest: message.JoinRequest,
+          invite: message.invite,
           createdAt: new Date(message.createdAt),
           user: {
             _id: message.authorId as number,
@@ -290,6 +365,7 @@ export default function Channel ({ navigation }: Props) {
       timeFormat="HH:mm"
       renderUsernameOnMessage={true}
     />
+    {!close && <Invite onClose={() => setClose(true)} onJoinPress={() => null} />}
     <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "#24252D" }}></View>
   </Wrapper>
 }

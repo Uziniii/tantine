@@ -37,7 +37,6 @@ const Container = styled.View`
   border-top-left-radius: 50px;
   position: fixed;
   bottom: 0;
-  //margin: 50px 0 0 0;
   padding: 20px 10px 0 10px;
 `
 

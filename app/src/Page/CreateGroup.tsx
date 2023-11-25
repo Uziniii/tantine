@@ -24,14 +24,14 @@ export const SearchInput = styled.TextInput<{
   $width?: string
   $margin?: string
 }>`
-  border:solid 1px #D4B216;
   width: ${({ $width }) => $width ?? "95%"};
   height: 48px;
   padding: 0 0 0 20px;
   margin: ${({ $margin }) => $margin ?? "20px 0 0 0"};
-
-  background-color: transparent;
+  border-radius: 9999px;
+  background-color: #333541;
   color: white;
+  align-self: center;
   align-self: center;
   border-radius: 10px;
 `

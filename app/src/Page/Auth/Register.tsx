@@ -26,7 +26,6 @@ interface Props {
 
 const inputWidth = Dimensions.get("window").width * 0.4 - 8 + "px"
 
-
 const ButtonBottomContainer = styled.View`
   display:flex;
   flex-direction:row;

@@ -69,12 +69,6 @@ export const create = userIsInChannel
             id: +input.channelId,
           },
         },
-        JoinRequest: input.invite ? {
-          create: {
-            groupId: +input.invite,
-            userId: ctx.user.id,
-          }
-        } : undefined,
         invite: input.invite
       },
       select: {
@@ -84,12 +78,7 @@ export const create = userIsInChannel
         updatedAt: true,
         authorId: true,
         channelId: true,
-        JoinRequest: {
-          select: {
-            id: true,
-            groupId: true,
-          }
-        }
+        invite: true
       },
     });
 
@@ -107,7 +96,7 @@ export const create = userIsInChannel
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
       system: false,
-      invite: message.JoinRequest,
+      invite: message.invite,
     } satisfies z.infer<typeof messageSchema>);
 
     return message;

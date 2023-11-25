@@ -14,12 +14,7 @@ export const retrieveMessages = userIsInChannel
           updatedAt: true,
           authorId: true,
           system: true,
-          JoinRequest: {
-            select: {
-              id: true,
-              groupId: true,
-            },
-          },
+          invite: true,
         },
         orderBy: {
           createdAt: "asc",

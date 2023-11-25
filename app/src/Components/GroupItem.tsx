@@ -11,18 +11,16 @@ interface Props {
     users: number[];
     title?: string | undefined;
   }
+  index: number;
+  onPress: (index: number) => void;
 }
 
-export default function GroupItem ({ item }: Props) {
+export default function GroupItem ({ item, index, onPress }: Props) {
   const lang = useAppSelector(state => langData[state.language].groupLookup)
 
   if (!item.title) return null
-  
-  const onGroupPress = () => {
-    
-  }
 
-  return <UserContainer onPress={onGroupPress} style={{ flex: 1, paddingTop: 40 }}>
+  return <UserContainer onPress={() => onPress(index)} style={{ flex: 1 }}>
     <ProfilePictureContainer>
       <FontAwesome name="group" size={24} />
     </ProfilePictureContainer>

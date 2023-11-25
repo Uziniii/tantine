@@ -2381,6 +2381,11 @@
   resolved "https://registry.yarnpkg.com/@types/use-sync-external-store/-/use-sync-external-store-0.0.3.tgz#b6725d5f4af24ace33b36fafd295136e75509f43"
   integrity sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==
 
+"@types/uuid@^9.0.7":
+  version "9.0.7"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-9.0.7.tgz#b14cebc75455eeeb160d5fe23c2fcc0c64f724d8"
+  integrity sha512-WUtIVRUZ9i5dYXefDEAI7sh9/O7jGvHg7Df/5O/gtH3Yabe5odI3UWopVR1qbPXQtvOxWu3mM4XxlYeZtMWF4g==
+
 "@types/ws@^8.5.5":
   version "8.5.8"
   resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.5.8.tgz#13efec7bd439d0bdf2af93030804a94f163b1430"
@@ -4305,6 +4310,11 @@ expo-asset@~8.10.1:
     md5-file "^3.2.3"
     path-browserify "^1.0.0"
     url-parse "^1.5.9"
+
+expo-av@~13.4.1:
+  version "13.4.1"
+  resolved "https://registry.yarnpkg.com/expo-av/-/expo-av-13.4.1.tgz#83029b3202e64bf060f0a7a24591d93bf7ab728c"
+  integrity sha512-0K8QEFzZeNGrppzYUs8wOtjOyPPkxzlVYbEHM6WzIQOG1uYYNOJkJB3aQHVFXHmz+AzoHwMrUjcschofwaMNeg==
 
 expo-checkbox@~2.4.0:
   version "2.4.0"
@@ -7710,6 +7720,11 @@ react-native-typing-animation@0.1.7:
   resolved "https://registry.yarnpkg.com/react-native-typing-animation/-/react-native-typing-animation-0.1.7.tgz#8f2cf08d9400ae543a110292eb7d71523dda5528"
   integrity sha512-4H3rF9M+I2yAZpYJcY0Mb29TXkn98QK12rrKSY6LZj1BQD9NNmRZuNXzwX4XHapsIz+N/J8M3p27FOQPbfzqeg==
 
+react-native-uuid@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-uuid/-/react-native-uuid-2.0.1.tgz#ed4e2dfb1683eddb66967eb5dca140dfe1abddb9"
+  integrity sha512-cptnoIbL53GTCrWlb/+jrDC6tvb7ypIyzbXNJcpR3Vab0mkeaaVd5qnB3f0whXYzS+SMoSQLcUUB0gEWqkPC0g==
+
 react-native-web@~0.19.6:
   version "0.19.9"
   resolved "https://registry.yarnpkg.com/react-native-web/-/react-native-web-0.19.9.tgz#6ee43e6c64d886b1d739f100fed07927541ee003"
@@ -9112,6 +9127,11 @@ uuid@^8.0.0, uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+
+uuid@^9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
+  integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
 
 valid-url@~1.0.9:
   version "1.0.9"

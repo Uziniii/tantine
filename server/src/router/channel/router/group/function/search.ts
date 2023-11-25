@@ -13,6 +13,7 @@ export const search = protectedProcedure
         id: z.number(),
         title: z.string().optional(),
         users: z.array(z.number()),
+        visibility: z.number().optional(),
       })
     )
   )
@@ -33,7 +34,12 @@ export const search = protectedProcedure
             id: true,
           },
         },
-        group: true,
+        group: {
+          select: {
+            visibility: true,
+            title: true,
+          },
+        },
       },
     });
 
@@ -44,6 +50,7 @@ export const search = protectedProcedure
       .map(({ id, group, users }) => ({
         id,
         title: group?.title,
+        visibility: group?.visibility,
         users: users.map(({ id }) => id),
       }));
   });

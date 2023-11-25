@@ -26,13 +26,24 @@ const ButtonSearch = styled(TouchableOpacity)`
 export function Home() {
   const lang = useAppSelector(state => langData[state.language].tab)
 
-  return <Tab.Navigator screenOptions={{
+  return ( 
+  
+  <View style={{ flex: 1, backgroundColor: '#333541'}}>
+  <Tab.Navigator screenOptions={{
     headerShadowVisible: false,
     tabBarStyle: {
       height: '10%',
+      width: '90%',
+      alignSelf: 'center',
+      marginTop: 20,
       paddingBottom: 16,
       backgroundColor: '#24252D',
-      borderTopWidth: 0
+      borderTopWidth: 0,
+      borderRadius: 99990,
+      // borderWidth: 1,
+      // borderTopWidth: 1,
+      // borderTopColor: "#D4B216",
+      // borderColor: "#D4B216",
     },
     headerStyle: {
       backgroundColor: "#24252D",
@@ -44,6 +55,9 @@ export function Home() {
       key={"chat"}
       component={ChannelList}
       options={{
+        
+        tabBarActiveTintColor: '#D4B216',
+
         tabBarIcon(props) {
           return <FontAwesome name="comments" size={30} color={props.color} />
         },
@@ -88,6 +102,9 @@ export function Home() {
       key={"settings"}
       component={Settings}
       options={{
+
+        tabBarActiveTintColor: '#D4B216',
+
         tabBarIcon(props) {
           return <FontAwesome name="gear" size={30} color={props.color} />
         },
@@ -109,4 +126,6 @@ export function Home() {
       }}
     />
   </Tab.Navigator>
-}
+  <View style={{ height: 40 }} /> 
+  </View>
+);}

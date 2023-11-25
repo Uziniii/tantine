@@ -3,16 +3,14 @@ import { useEffect, useMemo, useState } from "react";
 import debounce from "lodash.debounce";
 import { FText } from "../Components/FText";
 import { useAppSelector } from "../store/store";
-import { Button } from "./css/auth.css";
-import { isKeyboard } from "../hooks/isKeyboard";
-import { Container, ButtonGroup } from "./css/search.css";
+import { Container } from "./css/search.css";
 import { langData } from "../data/lang/lang";
 import UserSearch from "../Components/Search/UserSearch";
 import GroupSearch from "../Components/Search/GroupSearch";
 import { SearchInput } from "./CreateGroup";
 import styled from 'styled-components/native';
 import Checkbox from 'expo-checkbox';
-
+import InvitGroup from "../Components/Search/InvitGroup";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -73,6 +71,8 @@ export default function Search({ navigation }: Props) {
       />
     </ButtonGroupFilter>
 
-    {filter === "user" ? <UserSearch isSearchEmpty={isSearchEmpty} search={search[0]}/> : <GroupSearch isSearchEmpty={isSearchEmpty} search={search[1]} />}
+    {filter === "user" 
+      ? <UserSearch isSearchEmpty={isSearchEmpty} search={search[0]}/> 
+      : <GroupSearch isSearchEmpty={isSearchEmpty} search={search[1]} />}
   </Container>
 }

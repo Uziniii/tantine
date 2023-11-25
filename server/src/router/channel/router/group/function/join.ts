@@ -9,6 +9,13 @@ export const join = protectedProcedure
     const channel = await ctx.prisma.channel.findUnique({
       where: {
         id: input,
+        group: {
+          JoinRequest: {
+            some: {
+              id: input,
+            }
+          }
+        }
       },
       select: {
         id: true,
@@ -29,9 +36,12 @@ export const join = protectedProcedure
 
     if (!channel?.group) throw new TRPCError({ code: "NOT_FOUND" });
     if (channel.users.some((user) => user.id === ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN" });
-    if (channel.group.visibility === 1) throw new TRPCError({ code: "FORBIDDEN" })
+    
+    if (channel.group.visibility === 1) {
+      
+    }
 
-    await ctx.prisma.channel.update({
+    const updatedChannel = await ctx.prisma.channel.update({
       where: {
         id: input,
       },
@@ -42,10 +52,34 @@ export const join = protectedProcedure
           },
         },
       },
+      select: {
+        id: true,
+        users: {
+          select: {
+            id: true,
+          },
+        },
+        group: {
+          select: {
+            id: true,
+            title: true,
+            visibility: true,
+            authorId: true,
+            description: true,
+            Admin: {
+              select: {
+                id: true,
+              },
+            }
+          },
+        },
+      },
     });
 
     ev.emit("memberJoin", {
       channelId: input,
       userId: ctx.user.id,
     });
+
+    return updatedChannel
   });
