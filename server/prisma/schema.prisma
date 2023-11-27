@@ -24,6 +24,7 @@ model User {
   city           String
   state          String
   origin         String
+  profilePicture String?
 
   messages Message[]
   channels Channel[]
@@ -38,6 +39,7 @@ model Message {
   id        Int      @id @default(autoincrement())
   system    Boolean  @default(false)
   content   String
+  audioFile String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -75,6 +77,7 @@ model GroupChannel {
   Channel     Channel[]
   // public = 0 & private = 1
   visibility  Int       @default(0)
+  profilePicture String?
 
   Admin       User[]        @relation("GroupAdmin")
   JoinRequest JoinRequest[]

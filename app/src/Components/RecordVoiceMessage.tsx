@@ -4,6 +4,9 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
+import { host } from '../utils/host';
+import { useAppSelector } from '../store/store';
+import ky from 'ky';
 
 
 const ContainerButtonRecord = styled(TouchableWithoutFeedback)`
@@ -16,9 +19,14 @@ const ContainerButtonRecord = styled(TouchableWithoutFeedback)`
   border-radius: 50px;
 `;
 
-export default function RecordVoiceMessage(): JSX.Element {
+interface Props {
+  channelId: string;
+}
+
+export default function RecordVoiceMessage({ channelId }: Props): JSX.Element {
+  const token = useAppSelector((state) => state.me?.token);
+
   const [recording, setRecording] = useState<Audio.Recording | undefined>();
-  const [audioFile, setAudioFile] = useState<string | null>(null);
 
   async function startRecording() {
     try {
@@ -51,10 +59,18 @@ export default function RecordVoiceMessage(): JSX.Element {
       if (!uri) return
 
       const formData = new FormData()
-      const blob = new Blob([uri], { type: 'audio/m4a' });
-      formData.append('audio', blob);
-      console.log(blob);
+      formData.append('audio', {
+        uri,
+        type: 'audio/m4a',
+        name: 'audio.m4a',
+      } as any);
       
+      await ky.post(`http://${host}:3000/create/audioMessage/${channelId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
       console.log('Recording stopped and stored at', uri);
       setRecording(undefined);

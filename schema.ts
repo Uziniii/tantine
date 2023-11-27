@@ -12,7 +12,8 @@ export interface Message {
   createdAt: Date;
   updatedAt: Date;
   system: boolean;
-  invite?: number | null;;
+  invite?: number | null;
+  audioFile?: string | null;
 }
 
 interface NewGroupTitle {

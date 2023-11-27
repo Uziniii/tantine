@@ -1,20 +1,13 @@
-import ws from 'ws';
-import { IncomingMessage } from "http"
 import { prisma } from './db';
 import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import type { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone"
+import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
 import { Payload, verifyJwtToken } from './jwt';
 import { decode } from 'jsonwebtoken';
-import { NodeHTTPCreateContextFnOptions } from '@trpc/server/dist/adapters/node-http';
 import z from "zod"
 
-export const createContext = async ({
-  req,
-}:
-  | CreateHTTPContextOptions
-  | NodeHTTPCreateContextFnOptions<IncomingMessage, ws>) => {
+export const createContext = async ({ req }: CreateFastifyContextOptions) => {
   async function getUserFromHeader() {
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(" ")[1];

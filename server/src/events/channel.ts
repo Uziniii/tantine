@@ -1,6 +1,6 @@
 import { prisma } from "../db";
 import { ev } from "../.";
-import { Args, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, newGroupTitleSchema, removeMemberSchema } from "./schema";
+import { Args, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, newGroupPicture, newGroupTitleSchema, removeMemberSchema } from "./schema";
 import z from "zod"
 
 export const newGroupTitleEvent = async ({
@@ -164,4 +164,26 @@ export const putAdminEvent = async ({
   if (!channel) return;
 
   sendToIds(channel.users.map(({ id }) => id), "putAdmin", payload);
+}
+
+export const newGroupPictureEvent = async ({
+  payload,
+  sendToIds,
+}: Args<z.infer<typeof newGroupPicture>>) => {
+  const channel = await prisma.channel.findUnique({
+    where: {
+      id: +payload.channelId,
+    },
+    select: {
+      users: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (!channel) return;
+
+  sendToIds(channel.users.map(({ id }) => id), "newGroupPicture", payload);
 }

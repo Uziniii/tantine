@@ -15,6 +15,7 @@ export const retrieveMessages = userIsInChannel
           authorId: true,
           system: true,
           invite: true,
+          audioFile: true,
         },
         orderBy: {
           createdAt: "asc",

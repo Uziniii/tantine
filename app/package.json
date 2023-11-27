@@ -38,6 +38,7 @@
     "expo-linking": "~5.0.2",
     "expo-status-bar": "~1.6.0",
     "jwt-decode": "^3.1.2",
+    "ky": "^1.1.3",
     "lodash.debounce": "^4.0.8",
     "react": "18.2.0",
     "react-dom": "18.2.0",

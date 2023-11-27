@@ -78,7 +78,8 @@ export const create = userIsInChannel
         updatedAt: true,
         authorId: true,
         channelId: true,
-        invite: true
+        invite: true,
+        audioFile: true,
       },
     });
 
@@ -97,6 +98,7 @@ export const create = userIsInChannel
       updatedAt: message.updatedAt,
       system: false,
       invite: message.invite,
+      audioFile: message.audioFile
     } satisfies z.infer<typeof messageSchema>);
 
     return message;

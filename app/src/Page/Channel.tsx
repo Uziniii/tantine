@@ -25,7 +25,6 @@ interface Props {
   navigation: NavigationProp<any>
 }
 
-
 const SendChatContaier = styled.View`
   display:flex;
   flex-direction: row;
@@ -324,7 +323,7 @@ export default function Channel ({ navigation }: Props) {
               <FontAwesome size={20} color="#707179" name="send"/>
             </ContainerButtonSend>
           </SendChatContaier>
-          <RecordVoiceMessage/>
+          <RecordVoiceMessage channelId={route.params.id}/>
         </InputContainer>
       }}
       messages={msgState?.map(message => {
