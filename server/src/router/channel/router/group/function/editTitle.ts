@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { userIsAuthorOrSuperAdminOrAdmin } from "../../../../../trpc";
-import { ev } from "../../../../..";
+import { userIsAuthorOrSuperAdminOrAdmin } from "@/trpc";
+import { ev } from "@/ws";
 
 export const editTitle = userIsAuthorOrSuperAdminOrAdmin
   .input(

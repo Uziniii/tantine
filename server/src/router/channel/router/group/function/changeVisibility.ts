@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { userIsAuthorOrSuperAdmin } from "../../../../../trpc";
-import { ev } from "../../../../..";
+import { userIsAuthorOrSuperAdmin } from "@/trpc";
+import { ev } from "@/ws";
 
 export const changeVisibility = userIsAuthorOrSuperAdmin
   .input(

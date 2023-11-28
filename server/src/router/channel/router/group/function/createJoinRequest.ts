@@ -1,5 +1,5 @@
-import { ev } from "../../../../..";
-import { groupIsPrivate, userIsAuthorOrSuperAdmin } from "../../../../../trpc";
+import { ev } from "@/ws";
+import { groupIsPrivate, userIsAuthorOrSuperAdmin } from "@/trpc";
 
 export const createJoinRequest = userIsAuthorOrSuperAdmin
   .mutation(async ({ ctx, input }) => {

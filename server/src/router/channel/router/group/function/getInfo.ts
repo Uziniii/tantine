@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure } from "../../../../../trpc";
+import { protectedProcedure } from "@/trpc";
 
 export const getInfo = protectedProcedure
   .input(z.number())

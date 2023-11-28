@@ -1,6 +1,6 @@
 import { randomInt } from 'crypto';
 import { TRPCError } from "@trpc/server";
-import { userIsAuthorOrSuperAdmin } from '../../../../../trpc';
+import { userIsAuthorOrSuperAdmin } from '@/trpc';
 
 export const turnTheWheel = userIsAuthorOrSuperAdmin
   .mutation(

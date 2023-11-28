@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
-import { userIsInChannel } from "../../../../../trpc";
-import { ev } from "../../../../..";
+import { userIsInChannel } from "@/trpc";
+import { ev } from "@/ws";
 
 export const quit = userIsInChannel
   .mutation(async ({ ctx, input }) => {

@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
-import { userIsAuthorOrSuperAdmin } from "../../../../../trpc";
-import { ev } from "../../../../..";
+import { userIsAuthorOrSuperAdmin } from "@/trpc";
+import { ev } from "@/ws";
 
 export const deleteGroup = userIsAuthorOrSuperAdmin
   .mutation(async ({ ctx, input }) => {

@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { userIsAuthorOrSuperAdminOrAdmin } from "../../../../../trpc";
-import { ev } from "../../../../..";
+import { userIsAuthorOrSuperAdminOrAdmin } from "@/trpc";
+import { ev } from "@/ws";
 
 export const removeMember = userIsAuthorOrSuperAdminOrAdmin
   .input(

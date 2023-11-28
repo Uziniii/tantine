@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { userIsInChannel } from "../../../../../trpc";
+import { userIsInChannel } from "@/trpc";
 import { TRPCError } from "@trpc/server";
-import { ev } from "../../../../..";
-import { messageSchema } from "../../../../../events/schema";
+import { ev } from "@/ws";
+import { messageSchema } from "@/events/schema";
 
 export const create = userIsInChannel
   .input(

@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
-import { ev } from "../../../../..";
-import { protectedProcedure } from "../../../../../trpc";
+import { ev } from "@/ws";
+import { protectedProcedure } from "@/trpc";
 import { z } from "zod";
 
 export const join = protectedProcedure

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { userIsAuthorOrSuperAdmin } from "../../../../../trpc";
-import { ev } from "../../../../..";
+import { userIsAuthorOrSuperAdmin } from "@/trpc";
+import { ev } from "@/ws";
 
 export const putAdmin = userIsAuthorOrSuperAdmin
   .input(

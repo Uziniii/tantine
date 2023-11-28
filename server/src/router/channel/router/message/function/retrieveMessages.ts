@@ -1,4 +1,4 @@
-import { userIsInChannel } from "../../../../../trpc";
+import { userIsInChannel } from "@/trpc";
 
 export const retrieveMessages = userIsInChannel
   .mutation(
