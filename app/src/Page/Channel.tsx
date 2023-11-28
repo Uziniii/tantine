@@ -345,6 +345,7 @@ export default function Channel ({ navigation }: Props) {
           received: message.nonce !== undefined ? false : true,
           text: message.content || " ",
           invite: message.invite,
+          audioFile: message.audioFile,
           createdAt: new Date(message.createdAt),
           user: {
             _id: message.authorId as number,

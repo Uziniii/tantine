@@ -8,7 +8,6 @@ import { host } from '../utils/host';
 import { useAppSelector } from '../store/store';
 import ky from 'ky';
 
-
 const ContainerButtonRecord = styled(TouchableWithoutFeedback)`
   height: 40px;
   width: 40px;

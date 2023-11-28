@@ -5,11 +5,13 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useAppSelector } from "../store/store";
 import { langData } from "../data/lang/lang";
 import { FontAwesome, Feather } from "@expo/vector-icons";
+import { MaterialIcons } from '@expo/vector-icons'; 
 import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ChannelList from "../Page/ChannelList";
 import Settings from "../Page/Settings";
-import styled from "styled-components/native"
+import styled from "styled-components/native";
+import Community from "../Page/Community";
 
 const Tab = createBottomTabNavigator();
 
@@ -97,6 +99,37 @@ export function Home() {
         }
       }}
     />
+
+
+    <Tab.Screen
+      name='community'
+      key={"community"}
+      component={Community}
+      options={{
+
+        tabBarActiveTintColor: '#D4B216',
+
+        tabBarIcon(props) {
+          return <MaterialIcons name="groups" size={30} color={props.color} />
+        },
+        tabBarLabel(props) {
+          return <FText $color='#FFFF' $size='12px'>Communauté</FText>
+        },
+        
+        headerTitle() {
+          return <View>
+            <FText
+              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+              $size={"25px"}
+              $color='#FFF'
+            >
+              Communauté
+            </FText>
+          </View>
+        },
+      }}
+    />
+
     <Tab.Screen
       name='settings'
       key={"settings"}

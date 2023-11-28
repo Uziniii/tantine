@@ -3,6 +3,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 export interface Message {
   id: number;
   content: string;
+  audioFile?: string | null;
   createdAt: string;
   updatedAt: string;
   authorId: number | null;

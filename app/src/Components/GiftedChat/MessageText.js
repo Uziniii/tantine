@@ -101,10 +101,11 @@ export function MessageText({ currentMessage = {}, optionTitles = DEFAULT_OPTION
         linkStyleProp && linkStyleProp[position],
     ];
     const lang = useAppSelector(state => langData[state.language].messageText)
-    const groupInfo = trpc.channel.group.getInfo.useQuery(currentMessage.JoinRequest?.groupId, {
-      enabled: !!currentMessage.JoinRequest?.groupId
+    const groupInfo = trpc.channel.group.getInfo.useQuery(currentMessage.invite, {
+      enabled: !!currentMessage.invite
     })
     const randomId = useId()
+    console.log(currentMessage);
     return (<View style={[
             styles[position].container,
             containerStyle && containerStyle[position],

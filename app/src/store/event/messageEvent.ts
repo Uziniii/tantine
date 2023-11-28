@@ -50,6 +50,7 @@ export function createMessageEventFactory({
           id: payload.id,
           authorId: payload.authorId,
           content: payload.content,
+          audioFile: payload.audioFile,
           createdAt: payload.createdAt.toString(),
           updatedAt: payload.updatedAt.toString(),
           system: payload.system,
