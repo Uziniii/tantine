@@ -12,6 +12,8 @@ import { useAppSelector } from '../../store/store';
 import { langData } from '../../data/lang/lang';
 import { useId } from 'react';
 import { trpc } from '../../utils/trpc';
+import ShowVocalMessage from "../ShowVocalMessage"
+
 const WWW_URL_PATTERN = /^www\./i;
 const { textStyle } = StyleSheet.create({
     textStyle: {
@@ -110,6 +112,12 @@ export function MessageText({ currentMessage = {}, optionTitles = DEFAULT_OPTION
             styles[position].container,
             containerStyle && containerStyle[position],
         ]}>
+      {currentMessage.audioFile && (
+        <ShowVocalMessage
+          audioFile={currentMessage.audioFile}
+          channelId={currentMessage.channelId}
+        />
+      )}
       <ParsedText style={[
             styles[position].text,
             textStyle && textStyle[position],

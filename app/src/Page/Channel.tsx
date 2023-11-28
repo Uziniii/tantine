@@ -123,6 +123,7 @@ export default function Channel ({ navigation }: Props) {
           id: message.id,
           authorId: message.authorId,
           content: message.content,
+          audioFile: message.audioFile,
           createdAt: message.createdAt.toString(),
           updatedAt: message.updatedAt.toString(),
           system: message.system,
@@ -346,6 +347,7 @@ export default function Channel ({ navigation }: Props) {
           text: message.content || " ",
           invite: message.invite,
           audioFile: message.audioFile,
+          channelId: lookupId,
           createdAt: new Date(message.createdAt),
           user: {
             _id: message.authorId as number,
