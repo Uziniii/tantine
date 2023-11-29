@@ -1,5 +1,5 @@
 import { trpc } from "../../utils/trpc";
-import { addAdmin, addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeMember } from "../slices/channelsSlice";
+import { addAdmin, addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeJoinRequest, removeMember } from "../slices/channelsSlice";
 import { Me } from "../slices/meSlice";
 import { addPosition, removeChannelNotification } from "../slices/notificationSlice";
 import { addUsers } from "../slices/usersSlice";
@@ -179,3 +179,33 @@ export const putAdminEventFactory = ({
     dispatch(addAdmin(payload))
   }
 }
+
+interface CreateJoinRequestProps {
+  dispatch: AppDispatch
+}
+
+export const createJoinRequestEventFactory = ({
+  dispatch,
+}: CreateJoinRequestProps) => {
+  return function event(payload: {
+    channelId: number;
+    joinRequest: number;
+  }) {
+    dispatch(removeJoinRequest(payload));
+  };
+};
+
+interface AcceptJoinRequestProps {
+  dispatch: AppDispatch;
+}
+
+export const acceptJoinRequestEventFactory = ({
+  dispatch,
+}: AcceptJoinRequestProps) => {
+  return function event(payload: {
+    channelId: number;
+    joinRequest: number;
+  }) {
+    dispatch(removeJoinRequest(payload))
+  };
+};

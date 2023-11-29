@@ -3,11 +3,11 @@ import { z } from "zod";
 import { Payload, verifyJwtToken } from "./jwt";
 import { decode } from "jsonwebtoken";
 import { prisma } from "./db";
-import { IMapUser, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, messageSchema, newGroupPicture, newGroupTitleSchema, removeMemberSchema, sendJoinRequest } from "./events/schema";
+import { IMapUser, acceptJoinRequest, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, messageSchema, newGroupPicture, newGroupTitleSchema, removeMemberSchema, sendJoinRequest } from "./events/schema";
 import { EventEmitter } from "ws";
 import { sendFactory } from "./helpers/event";
 import { createMessageEvent } from "./events/message";
-import { addMembersEvent, changeVisibilityEvent, deleteGroupEvent, memberJoinEvent, newGroupPictureEvent, newGroupTitleEvent, putAdminEvent, removeMemberEvent, sendJoinRequestEvent } from "./events/channel";
+import { acceptJoinRequestEvent, addMembersEvent, changeVisibilityEvent, deleteGroupEvent, memberJoinEvent, newGroupPictureEvent, newGroupTitleEvent, putAdminEvent, removeMemberEvent, sendJoinRequestEvent } from "./events/channel";
 
 function heartbeat(this: { isAlive: boolean }) {
   this.isAlive = true;
@@ -210,6 +210,15 @@ ev.on("createCommunityMessage", (payload: z.infer<typeof messageSchema>) => {
 
 ev.on("createJoinRequest", (payload: z.infer<typeof sendJoinRequest>) => {
   sendJoinRequestEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+});
+
+ev.on("acceptJoinRequest", (payload: z.infer<typeof acceptJoinRequest>) => {
+  acceptJoinRequestEvent({
     payload,
     users,
     idToTokens,

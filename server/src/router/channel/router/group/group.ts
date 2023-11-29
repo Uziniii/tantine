@@ -1,3 +1,4 @@
+import { acceptJoinRequest } from './function/acceptJoinRequest';
 import { sendJoinRequest } from './function/sendJoinRequest';
 import { putAdmin } from './function/putAdmin';
 import { getInfo } from './function/getInfo';
@@ -64,4 +65,5 @@ export const groupRouter = router({
   getInfo,
   putAdmin,
   sendJoinRequest,
+  acceptJoinRequest,
 })

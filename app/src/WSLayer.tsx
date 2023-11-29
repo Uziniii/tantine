@@ -4,8 +4,8 @@ import { trpc } from "./utils/trpc";
 import useWebSocket from "react-use-websocket";
 import { host } from "./utils/host";
 import { allSchemaEvent } from "../schema";
-import { createMessageEventFactory } from "./store/event/messageEvent";
-import { addMembersEventFactory, changeVisibilityEventFactory, deleteGroupEventFactory, newGroupTitleEventFactory, putAdminEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
+import { createCommunityMessageEventFactory, createMessageEventFactory } from "./store/event/messageEvent";
+import { acceptJoinRequestEventFactory, addMembersEventFactory, changeVisibilityEventFactory, createJoinRequestEventFactory, deleteGroupEventFactory, newGroupTitleEventFactory, putAdminEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
 
 export default function WSLayer({ children }: PropsWithChildren) {
   const dispatch = useAppDispatch();
@@ -60,6 +60,9 @@ export default function WSLayer({ children }: PropsWithChildren) {
           fetchUsers,
           me,
         }),
+        createCommunityMessage: createCommunityMessageEventFactory({
+          dispatch,
+        }),
         editGroupTitle: newGroupTitleEventFactory({
           dispatch,
         }),
@@ -82,7 +85,13 @@ export default function WSLayer({ children }: PropsWithChildren) {
         }),
         putAdmin: putAdminEventFactory({
           dispatch,
-        })
+        }),
+        createJoinRequest: createJoinRequestEventFactory({
+          dispatch,
+        }),
+        acceptJoinRequest: acceptJoinRequestEventFactory({
+          dispatch,
+        }),
       } as const;
 
       const eventFn = events[event.data.event];

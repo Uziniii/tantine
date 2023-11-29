@@ -15,6 +15,10 @@ interface Group {
   authorId: number;
   visibility: number;
   admins: number[];
+  joinRequests: {
+    id: number;
+    userId: number;
+  }[];
 }
 
 export type Channel = Private | Group;
@@ -110,6 +114,42 @@ const channelsSlice = createSlice({
       channel.admins.push(memberId);
 
       return state;
+    },
+    addJoinRequest: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        id: number;
+        userId: number;
+      }>
+    ) => {
+      const { channelId, userId, id } = action.payload;
+      const channel = state[channelId];
+
+      if (channel && channel.type !== "group") return state;
+
+      channel.joinRequests.push({
+        id,
+        userId,
+      });
+
+      return state;
+    },
+    removeJoinRequest: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        joinRequest: number;
+      }>
+    ) => {
+      const { channelId, joinRequest } = action.payload;
+      const channel = state[channelId];
+
+      if (channel && channel.type !== "group") return state;
+
+      channel.joinRequests = channel.joinRequests.filter((request) => request.id !== joinRequest);
+
+      return state;
     }
   },
 });
@@ -122,6 +162,8 @@ export const {
   addMembers,
   changeVisibility,
   addAdmin,
+  addJoinRequest,
+  removeJoinRequest,
 } = channelsSlice.actions;
 
 export default channelsSlice.reducer;

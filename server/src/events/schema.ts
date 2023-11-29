@@ -45,6 +45,10 @@ export const sendJoinRequest = z.object({
   userId: z.number(),
   groupId: z.number(),
 })
+export const acceptJoinRequest = z.object({
+  channelId: z.number(),
+  joinRequest: z.number(),
+})
 
 const allSchema = z.union([
   messageSchema,
@@ -59,6 +63,7 @@ const allSchema = z.union([
   newProfilePicture,
   communityMessageSchema,
   sendJoinRequest,
+  acceptJoinRequest,
 ]);
 
 export interface IMapUser {

@@ -23,6 +23,15 @@ export const retrieve = userIsInChannel
                 id: true,
               },
             },
+            JoinRequest: {
+              orderBy: {
+                createdAt: "asc",
+              },
+              select: {
+                id: true,
+                userId: true,
+              },
+            }
           },
         },
         users: {
@@ -56,5 +65,6 @@ export const retrieve = userIsInChannel
       authorId: channel.group.authorId,
       visibility: channel.group.visibility,
       admins: channel.group.Admin.map((admin) => admin.id),
+      joinRequests: channel.group.JoinRequest,
     };
   });
