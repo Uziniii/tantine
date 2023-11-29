@@ -26,13 +26,27 @@ model User {
   origin         String
   profilePicture String?
 
-  messages Message[]
+  messages          Message[]
+  communityMessages CommunityMessage[] @relation("CommunityMessageRelation")
+
   channels Channel[]
 
   groupChannel GroupChannel[]
   groupAdmins  GroupChannel[] @relation("GroupAdmin")
 
-  joinRequests       JoinRequest[] @relation("UsersJoinRequest")
+  joinRequests JoinRequest[]
+}
+
+model CommunityMessage {
+  id        Int      @id @default(autoincrement())
+  system    Boolean  @default(false)
+  content   String
+  audioFile String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade, name: "CommunityMessageRelation")
+  authorId  Int?
+  invite    Int?
 }
 
 model Message {
@@ -67,16 +81,16 @@ model PrivateChannel {
 }
 
 model GroupChannel {
-  id          Int       @id @default(autoincrement())
-  title       String
-  description String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  author      User      @relation(fields: [authorId], references: [id])
-  authorId    Int
-  Channel     Channel[]
+  id             Int       @id @default(autoincrement())
+  title          String
+  description    String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  author         User      @relation(fields: [authorId], references: [id])
+  authorId       Int
+  Channel        Channel[]
   // public = 0 & private = 1
-  visibility  Int       @default(0)
+  visibility     Int       @default(0)
   profilePicture String?
 
   Admin       User[]        @relation("GroupAdmin")
@@ -84,10 +98,10 @@ model GroupChannel {
 }
 
 model JoinRequest {
-  id           Int          @id @default(autoincrement())
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  users        User[]       @relation(name: "UsersJoinRequest")
-  group        GroupChannel @relation(fields: [groupId], references: [id])
-  groupId      Int
+  id        Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id])
+  userId    Int
+  group     GroupChannel @relation(fields: [groupId], references: [id])
+  groupId   Int
 }

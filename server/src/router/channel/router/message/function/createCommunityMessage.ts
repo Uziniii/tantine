@@ -1,22 +1,24 @@
-import { z } from "zod";
-import { userIsInChannel } from "@/trpc";
-import { TRPCError } from "@trpc/server";
+import { protectedProcedure } from "@/trpc";
 import { ev } from "@/ws";
-import { messageSchema } from "@/events/schema";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 
-export const create = userIsInChannel
+export const createCommunityMessage = protectedProcedure
   .input(
     z.object({
       content: z.string().trim().min(1).max(2000),
       channelId: z.number().or(z.string()),
       nonce: z.number(),
-      invite: z.undefined()
-    }).or(z.object({
-      content: z.string().trim().min(0).max(2000),
-      channelId: z.number().or(z.string()),
-      nonce: z.number(),
-      invite: z.number()
-    }))
+      invite: z.undefined(),
+    })
+    .or(
+      z.object({
+        content: z.string().trim().min(0).max(2000),
+        channelId: z.number().or(z.string()),
+        nonce: z.number(),
+        invite: z.number(),
+      })
+    )
   )
   .mutation(async ({ ctx, input }) => {
     if (input.invite) {
@@ -38,8 +40,8 @@ export const create = userIsInChannel
                 },
                 select: {
                   id: true,
-                }
-              }
+                },
+              },
             },
           },
         },
@@ -50,7 +52,7 @@ export const create = userIsInChannel
       }
     }
 
-    const message = await ctx.prisma.message.create({
+    const message = await ctx.prisma.communityMessage.create({
       data: {
         content: input.content,
         author: {
@@ -58,12 +60,7 @@ export const create = userIsInChannel
             id: ctx.user.id,
           },
         },
-        channel: {
-          connect: {
-            id: +input.channelId,
-          },
-        },
-        invite: input.invite
+        invite: input.invite,
       },
       select: {
         id: true,
@@ -71,29 +68,15 @@ export const create = userIsInChannel
         createdAt: true,
         updatedAt: true,
         authorId: true,
-        channelId: true,
         invite: true,
         audioFile: true,
       },
     });
 
-    if (!message.authorId) throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Message authorId is null"
+    ev.emit("createCommunityMessage", {
+      message,
+      nonce: input.nonce,
     });
 
-    ev.emit("createMessage", {
-      id: message.id,
-      content: message.content,
-      authorId: message.authorId,
-      channelId: message.channelId,
-      nonce: input.nonce,
-      createdAt: message.createdAt,
-      updatedAt: message.updatedAt,
-      system: false,
-      invite: message.invite,
-      audioFile: message.audioFile
-    } satisfies z.infer<typeof messageSchema>);
-
     return message;
-  });
+  })

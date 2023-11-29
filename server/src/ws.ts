@@ -3,11 +3,11 @@ import { z } from "zod";
 import { Payload, verifyJwtToken } from "./jwt";
 import { decode } from "jsonwebtoken";
 import { prisma } from "./db";
-import { IMapUser, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, messageSchema, newGroupPicture, newGroupTitleSchema, removeMemberSchema } from "./events/schema";
+import { IMapUser, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, messageSchema, newGroupPicture, newGroupTitleSchema, removeMemberSchema, sendJoinRequest } from "./events/schema";
 import { EventEmitter } from "ws";
 import { sendFactory } from "./helpers/event";
 import { createMessageEvent } from "./events/message";
-import { addMembersEvent, changeVisibilityEvent, deleteGroupEvent, memberJoinEvent, newGroupPictureEvent, newGroupTitleEvent, putAdminEvent, removeMemberEvent } from "./events/channel";
+import { addMembersEvent, changeVisibilityEvent, deleteGroupEvent, memberJoinEvent, newGroupPictureEvent, newGroupTitleEvent, putAdminEvent, removeMemberEvent, sendJoinRequestEvent } from "./events/channel";
 
 function heartbeat(this: { isAlive: boolean }) {
   this.isAlive = true;
@@ -119,9 +119,6 @@ const sendToIds = sendFactory(idToTokens, users);
 export const ev = new EventEmitter();
 
 ev.on("createMessage", (message: z.infer<typeof messageSchema>) => {
-  console.log("createMessage", message);
-  
-
   createMessageEvent({
     payload: message,
     users,
@@ -200,4 +197,22 @@ ev.on("newGroupPicture", (payload: z.infer<typeof newGroupPicture >) => {
     idToTokens,
     sendToIds,
   });
+});
+
+ev.on("createCommunityMessage", (payload: z.infer<typeof messageSchema>) => {
+  createMessageEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  });
+});
+
+ev.on("createJoinRequest", (payload: z.infer<typeof sendJoinRequest>) => {
+  sendJoinRequestEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
 });

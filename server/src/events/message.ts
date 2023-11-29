@@ -1,5 +1,6 @@
+import { CommunityMessage } from '../../../schema';
 import { prisma } from '../db';
-import { Args, messageSchema } from './schema';
+import { Args, communityMessageSchema, messageSchema } from './schema';
 import z from "zod"
 
 export const createMessageEvent = async ({
@@ -37,3 +38,11 @@ console.log(payload);
     payload
   )
 };
+
+export const createCommunityMessage = async ({
+  payload,
+  idToTokens,
+  sendToIds
+}: Args<z.infer<typeof communityMessageSchema>>) => {
+  sendToIds([...idToTokens.keys()], "createCommunityMessage", payload);
+}

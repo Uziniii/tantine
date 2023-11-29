@@ -14,8 +14,6 @@ interface Props {
   navigation: NavigationProp<any>
 }
 
-
 export default function Community ({ navigation }: Props) {
-  return <View>
-  </View>
+  return null
 }

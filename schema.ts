@@ -16,6 +16,8 @@ export interface Message {
   audioFile?: string | null;
 }
 
+export type CommunityMessage = Omit<Message, "channelId">
+
 interface NewGroupTitle {
   title: string;
   channelId: number;

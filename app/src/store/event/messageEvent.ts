@@ -1,6 +1,7 @@
-import { Message } from "../../../../schema";
+import { CommunityMessage, Message } from "../../../../schema";
 import { trpc } from "../../utils/trpc";
 import { ChannelsState, addChannel } from "../slices/channelsSlice";
+import { addCommunityMessage, removeCommunityTempMessage } from "../slices/communityMessage";
 import { Me } from "../slices/meSlice";
 import { addMessage, removeTempMessage } from "../slices/messagesSlice";
 import { addNotification, toFirstPosition } from "../slices/notificationSlice";
@@ -72,4 +73,31 @@ export function createMessageEventFactory({
       dispatch(toFirstPosition(payload.channelId))
     }
   };
+}
+
+interface CreateCommunityMessageProps {
+  dispatch: AppDispatch;
+}
+
+export function createCommunityMessageEventFactory({
+  dispatch,
+}: CreateCommunityMessageProps) {
+  return async function event(payload: CommunityMessage) {
+    dispatch(
+      addCommunityMessage({
+        message: {
+          id: payload.id,
+          authorId: payload.authorId,
+          content: payload.content,
+          audioFile: payload.audioFile,
+          createdAt: payload.createdAt.toString(),
+          updatedAt: payload.updatedAt.toString(),
+          system: payload.system,
+          invite: payload.invite,
+        },
+      })
+    );
+
+    dispatch(removeCommunityTempMessage(payload.nonce));
+  }
 }

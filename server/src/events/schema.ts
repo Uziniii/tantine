@@ -1,4 +1,4 @@
-import type { Message } from "../../../schema"
+import type { CommunityMessage, Message } from "../../../schema"
 import { WebSocket } from "ws";
 import z from "zod"
 import { sendFactory } from "../helpers/event";
@@ -37,6 +37,14 @@ export const newProfilePicture = z.object({
   userId: z.number(),
   profilePicture: z.string(),
 })
+export const communityMessageSchema = z.custom<CommunityMessage>()
+export const sendJoinRequest = z.object({
+  id: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  userId: z.number(),
+  groupId: z.number(),
+})
 
 const allSchema = z.union([
   messageSchema,
@@ -49,6 +57,8 @@ const allSchema = z.union([
   putAdminSchema,
   newGroupPicture,
   newProfilePicture,
+  communityMessageSchema,
+  sendJoinRequest,
 ]);
 
 export interface IMapUser {

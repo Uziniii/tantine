@@ -107,7 +107,6 @@ export function MessageText({ currentMessage = {}, optionTitles = DEFAULT_OPTION
       enabled: !!currentMessage.invite
     })
     const randomId = useId()
-    console.log(currentMessage);
     return (<View style={[
             styles[position].container,
             containerStyle && containerStyle[position],
