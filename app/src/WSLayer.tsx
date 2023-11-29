@@ -5,7 +5,7 @@ import useWebSocket from "react-use-websocket";
 import { host } from "./utils/host";
 import { allSchemaEvent } from "../schema";
 import { createCommunityMessageEventFactory, createMessageEventFactory } from "./store/event/messageEvent";
-import { acceptJoinRequestEventFactory, addMembersEventFactory, changeVisibilityEventFactory, createJoinRequestEventFactory, deleteGroupEventFactory, newGroupTitleEventFactory, putAdminEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
+import { acceptJoinRequestEventFactory, addMembersEventFactory, changeVisibilityEventFactory, createJoinRequestEventFactory, deleteGroupEventFactory, newGroupDayTurnFactory, newGroupTitleEventFactory, putAdminEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
 
 export default function WSLayer({ children }: PropsWithChildren) {
   const dispatch = useAppDispatch();
@@ -90,6 +90,9 @@ export default function WSLayer({ children }: PropsWithChildren) {
           dispatch,
         }),
         acceptJoinRequest: acceptJoinRequestEventFactory({
+          dispatch,
+        }),
+        newGroupDayTurn: newGroupDayTurnFactory({
           dispatch,
         }),
       } as const;

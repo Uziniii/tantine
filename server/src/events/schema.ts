@@ -29,25 +29,29 @@ export const memberJoinSchema = z.object({
   userId: z.number(),
 })
 export const putAdminSchema = removeMemberSchema;
-export const newGroupPicture = z.object({
+export const newGroupPictureSchema = z.object({
   channelId: z.number(),
   profilePicture: z.string(),
 })
-export const newProfilePicture = z.object({
+export const newProfilePictureSchema = z.object({
   userId: z.number(),
   profilePicture: z.string(),
 })
 export const communityMessageSchema = z.custom<CommunityMessage>()
-export const sendJoinRequest = z.object({
+export const sendJoinRequestSchema = z.object({
   id: z.number(),
   createdAt: z.date(),
   updatedAt: z.date(),
   userId: z.number(),
   groupId: z.number(),
 })
-export const acceptJoinRequest = z.object({
+export const acceptJoinRequestSchema = z.object({
   channelId: z.number(),
   joinRequest: z.number(),
+})
+export const newGroupDayTurnSchema = z.object({
+  channelId: z.number(),
+  dayTurn: z.number(),
 })
 
 const allSchema = z.union([
@@ -59,11 +63,12 @@ const allSchema = z.union([
   changeVisibilitySchema,
   memberJoinSchema,
   putAdminSchema,
-  newGroupPicture,
-  newProfilePicture,
+  newGroupPictureSchema,
+  newProfilePictureSchema,
   communityMessageSchema,
-  sendJoinRequest,
-  acceptJoinRequest,
+  sendJoinRequestSchema,
+  acceptJoinRequestSchema,
+  newGroupDayTurnSchema,
 ]);
 
 export interface IMapUser {

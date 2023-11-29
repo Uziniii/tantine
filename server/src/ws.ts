@@ -3,11 +3,11 @@ import { z } from "zod";
 import { Payload, verifyJwtToken } from "./jwt";
 import { decode } from "jsonwebtoken";
 import { prisma } from "./db";
-import { IMapUser, acceptJoinRequest, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, messageSchema, newGroupPicture, newGroupTitleSchema, removeMemberSchema, sendJoinRequest } from "./events/schema";
+import { IMapUser, acceptJoinRequestSchema, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, messageSchema, newGroupDayTurnSchema, newGroupPictureSchema, newGroupTitleSchema, removeMemberSchema, sendJoinRequestSchema } from "./events/schema";
 import { EventEmitter } from "ws";
 import { sendFactory } from "./helpers/event";
 import { createMessageEvent } from "./events/message";
-import { acceptJoinRequestEvent, addMembersEvent, changeVisibilityEvent, deleteGroupEvent, memberJoinEvent, newGroupPictureEvent, newGroupTitleEvent, putAdminEvent, removeMemberEvent, sendJoinRequestEvent } from "./events/channel";
+import { acceptJoinRequestEvent, addMembersEvent, changeVisibilityEvent, deleteGroupEvent, memberJoinEvent, newGroupDayTurnEvent, newGroupPictureEvent, newGroupTitleEvent, putAdminEvent, removeMemberEvent, sendJoinRequestEvent } from "./events/channel";
 
 function heartbeat(this: { isAlive: boolean }) {
   this.isAlive = true;
@@ -190,7 +190,7 @@ ev.on("putAdmin", (payload: z.infer<typeof memberJoinSchema>) => {
   });
 });
 
-ev.on("newGroupPicture", (payload: z.infer<typeof newGroupPicture >) => {
+ev.on("newGroupPicture", (payload: z.infer<typeof newGroupPictureSchema >) => {
   newGroupPictureEvent({
     payload,
     users,
@@ -208,7 +208,7 @@ ev.on("createCommunityMessage", (payload: z.infer<typeof messageSchema>) => {
   });
 });
 
-ev.on("createJoinRequest", (payload: z.infer<typeof sendJoinRequest>) => {
+ev.on("createJoinRequest", (payload: z.infer<typeof sendJoinRequestSchema>) => {
   sendJoinRequestEvent({
     payload,
     users,
@@ -217,8 +217,17 @@ ev.on("createJoinRequest", (payload: z.infer<typeof sendJoinRequest>) => {
   })
 });
 
-ev.on("acceptJoinRequest", (payload: z.infer<typeof acceptJoinRequest>) => {
+ev.on("acceptJoinRequest", (payload: z.infer<typeof acceptJoinRequestSchema>) => {
   acceptJoinRequestEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+});
+
+ev.on("newGroupDayTurn", (payload: z.infer<typeof newGroupDayTurnSchema>) => {
+  newGroupDayTurnEvent({
     payload,
     users,
     idToTokens,

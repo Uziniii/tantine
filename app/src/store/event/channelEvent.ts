@@ -209,3 +209,16 @@ export const acceptJoinRequestEventFactory = ({
     dispatch(removeJoinRequest(payload))
   };
 };
+
+export const newGroupDayTurnFactory = ({
+  dispatch,
+}: {
+  dispatch: AppDispatch;
+}) => {
+  return function event(payload: {
+    channelId: number;
+    dayTurn: number;
+  }) {
+    
+  };
+};

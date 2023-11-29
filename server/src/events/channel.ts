@@ -1,6 +1,6 @@
 import { prisma } from "../db";
 import { ev } from "@/ws";
-import { Args, acceptJoinRequest, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, newGroupPicture, newGroupTitleSchema, removeMemberSchema, sendJoinRequest } from "./schema";
+import { Args, acceptJoinRequestSchema, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, newGroupDayTurnSchema, newGroupPictureSchema, newGroupTitleSchema, removeMemberSchema, sendJoinRequestSchema } from "./schema";
 import z from "zod"
 
 export const newGroupTitleEvent = async ({
@@ -169,7 +169,7 @@ export const putAdminEvent = async ({
 export const newGroupPictureEvent = async ({
   payload,
   sendToIds,
-}: Args<z.infer<typeof newGroupPicture>>) => {
+}: Args<z.infer<typeof newGroupPictureSchema>>) => {
   const channel = await prisma.channel.findUnique({
     where: {
       id: +payload.channelId,
@@ -191,7 +191,7 @@ export const newGroupPictureEvent = async ({
 export const sendJoinRequestEvent = async ({
   payload,
   sendToIds,
-}: Args<z.infer<typeof sendJoinRequest>>) => {
+}: Args<z.infer<typeof sendJoinRequestSchema>>) => {
   const group = await prisma.groupChannel.findUnique({
     where: {
       id: +payload.groupId,
@@ -214,7 +214,7 @@ export const sendJoinRequestEvent = async ({
 export const acceptJoinRequestEvent = async ({
   payload,
   sendToIds,
-}: Args<z.infer<typeof acceptJoinRequest>>) => {
+}: Args<z.infer<typeof acceptJoinRequestSchema>>) => {
   const group = await prisma.channel.findUnique({
     where: {
       id: +payload.joinRequest,
@@ -236,4 +236,31 @@ export const acceptJoinRequestEvent = async ({
   if (!group?.group) return;
 
   sendToIds([group.group.authorId, ...group.group.Admin.map(({ id }) => id)], "acceptJoinRequest", payload);
+}
+
+export const newGroupDayTurnEvent = async ({
+  payload,
+  sendToIds,
+}: Args<z.infer<typeof newGroupDayTurnSchema>>) => {
+  const channel = await prisma.channel.findUnique({
+    where: {
+      id: +payload.channelId,
+    },
+    select: {
+      group: {
+        select: {
+          authorId: true,
+          Admin: {
+            select: {
+              id: true,
+            },
+          }
+        }
+      }
+    },
+  });
+
+  if (!channel?.group) return;
+
+  sendToIds([channel.group.authorId, ...channel.group.Admin.map(({ id }) => id)], "newGroupDayTurn", payload);
 }
