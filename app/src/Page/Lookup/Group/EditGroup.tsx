@@ -75,7 +75,6 @@ export default function EditGroup () {
   }
 
   const onDayTurnSubmit = () => {
-    console.log(group.users);
     editDayTurn.mutate({
       channelId: group.id,
       dayTurn: inputDayTurn
@@ -112,7 +111,7 @@ export default function EditGroup () {
         <FText $color='white'>{lang.changeName}</FText>
       </Button>
 
-      <TextInput $height="43.7px" $width="90%" $borderColor={error ? "red" : undefined} onChangeText={onInputDayChange}  placeholder="Jour du mois" defaultValue={group.dayTurn} />
+      <TextInput   defaultValue={group.dayTurn ? group.dayTurn.toString() : ""} $height="43.7px" $width="90%" $borderColor={error ? "red" : undefined} onChangeText={onInputDayChange}  placeholder="Jour du mois" />
       {error && <FText $size="12px" $color="red">{error}</FText>}
       <Button
         $width={`${width * 0.9}px`}

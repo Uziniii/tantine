@@ -1,5 +1,5 @@
 import { trpc } from "../../utils/trpc";
-import { addAdmin, addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeJoinRequest, removeMember } from "../slices/channelsSlice";
+import { addAdmin, addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeJoinRequest, removeMember, editGroupDayTurn } from "../slices/channelsSlice";
 import { Me } from "../slices/meSlice";
 import { addPosition, removeChannelNotification } from "../slices/notificationSlice";
 import { addUsers } from "../slices/usersSlice";
@@ -219,6 +219,6 @@ export const newGroupDayTurnFactory = ({
     channelId: number;
     dayTurn: number;
   }) {
-    
+    dispatch(editGroupDayTurn(payload))
   };
 };

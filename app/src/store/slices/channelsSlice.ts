@@ -14,6 +14,7 @@ interface Group {
   description: string;
   authorId: number;
   visibility: number;
+  dayTurn: number;
   admins: number[];
   joinRequests: {
     id: number;
@@ -45,6 +46,18 @@ const channelsSlice = createSlice({
       channel.title = title;
       return state;
     },
+
+    editGroupDayTurn: (state, action: PayloadAction<{ channelId: number; dayTurn: number }>) => {
+      const { channelId, dayTurn } = action.payload;
+      
+      const channel = state[channelId];
+
+      if (channel.type !== "group") return state
+
+      channel.dayTurn = dayTurn;
+      return state;
+    },
+
     removeMember: (
       state,
       action: PayloadAction<{
@@ -157,6 +170,7 @@ const channelsSlice = createSlice({
 export const {
   addChannel,
   editGroupTitle,
+  editGroupDayTurn,
   removeMember,
   removeChannel,
   addMembers,
