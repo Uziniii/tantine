@@ -14,29 +14,69 @@ export const editDayTurn = userIsAuthorOrSuperAdminOrAdmin
     })
   )
   .mutation(async ({ ctx, input }) => {
-    const group = await ctx.prisma.channel.findUnique({
-      where: {
-        id: +input.channelId,
-      },
-      select: {
-        group: {
-          select: {
-            id: true,
-          },
+    const dayTurn = await ctx.prisma.$transaction(async (tx) => {
+      const channel = await tx.channel.findUnique({
+        where: {
+          id: +input.channelId,
         },
-      },
-    });
+        select: {
+          group: {
+            select: {
+              dayTurn: true,
+              updatedDayTurn: true,
+            }
+          }
+        }
+      });
 
-    if (!group) throw new TRPCError({ code: "NOT_FOUND" });
+      if (!channel?.group) throw new TRPCError({ code: "NOT_FOUND" });
 
-    const { dayTurn } = await ctx.prisma.groupChannel.update({
-      where: {
-        id: group.group?.id,
-      },
-      data: {
-        dayTurn: input.dayTurn,
-      },
-    });
+      const today = new Date(Date.now());
+
+      if (channel.group.updatedDayTurn === null) {
+        await tx.channel.update({
+          where: {
+            id: +input.channelId,
+          },
+          data: {
+            group: {
+              update: {
+                dayTurn: input.dayTurn,
+                updatedDayTurn: new Date(Date.now()),
+              }
+            }
+          },
+        });
+
+        return input.dayTurn;
+      }
+
+      // if updatedDayTurn elapsed 1 month or more from now update dayTurn
+      const updatedDayTurn = channel.group.updatedDayTurn;
+      const diffMonth = today.getMonth() - updatedDayTurn.getMonth() + (12 * (today.getFullYear() - updatedDayTurn.getFullYear()));
+      
+      if (diffMonth >= 1) {
+        await tx.channel.update({
+          where: {
+            id: +input.channelId,
+          },
+          data: {
+            group: {
+              update: {
+                dayTurn: input.dayTurn,
+                updatedDayTurn: new Date(Date.now()),
+              }
+            }
+          },
+        });
+
+        return input.dayTurn;
+      }
+
+      return undefined;
+    })
+
+    if (dayTurn === undefined) throw new TRPCError({ code: "BAD_REQUEST" });
 
     ev.emit("newGroupDayTurn", {
       dayTurn,
