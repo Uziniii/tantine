@@ -6,8 +6,6 @@ import { channelRouter } from "./router/channel/channel";
 import fastify from "fastify";
 import fastifyWebsocket from "@fastify/websocket";
 import cors from "@fastify/cors";
-import { pipeline } from "stream";
-import util from "util";
 import ws from "@/ws";
 import postAudioMessage from "./router/fastify/audioMessage/post";
 import getAudioMessage from "./router/fastify/audioMessage/get";
@@ -15,8 +13,6 @@ import postProfilePicture from "./router/fastify/profilePicture/post";
 import getProfilePicture from "./router/fastify/profilePicture/get";
 
 dotenv.config();
-
-const pump = util.promisify(pipeline);
 
 const appRouter = router({
   user: userRouter,

@@ -1,11 +1,19 @@
 import { userIsInChannel } from "@/trpc";
+import { z } from "zod";
 
 export const retrieveMessages = userIsInChannel
+  .input(z.object({
+    channelId: z.number(),
+    beforeId: z.number().optional(),
+  }))
   .mutation(
     async ({ ctx, input }) => {
       const messages = await ctx.prisma.message.findMany({
         where: {
           channelId: +input.channelId,
+          id: {
+            lt: input.beforeId,
+          },
         },
         select: {
           id: true,
@@ -18,10 +26,11 @@ export const retrieveMessages = userIsInChannel
           audioFile: true,
         },
         orderBy: {
-          createdAt: "asc",
+          createdAt: "desc",
         },
+        take: 50,
       });
 
-      return messages.reverse();
+      return messages//.reverse();
     }
   );

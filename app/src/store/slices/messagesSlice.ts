@@ -105,7 +105,25 @@ const messagesSlice = createSlice({
       state[channelId].messages[+message.id] = message;
       state[channelId].position.unshift(+message.id);
       return state;
-    }
+    },
+    addMany: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        messages: Message[];
+      }>
+    ) => {
+      const { channelId, messages } = action.payload;
+      
+      if (!state[channelId]) return state
+
+      for (const message of messages) {
+        if (state[channelId].messages[+message.id]) continue;
+        state[channelId].messages[+message.id] = message;
+        state[channelId].position.push(+message.id);
+      }
+      return state;
+    },
   },
 });
 
@@ -114,6 +132,7 @@ export const {
   add: addMessage,
   addTemp: addTempMessage,
   removeTemp: removeTempMessage,
+  addMany: addManyMessages,
 } = messagesSlice.actions;
 
 export default messagesSlice.reducer;

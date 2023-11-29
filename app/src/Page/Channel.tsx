@@ -10,7 +10,7 @@ import styled from "styled-components/native"
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { trpc } from "../utils/trpc";
 import { GiftedChat } from "react-native-gifted-chat";
-import { Message, addTempMessage, initMessages } from "../store/slices/messagesSlice";
+import { Message, addManyMessages, addTempMessage, initMessages } from "../store/slices/messagesSlice";
 import { isKeyboard } from "../hooks/isKeyboard";
 import Bubble from "../Components/GiftedChat/Bubble";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
@@ -57,16 +57,6 @@ const ContainerButtonSend = styled(TouchableWithoutFeedback)`
   border-bottom-right-radius: 50px;
 `;
 
-const ContainerButtonRecord = styled(TouchableWithoutFeedback)`
-  height: 40px;
-  width: 40px;
-  background-color:#333541;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50px;
-`;
-
 const TitleContainer = styled(TouchableWithoutFeedback)`
   display: flex;
   flex-direction: row;
@@ -80,10 +70,13 @@ const Wrapper = styled.View`
 `
 
 const InputContainer = styled.View`
+  /* border: 0px solid #333541;
+  border-top-width: 1px; */
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0 15px 0 15px;
+  padding: 0px 14px;
+  /* margin-bottom: 16px; */
   justify-content: space-between;
 `
 
@@ -109,7 +102,10 @@ export default function Channel ({ navigation }: Props) {
   })
 
   const [close, setClose] = useState(true)
-  
+  const [input, setInput] = useState("")
+  const [canLoad, setCanLoad] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+
   const channels = useAppSelector(state => state.channels)
   const type = useAppSelector(state => state.channels[route.params.id]?.type)
   const me = useAppSelector(state => state.me)
@@ -117,6 +113,8 @@ export default function Channel ({ navigation }: Props) {
   const isKeyboardShow = isKeyboard()
   const retrieveMessages = trpc.channel.message.retrieveMessages.useMutation({
     onSuccess(data, variables) {
+      if (variables.beforeId !== undefined) return
+
       dispatch(initMessages({
         channelId: +variables.channelId,
         messages: data.map(message => ({
@@ -195,6 +193,7 @@ export default function Channel ({ navigation }: Props) {
     const channel = state.messages[+route.params.id]
 
     if (!channel) return undefined
+console.log(channel.position);
 
     return channel.position.map(
       x => {
@@ -216,12 +215,15 @@ export default function Channel ({ navigation }: Props) {
   if (title === undefined && lookupId === undefined) return null
   if (retrieveMessages.status === "loading") return <Loading />
 
-  const onSend = (content: string, createdAt: Date | number) => {
+  const onSend = (content: string) => {
     if (content.length === 0) {
       return
     }
 
-    const nonce = Date.now() + Math.random()
+    setInput("")
+
+    const now = new Date()
+    const nonce = now.getTime() + Math.random()
 
     dispatch(addTempMessage({
       channelId: +route.params.id,
@@ -229,8 +231,8 @@ export default function Channel ({ navigation }: Props) {
         id: nonce,
         authorId: me?.id as number,
         content,
-        createdAt: createdAt.toString(),
-        updatedAt: createdAt.toString(),
+        createdAt: now.toString(),
+        updatedAt: now.toString(),
         system: false,
         nonce: nonce,
       },
@@ -246,6 +248,7 @@ export default function Channel ({ navigation }: Props) {
 
   return <Wrapper>
     <GiftedChat
+      
       renderBubble={(props) => {
         let sumChars = 0;
         if (props.position === "left") {
@@ -310,7 +313,7 @@ export default function Channel ({ navigation }: Props) {
 
         return <Bubble color={colors[sumChars % colors.length]} {...props}/>
       }}
-      renderInputToolbar={() => {
+      renderInputToolbar={(props) => {
         return <InputContainer>
           <SendChatContaier>
             <SearchInput
@@ -319,8 +322,10 @@ export default function Channel ({ navigation }: Props) {
               style={{height:40}} 
               placeholderTextColor={"white"} 
               placeholder="Envoyer un message"
+              value={input}
+              onChangeText={setInput}
             />
-            <ContainerButtonSend>
+            <ContainerButtonSend onPress={() => onSend(input)}>
               <FontAwesome size={20} color="#707179" name="send"/>
             </ContainerButtonSend>
           </SendChatContaier>
@@ -347,7 +352,7 @@ export default function Channel ({ navigation }: Props) {
           text: message.content || " ",
           invite: message.invite,
           audioFile: message.audioFile,
-          channelId: lookupId,
+          channelId: route.params.id,
           createdAt: new Date(message.createdAt),
           user: {
             _id: message.authorId as number,
@@ -360,12 +365,38 @@ export default function Channel ({ navigation }: Props) {
           },
         }
       }) || []}
-      onSend={(message) => onSend(message[0].text, message[0].createdAt)}
+      isLoadingEarlier={isLoading}
+      loadEarlier={canLoad}
+      onLoadEarlier={async () => {
+        setIsLoading(true)
+        const messages = await retrieveMessages.mutateAsync({
+          channelId: +route.params.id,
+          beforeId: msgState?.at(-1)?.id,
+        })
+
+        if (messages.length === 0) return setCanLoad(false)
+        
+        dispatch(addManyMessages({
+          channelId: +route.params.id,
+          messages: messages.map(message => ({
+            id: message.id,
+            authorId: message.authorId,
+            content: message.content,
+            audioFile: message.audioFile,
+            createdAt: message.createdAt.toString(),
+            updatedAt: message.updatedAt.toString(),
+            system: message.system,
+            invite: message.invite,
+          })),
+        }))
+        setIsLoading(false)
+      }}
       user={{
         _id: me?.id || 1,
       }}
       timeFormat="HH:mm"
       renderUsernameOnMessage={true}
+      
     />
     {!close && <Invite onClose={() => setClose(true)} onJoinPress={() => null} />}
     <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "#24252D" }}></View>
