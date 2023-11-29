@@ -92,6 +92,7 @@ model GroupChannel {
   // public = 0 & private = 1
   visibility     Int       @default(0)
   profilePicture String?
+  dayTurn        Int       @default(25)
 
   Admin       User[]        @relation("GroupAdmin")
   JoinRequest JoinRequest[]

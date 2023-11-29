@@ -108,7 +108,13 @@ export default function AllRoute () {
       name="userLookup"
       component={UserLookup}
       options={{
+
+        headerStyle: {
+          backgroundColor: "#24252D",
+        },
+
         headerBackTitleVisible: false,
+        headerShadowVisible: false,
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}

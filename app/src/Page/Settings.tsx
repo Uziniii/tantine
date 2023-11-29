@@ -48,13 +48,13 @@ export default function Settings ({ navigation }: Props) {
         <FText $size="24px" $color="white">{me.surname} {me.name}</FText>
         <FText $size="16px" $color="white">{me.email}</FText>
       </Group>
-    </Container>
-
-    <SettingsButton text={lang.language} onPress={() => navigation.navigate("chooseLanguage")} />
-
     <Button color={"red"} title="Déconnexion" onPress={() => {
       dispatch({ type: "RESET" })
       AsyncStorage.removeItem("token")
     }} />
+    </Container>
+
+    <SettingsButton text={lang.language} onPress={() => navigation.navigate("chooseLanguage")} />
+
   </View>
 }

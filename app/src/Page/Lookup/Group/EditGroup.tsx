@@ -26,15 +26,25 @@ const nameInput = z
     message: "Le nom du groupe doit faire maximum 50 caractères",
   })
 
+const dayTurnInput = z
+  .number()
+  .int()
+  .min(1, { message: 'Le nombre doit être supérieur ou égal à 1',
+  })
+  .max(31, { message: 'Le nombre doit être inférieur ou égal à 31', 
+})
+
 export default function EditGroup () {
   const lang = useAppSelector(state => langData[state.language].groupLookup.edit)
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const group = useAppSelector(state => state.channels[route.params.id])
   const [error, setError] = useState<string>("")
   const [input, setInput] = useState<string>("")
+  const [inputDayTurn, setInputDayTurn] = useState<number>()
   
   const editName = trpc.channel.group.editTitle.useMutation()
   const changeVisibility = trpc.channel.group.changeVisibility.useMutation()
+  const editDayTurn = trpc.channel.group.editDayTurn.useMutation()
 
   if (group && group.type !== "group") return null
 
@@ -49,6 +59,27 @@ export default function EditGroup () {
     }
 
     setError("")
+  }
+
+  const onInputDayChange = (text: string) => {
+    const int = parseInt(text);
+  
+    const validationResult = dayTurnInput.safeParse(int);
+    if (!validationResult.success) {
+      setError(validationResult.error.errors[0].message);
+      setInputDayTurn(undefined); 
+    } else {
+      setError("");
+      setInputDayTurn(int);
+    }
+  }
+
+  const onDayTurnSubmit = () => {
+    console.log(group.users);
+    editDayTurn.mutate({
+      channelId: group.id,
+      dayTurn: inputDayTurn
+    })
   }
 
   const onTitleSubmit = () => {
@@ -80,6 +111,17 @@ export default function EditGroup () {
       >
         <FText $color='white'>{lang.changeName}</FText>
       </Button>
+
+      <TextInput $height="43.7px" $width="90%" $borderColor={error ? "red" : undefined} onChangeText={onInputDayChange}  placeholder="Jour du mois" defaultValue={group.dayTurn} />
+      {error && <FText $size="12px" $color="red">{error}</FText>}
+      <Button
+        $width={`${width * 0.9}px`}
+        disabled={!!error}
+        onPress={onDayTurnSubmit}
+      >
+        <FText $color='white'>Valider</FText>
+      </Button>
+
       <FText $color="white">{lang.visibility}</FText>
       <ButtonGroup>
         <SpaceBetweenButton onPress={() => onChangeVisibility(0)} $width={`${width * 0.45}px`}  $background="#2A2F3E">

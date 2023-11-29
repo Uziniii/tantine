@@ -6,6 +6,7 @@ import { quit } from './function/quit';
 import { turnTheWheel } from './function/turnTheWheel';
 import { join } from './function/join';
 import { changeVisibility } from './function/changeVisibility';
+import { editDayTurn } from './function/editDayTurn';
 import { search } from './function/search';
 import { removeMember } from './function/removeMember';
 import { editTitle } from './function/editTitle';
@@ -15,6 +16,7 @@ import { router } from "@/trpc";
 export const groupRouter = router({
   editTitle,
   removeMember,
+  editDayTurn,
   // addMembers: userIsAuthorOrSuperAdmin
   //   .input(z.object({
   //     channelId: z.number(),

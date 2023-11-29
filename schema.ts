@@ -23,7 +23,13 @@ interface NewGroupTitle {
   channelId: number;
 }
 
+interface NewGroupDayTurn {
+  dayTurn: number;
+  channelId: number;
+}
+
 export type AllSchemaEvent = 
   | EventSchema<Message>
   | EventSchema<NewGroupTitle>
+  | EventSchema<NewGroupDayTurn>
   | EventSchema<undefined>

@@ -28,11 +28,6 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "scheme": "mychat",
-    "extra": {
-      "eas": {
-        "projectId": "8ed1dc30-ffdd-4207-bde7-6a1ed4c47c10"
-      }
-    }
+    "scheme": "mychat"
   }
 }
