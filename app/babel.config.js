@@ -10,6 +10,7 @@ module.exports = function(api) {
           "IP"
         ]
       }],
+      "react-native-reanimated/plugin",
     ]
   };
 };

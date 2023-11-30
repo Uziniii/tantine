@@ -20,6 +20,8 @@ import { langData, replace } from "../data/lang/lang";
 import RecordVoiceMessage from "../Components/RecordVoiceMessage";
 import { addChannel } from "../store/slices/channelsSlice";
 import Invite from "../Components/Search/InvitGroup";
+import { MessageText } from "../Components/GiftedChat/MessageText";
+import Carousel from "../Components/Carousel";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -193,7 +195,6 @@ export default function Channel ({ navigation }: Props) {
     const channel = state.messages[+route.params.id]
 
     if (!channel) return undefined
-console.log(channel.position);
 
     return channel.position.map(
       x => {
@@ -209,8 +210,6 @@ console.log(channel.position);
       channelId: +route.params.id,
     })
   })
-
-  // const [input, setInput] = useState("");
 
   if (title === undefined && lookupId === undefined) return null
   if (retrieveMessages.status === "loading") return <Loading />
@@ -248,8 +247,22 @@ console.log(channel.position);
 
   return <Wrapper>
     <GiftedChat
-      
+      renderSystemMessage={(props) => {
+        return <Carousel/>
+        return <View style={{width: "90%", alignSelf: 'center', marginTop: 30, marginBottom: 30, height: 100, backgroundColor: "red"}}></View>
+      }}
+      renderMessageText={(props) => {
+        return <MessageText
+          textProps={props.textProps}
+          textStyle={props.textStyle}
+          currentMessage={props.currentMessage}
+        />
+      }}
       renderBubble={(props) => {
+        if (true) {
+          
+        }
+
         let sumChars = 0;
         if (props.position === "left") {
           let username = props.currentMessage?.user?.name as string

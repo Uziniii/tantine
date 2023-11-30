@@ -117,6 +117,8 @@ export function MessageText({ currentMessage = {}, optionTitles = DEFAULT_OPTION
           channelId={currentMessage.channelId}
         />
       )}
+
+
       <ParsedText style={[
             styles[position].text,
             textStyle && textStyle[position],
