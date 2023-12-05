@@ -9,6 +9,7 @@ import SettingsButton from "../Components/SettingsButton";
 import { langData } from "../data/lang/lang";
 import { NavigationProp } from "@react-navigation/native";
 import styled from 'styled-components/native';
+import GetUserPictureProfil from "../Components/GetUserPictureProfil";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -39,10 +40,12 @@ export default function Settings ({ navigation }: Props) {
 
   if (!me) return null
 
+  console.log(me.id);
+
   return <View>
     <Container>
       <ProfilePictureContainer $size="100px">
-        <FontAwesome name="user" size={50} color="black" />
+        <GetUserPictureProfil id={me.id} type="user" />
       </ProfilePictureContainer>
       <Group>
         <FText $size="24px" $color="white">{me.surname} {me.name}</FText>

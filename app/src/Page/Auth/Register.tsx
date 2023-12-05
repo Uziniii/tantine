@@ -19,6 +19,9 @@ import DropdownGender from '../../Components/DropdownGender';
 import { isKeyboard } from '../../hooks/isKeyboard';
 import { NextButton } from './LangSelect';
 import { FontAwesome } from '@expo/vector-icons';
+import UploadPictureProfil from '../../Components/UploadPictureProfil';
+import ky from 'ky';
+import { host } from '../../utils/host';
 
 interface Props {
   navigation: NavigationProp<any>;
@@ -50,6 +53,26 @@ export default function Register({ navigation }: Props) {
     async onSuccess(data) {
       await AsyncStorage.setItem("token", data)
     
+      console.log(image);
+      
+      if (image === undefined) return
+
+      const extension = image.split(".").pop()
+
+      const formData = new FormData()
+      formData.append('audio', {
+        uri: image,
+        type: `image/${extension}`, 
+        name: `image.${extension}`,
+      } as any);
+
+      await ky.post(`http://${host}:3000/profilePicture/`, {
+        headers: {
+          Authorization: `Bearer ${data}`,
+        },
+        body: formData,
+      })
+
       dispatch(setLogin(true))
     },
     onError(err) {
@@ -91,6 +114,8 @@ export default function Register({ navigation }: Props) {
   const firstPhaseVeify = useMemo(() => {
     return [inputs.name, inputs.surname, inputs.gender, inputs.country, inputs.origin, inputs.state, inputs.city].every(x => x.error === undefined)
   }, [inputs.name, inputs.surname, inputs.gender, inputs.country, inputs.origin, inputs.state, inputs.city])
+
+  const [image, setImage] = useState<string | undefined>(undefined)
 
   return <View>
     <TitleSubAuth title="S’inscrire" sub="Crée votre compte afin pouvoir accéder afin d’acceder à l’application" />
@@ -207,6 +232,8 @@ export default function Register({ navigation }: Props) {
             </>}
 
             {phase === 2 && <>
+              <UploadPictureProfil setImage={setImage} image={image} />
+
               {renderInput({
                 setInputs,
                 inputs,

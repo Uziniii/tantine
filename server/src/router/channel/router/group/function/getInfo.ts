@@ -19,6 +19,7 @@ export const getInfo = protectedProcedure
         },
       },
     });
+console.log("info",group);
 
     if (!group?.group) throw new TRPCError({ code: "NOT_FOUND" });
 

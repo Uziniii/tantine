@@ -7,6 +7,7 @@ import { Channel as IChannel } from "../store/slices/channelsSlice";
 import { langData } from "../data/lang/lang";
 import { Me } from "../store/slices/meSlice";
 import styled from "styled-components/native";
+import GetUserPictureProfil from "./GetUserPictureProfil";
 
 interface ChannelProps {
   item: IChannel;
@@ -39,7 +40,7 @@ export default function ChannelItem({ item, me }: ChannelProps) {
   return (
     <UserContainer style={{ flex: 1 }} disabled>
       <ProfilePictureContainer>
-        <FontAwesome name={item.type === "private" ? "user" : "group"} size={24} />
+        <GetUserPictureProfil id={user.id} type={item.type === "private" ? "user" : "group"} />
       </ProfilePictureContainer>
       <InfoContainer>
         <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>

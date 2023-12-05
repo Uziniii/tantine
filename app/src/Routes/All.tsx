@@ -112,9 +112,9 @@ export default function AllRoute () {
         headerStyle: {
           backgroundColor: "#24252D",
         },
-
-        headerBackTitleVisible: false,
         headerShadowVisible: false,
+        headerBackTitleVisible: false,
+        headerTitleAlign: "left",
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
@@ -242,8 +242,9 @@ export default function AllRoute () {
       component={Invite}
       options={{
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: "#24252D",
         },
+        headerShadowVisible: false,
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
         headerTitle() {
@@ -265,8 +266,9 @@ export default function AllRoute () {
       component={InviteConfirm}
       options={{
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: "#24252D",
         },
+        headerShadowVisible: false,
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
         headerTitle() {

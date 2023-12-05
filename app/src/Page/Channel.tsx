@@ -9,7 +9,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import styled from "styled-components/native"
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { trpc } from "../utils/trpc";
-import { GiftedChat } from "react-native-gifted-chat";
+import { GiftedChat, SystemMessage } from "react-native-gifted-chat";
 import { Message, addManyMessages, addTempMessage, initMessages } from "../store/slices/messagesSlice";
 import { isKeyboard } from "../hooks/isKeyboard";
 import Bubble from "../Components/GiftedChat/Bubble";
@@ -250,8 +250,15 @@ export default function Channel ({ navigation }: Props) {
   return <Wrapper>
     <GiftedChat
       renderSystemMessage={(props) => {
-        return <Carousel/>
-        return <View style={{width: "90%", alignSelf: 'center', marginTop: 30, marginBottom: 30, height: 100, backgroundColor: "red"}}></View>
+        if (!props.currentMessage) return null
+
+        if (props.currentMessage.carousel) return <Carousel/>
+
+        return <SystemMessage
+          containerStyle={props.wrapperStyle}
+          textStyle={props.textStyle}
+          currentMessage={props.currentMessage}
+        />
       }}
       renderMessageText={(props) => {
         return <MessageText
@@ -261,10 +268,6 @@ export default function Channel ({ navigation }: Props) {
         />
       }}
       renderBubble={(props) => {
-        if (true) {
-          
-        }
-
         let sumChars = 0;
         if (props.position === "left") {
           let username = props.currentMessage?.user?.name as string
@@ -354,6 +357,7 @@ export default function Channel ({ navigation }: Props) {
             received: true,
             text: message.content,
             createdAt: new Date(message.createdAt),
+            carousel: message.carousel,
             user: {
               _id: 1,
             },
@@ -411,7 +415,6 @@ export default function Channel ({ navigation }: Props) {
       }}
       timeFormat="HH:mm"
       renderUsernameOnMessage={true}
-      
     />
     {!close && <Invite onClose={() => setClose(true)} onJoinPress={() => null} />}
     <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "#24252D" }}></View>

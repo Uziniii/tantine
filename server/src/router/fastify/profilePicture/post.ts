@@ -87,13 +87,11 @@ export default async function (fastify: FastifyInstance) {
       });
       fs.mkdirSync(`./uploads/channels/${channel.id}/profilePicture/`, {
         recursive: true,
-      });
+      }); 
       await pump(
         data.file,
         fs.createWriteStream(
-          `./uploads/channels/${
-            channel.id
-          }/profilePicture/picture.${data.filename.split(".").at(-1)}`
+          `./uploads/channels/${channel.id}/profilePicture/picture.${data.filename.split(".").at(-1)}`
         )
       );
 
@@ -118,11 +116,22 @@ export default async function (fastify: FastifyInstance) {
       return res.send({ ok: true });
     }
 
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        profilePicture: `picture.${(req as any).file().filename.split(".").at(-1)}`,
+      },
+    });
+
     const data = await (req as any).file();
 
-    fs.rmdirSync(`./uploads/users/${user.id}/profilePicture/`, {
-      recursive: true,
-    });
+    try {
+      fs.rmSync(`./uploads/users/${user.id}/profilePicture/`, {
+        recursive: true,
+      });
+    } catch (e) {}
     fs.mkdirSync(`./uploads/users/${user.id}/profilePicture/`, {
       recursive: true,
     });

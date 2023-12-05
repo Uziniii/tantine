@@ -14,26 +14,22 @@ const ContainerShowGroupInfo = styled.View`
     justify-content: center;
 `;
 
-type GroupInfoProps = {
-    type: string;
+type Props = {
+  type: string;
+  channelId: string;
 };
 
-const GroupInfo: React.FC<GroupInfoProps> = ({ type }) => {
+export default function GroupInfo({ type, channelId }: Props) {
+  const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
 
-
-    const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
-
-
-    return (
-        <>
-        <ContainerShowGroupInfo>
-            <TouchableOpacity onPress={() => setShowGroupInfo(!showGroupInfo)}>
-                <Feather name="more-horizontal" size={27} color="white" />            
-            </TouchableOpacity>
-        </ContainerShowGroupInfo>
-        {showGroupInfo && <ShowGroupInfo type={type} />}
-        </>
-    );
+  return (
+    <>
+      <ContainerShowGroupInfo>
+        <TouchableOpacity onPress={() => setShowGroupInfo(!showGroupInfo)}>
+          <Feather name="more-horizontal" size={27} color="white" />
+        </TouchableOpacity>
+      </ContainerShowGroupInfo>
+      {showGroupInfo && <ShowGroupInfo type={type} channelId={channelId} />}
+    </>
+  );
 };
-
-export default GroupInfo;

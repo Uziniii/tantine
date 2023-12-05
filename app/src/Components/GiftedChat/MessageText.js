@@ -13,6 +13,7 @@ import { langData } from '../../data/lang/lang';
 import { useId } from 'react';
 import { trpc } from '../../utils/trpc';
 import ShowVocalMessage from "../ShowVocalMessage"
+import Loading from '../Loading';
 
 const WWW_URL_PATTERN = /^www\./i;
 const { textStyle } = StyleSheet.create({
@@ -117,35 +118,36 @@ export function MessageText({ currentMessage = {}, optionTitles = DEFAULT_OPTION
           channelId={currentMessage.channelId}
         />
       )}
+      {currentMessage.invite && groupInfo.status === "loading" 
+        ? <Loading /> 
+        : <ParsedText style={[
+              styles[position].text,
+              textStyle && textStyle[position],
+              customTextStyle,
+          ]} parse={[
+              // ...parsePatterns(linkStyle),
+              { type: 'url', style: linkStyle, onPress: onUrlPress },
+              { type: 'phone', style: linkStyle, onPress: onPhonePress },
+              { type: 'email', style: linkStyle, onPress: onEmailPress },
+              {
+                pattern: /(:[a-zA-Z0-9]*:)/g,
+                style: linkStyle,
+                onPress: (match) => {
+                  if (match !== randomId) return
 
-
-      <ParsedText style={[
-            styles[position].text,
-            textStyle && textStyle[position],
-            customTextStyle,
-        ]} parse={[
-            // ...parsePatterns(linkStyle),
-            { type: 'url', style: linkStyle, onPress: onUrlPress },
-            { type: 'phone', style: linkStyle, onPress: onPhonePress },
-            { type: 'email', style: linkStyle, onPress: onEmailPress },
-            {
-              pattern: /(:[a-zA-Z0-9]*:)/g,
-              style: linkStyle,
-              onPress: (match) => {
-                if (match !== randomId) return
-
-                onJoinPress(groupInfo.data)
-              },
-              renderText: () => {
-                return `${lang.joinInvite} ${groupInfo.data.title}`
+                  onJoinPress(groupInfo.data)
+                },
+                renderText: () => {
+                  return `${lang.joinInvite} ${groupInfo.data.title}`
+                }
               }
-            }
-        ]} childrenProps={{ ...textProps }}>
-          {[
-            currentMessage.text === " " ? "" : currentMessage.text,
-            currentMessage.invite && `${currentMessage.text !== " " ? "\n" : ""}${randomId}`
-          ].join("")}
-      </ParsedText>
+          ]} childrenProps={{ ...textProps }}>
+            {[
+              currentMessage.text === " " ? "" : currentMessage.text,
+              currentMessage.invite && `${currentMessage.text !== " " ? "\n" : ""}${randomId}`
+            ].join("")}
+        </ParsedText>
+      }
     </View>);
 }
 MessageText.propTypes = {

@@ -16,15 +16,16 @@ interface BasicProps {
   userPress: (id: number) => void,
   theme?: "light" | "dark",
   strong?: boolean,
+  groupMode?: boolean,
 }
 
 interface NormalProps extends BasicProps {
-  groupMode: false,
+  groupMode?: false,
   addedUsers: undefined,
 }
 
 interface GroupModeProps extends BasicProps {
-  groupMode: true,
+  groupMode?: true,
   addedUsers: Record<number, boolean>,
 }
 

@@ -1,3 +1,4 @@
+import cron from 'node-cron';
 import { TRPCError } from "@trpc/server";
 import { ev } from "@/ws";
 import { protectedProcedure } from "@/trpc";
@@ -104,6 +105,8 @@ export const create = protectedProcedure
     });
 
     ev.emit("createMessage", message);
+
+    cron
 
     return {
       type: "group",

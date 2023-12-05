@@ -2,16 +2,15 @@ import { NavigationProp, useRoute } from "@react-navigation/native"
 import { useAppDispatch, useAppSelector } from "../../../../store/store"
 import { View } from "react-native"
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler"
-import { ChannelItem } from "./Invite"
 import { useLayoutEffect, useState } from "react"
-import { TextInput } from "../../../../utils/formHelpers"
+import { SearchInput } from "../Add/AddMember"
 import { langData } from "../../../../data/lang/lang"
 import { FText } from "../../../../Components/FText"
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
 import { trpc } from "../../../../utils/trpc"
-import UserItem from "../../../../Components/UserItem"
 import Loading from "../../../../Components/Loading"
 import { addChannel } from "../../../../store/slices/channelsSlice"
+import { ChannelItem } from "./ChannelItem"
 
 interface Props {
   navigation: NavigationProp<any>
@@ -37,9 +36,9 @@ export default function InviteConfirm({ navigation }: Props) {
       .filter(([_, val]) => val)
       .map(([key, _]) => state.channels[key])
 
-    const addedUsers = Object.entries(route.params.addedUsers)
-      .filter(([_, val]) => val)
-      .map(([key, _]) => [state.users[key]])
+    const addedUsers = []//Object.entries(route.params.addedUsers)
+      // .filter(([_, val]) => val)
+      // .map(([key, _]) => state.users[key])
 
     return [...channelsToAdd, ...addedUsers]
   })
@@ -98,7 +97,7 @@ export default function InviteConfirm({ navigation }: Props) {
   if (group.type !== "group") return null
 
   return <View style={{ flex: 1, alignItems: "center" }}>
-    <TextInput
+    <SearchInput
       placeholder={lang.messagePlaceholder}
       multiline
       style={{
@@ -117,15 +116,9 @@ export default function InviteConfirm({ navigation }: Props) {
       contentInsetAdjustmentBehavior="automatic"
       data={channels}
       renderItem={({ item }) => {
-        if (Array.isArray(item)) return (
-          <UserItem theme="dark" strong groupMode={false} addedUsers={undefined} item={item[0]} userPress={() => null} />
-        )
-
         return <ChannelItem viewMode item={item} addedChannels={{}} setAddedChannels={undefined} />
       }}
       keyExtractor={item => {
-        if (Array.isArray(item)) return "user-" + item[0].id.toString()
-        
         return item.id.toString()
       }}
     />

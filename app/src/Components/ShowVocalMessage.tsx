@@ -52,7 +52,6 @@ export default function ShowVocalMessage ({ channelId, audioFile }: ShowRecordVo
     if (!token) return console.log('No token');
 
     try {
-      const fileExtension = '.m4a';
       FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}${channelId}`, { intermediates: true });
       const fileUri = `${FileSystem.documentDirectory}${channelId}/${audioFile}`;
       
