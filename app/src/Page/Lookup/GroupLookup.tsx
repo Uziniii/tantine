@@ -13,13 +13,19 @@ import { Button } from "../css/auth.css";
 import { trpc } from "../../utils/trpc";
 import { removeChannelNotification } from "../../store/slices/notificationSlice";
 import { removeChannel } from "../../store/slices/channelsSlice";
-import styled from 'styled-components';
+import styled from 'styled-components/native';
+import GroupInfo from "../../Components/GroupInfo";
 
 const { width } = Dimensions.get("window")
 
 interface Props {
   navigation: NavigationProp<any>
 }
+
+const ContainerHeader = styled.View`
+  width: 100%;
+  height: 300px;
+`;
 
 const ButtonEdit = styled(TouchableOpacity)`
   width: 40px;
@@ -52,27 +58,6 @@ export default function GroupLookup({ navigation }: Props) {
 
   const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
   const quitGroup = trpc.channel.group.quit.useMutation()
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => {
-        if (
-          group !== undefined && 
-          group.type === "group" && 
-          me !== null &&
-          (group.authorId !== me.id && !group.admins.includes(me.id))
-        ) return null
-
-        return <View>
-          <ButtonEdit onPress={
-            () => navigation.navigate("editGroup", { id: route.params.id })
-          }>
-            <Feather name="edit" size={18} color={"white"} />
-          </ButtonEdit>
-        </View>
-      }
-    })
-  })
 
   if (group === undefined) return null
   if (group.type !== "group" || me === null) return null
@@ -150,7 +135,8 @@ export default function GroupLookup({ navigation }: Props) {
   }
 
   return <>
-    <Container>
+    {group.authorId === me.id || group.admins.includes(me.id) ? <GroupInfo type="admin"/> : <GroupInfo type="user"/>}
+    <Container $marginTop={100}>
       <ProfilePictureContainer $size="100px">
         <FontAwesome name="group" size={50} color="black" />
       </ProfilePictureContainer>

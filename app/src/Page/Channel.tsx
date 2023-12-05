@@ -128,6 +128,7 @@ export default function Channel ({ navigation }: Props) {
           updatedAt: message.updatedAt.toString(),
           system: message.system,
           invite: message.invite,
+          carousel: message.carousel,
         })),
       }))
     },
@@ -228,6 +229,7 @@ export default function Channel ({ navigation }: Props) {
       channelId: +route.params.id,
       message: {
         id: nonce,
+        
         authorId: me?.id as number,
         content,
         createdAt: now.toString(),

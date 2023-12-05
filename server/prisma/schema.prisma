@@ -34,7 +34,9 @@ model User {
   groupChannel GroupChannel[]
   groupAdmins  GroupChannel[] @relation("GroupAdmin")
 
-  joinRequests JoinRequest[]
+  joinRequests   JoinRequest[]
+  Carousel       Carousel[]    @relation("CarouselUsers")
+  CarouselWinner Carousel[]    @relation("WinnerUser")
 }
 
 model CommunityMessage {
@@ -50,17 +52,18 @@ model CommunityMessage {
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  system    Boolean  @default(false)
+  id        Int       @id @default(autoincrement())
+  system    Boolean   @default(false)
   content   String
   audioFile String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  author    User?     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  Int?
-  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channel   Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId Int
   invite    Int?
+  carousel  Carousel?
 }
 
 model Channel {
@@ -106,4 +109,13 @@ model JoinRequest {
   userId    Int
   group     GroupChannel @relation(fields: [groupId], references: [id])
   groupId   Int
+}
+
+model Carousel {
+  id        Int     @id @default(autoincrement())
+  message   Message @relation(fields: [messageId], references: [id])
+  messageId Int     @unique()
+  users     User[]  @relation("CarouselUsers")
+  winner    User?   @relation(fields: [winnerId], references: [id], name: "WinnerUser")
+  winnerId  Int?    @unique()
 }

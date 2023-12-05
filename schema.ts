@@ -3,7 +3,14 @@ interface EventSchema<Payload> {
   payload: Payload;
 }
 
-export interface Message {
+interface Carousel {
+  users: {
+    id: number;
+  }[];
+  winnerId: number;
+}
+
+export interface NormalMessage {
   id: number;
   channelId: number;
   authorId: number;
@@ -11,10 +18,22 @@ export interface Message {
   nonce: number;
   createdAt: Date;
   updatedAt: Date;
-  system: boolean;
+  system: false;
   invite?: number | null;
   audioFile?: string | null;
 }
+
+export interface SystemMessage {
+  id: number;
+  channelId: number;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  system: true;
+  carousel?: Carousel;
+}
+
+export type Message = NormalMessage | SystemMessage
 
 export type CommunityMessage = Omit<Message, "channelId">
 

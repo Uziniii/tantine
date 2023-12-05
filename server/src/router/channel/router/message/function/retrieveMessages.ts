@@ -24,6 +24,16 @@ export const retrieveMessages = userIsInChannel
           system: true,
           invite: true,
           audioFile: true,
+          carousel: {
+            select: {
+              users: {
+                select: {
+                  id: true
+                }
+              },
+              winnerId: true
+            }
+          }
         },
         orderBy: {
           createdAt: "desc",
@@ -31,6 +41,6 @@ export const retrieveMessages = userIsInChannel
         take: 50,
       });
 
-      return messages//.reverse();
+      return messages;
     }
   );

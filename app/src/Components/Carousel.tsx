@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Dimensions, ScrollView, Animated, Easing, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { AntDesign } from '@expo/vector-icons'; 
@@ -16,26 +16,36 @@ const ContainerChoice = styled.View`
   height: 40px;
 `;
 
-const Carousel = () => {
+const Card = styled.View`
+  
+`;
+
+const Carousel:React.FC = () => {
   const translateX = useRef(new Animated.Value(0)).current;
   const initialNames = ['Alice', 'Bob', 'Charlie', 'David', 'Emma', 'Alice', 'Bob', 'Charlie', 'David', 'Emma'];
   const names = useRef([...Array(5)].flatMap(() => initialNames)).current;
+  const [time, setTime] = useState<number>(0);
+
 
   const animateCarousel = () => {
     const duration = 2500;
-
+    setTime(duration);
     const easingFast = Easing.bezier(0.25, 0.1, 0.25, 1);
     const easingSlow = Easing.bezier(0.42, 0, 1, 1);
-
+  
     Animated.loop(
       Animated.timing(translateX, {
         toValue: -(cardOffset / 1.2) * (names.length / 2),
         duration: duration,
         easing: easingFast,
         useNativeDriver: true,
+        
       }),
       { iterations: 1 },
-    ).start();
+    ).start(({ finished }) => {
+      if (finished) {
+      }
+    });
   };
 
   useEffect(() => {

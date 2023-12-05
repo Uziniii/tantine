@@ -1,15 +1,13 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { NormalMessage, SystemMessage } from "../../../../schema"
 
-export interface Message {
-  id: number;
-  content: string;
-  audioFile?: string | null;
+type SystemMessageWithoutDates = Omit<SystemMessage, 'createdAt' | 'updatedAt'>;
+type NormalMessageWithoutDates = Omit<NormalMessage, 'createdAt' | 'updatedAt'>;
+
+export type Message = (NormalMessageWithoutDates | SystemMessageWithoutDates) & {
   createdAt: string;
   updatedAt: string;
-  authorId: number | null;
-  nonce?: number;
-  system: boolean;
-  invite?: number | null;
+  channelId?: number | undefined;
 }
 
 export interface MessageStateSchema {
@@ -61,8 +59,9 @@ const messagesSlice = createSlice({
       }>
     ) => {
       const { channelId, message } = action.payload;
-      
-      if (!state[channelId] || !message.nonce) return state
+
+      if (!state[channelId]) return state
+      if (message.system) return state
 
       state[channelId].position.unshift(message.nonce);
       state[channelId].temp[message.nonce] = message;
@@ -94,7 +93,7 @@ const messagesSlice = createSlice({
     ) => {
       const { channelId, message } = action.payload;
       
-      if (!state[channelId]) return state
+      if (!state[channelId] || message.system) return state
 
       if (message.nonce) {
         delete state[channelId].temp[message.nonce];

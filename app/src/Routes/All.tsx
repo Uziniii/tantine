@@ -133,20 +133,12 @@ export default function AllRoute () {
         headerTitleAlign: "center",
         headerShadowVisible: false,
         headerBackTitleVisible: false,
-        
+        headerShown: false,
+
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: "#24252D"
         },
 
-        headerTitle() {
-          return <FText
-            font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-            $size={"24px"}
-            $color="white"
-          >
-            {lang.info}
-          </FText>
-        },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
     /> 
