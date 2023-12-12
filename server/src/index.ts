@@ -11,6 +11,7 @@ import postAudioMessage from "./router/fastify/audioMessage/post";
 import getAudioMessage from "./router/fastify/audioMessage/get";
 import postProfilePicture from "./router/fastify/profilePicture/post";
 import getProfilePicture from "./router/fastify/profilePicture/get";
+import cron from "node-cron"
 
 dotenv.config();
 
@@ -76,4 +77,8 @@ server.register(getProfilePicture);
     server.log.error(err);
     process.exit(1);
   }
+
+  cron.schedule("1 * * * *", async () => {
+    
+  });
 })();

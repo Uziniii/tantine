@@ -42,10 +42,7 @@ const Carousel:React.FC = () => {
         
       }),
       { iterations: 1 },
-    ).start(({ finished }) => {
-      if (finished) {
-      }
-    });
+    ).start();
   };
 
   useEffect(() => {

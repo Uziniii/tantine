@@ -53,6 +53,10 @@ export const newGroupDayTurnSchema = z.object({
   channelId: z.number(),
   dayTurn: z.number(),
 })
+export const newDescriptionSchema = z.object({
+  channelId: z.number(),
+  description: z.string().trim().max(500),
+})
 
 const allSchema = z.union([
   messageSchema,
@@ -69,6 +73,7 @@ const allSchema = z.union([
   sendJoinRequestSchema,
   acceptJoinRequestSchema,
   newGroupDayTurnSchema,
+  newDescriptionSchema,
 ]);
 
 export interface IMapUser {

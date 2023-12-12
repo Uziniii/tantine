@@ -3,11 +3,11 @@ import { z } from "zod";
 import { Payload, verifyJwtToken } from "./jwt";
 import { decode } from "jsonwebtoken";
 import { prisma } from "./db";
-import { IMapUser, acceptJoinRequestSchema, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, messageSchema, newGroupDayTurnSchema, newGroupPictureSchema, newGroupTitleSchema, removeMemberSchema, sendJoinRequestSchema } from "./events/schema";
+import { IMapUser, acceptJoinRequestSchema, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, messageSchema, newDescriptionSchema, newGroupDayTurnSchema, newGroupPictureSchema, newGroupTitleSchema, removeMemberSchema, sendJoinRequestSchema } from "./events/schema";
 import { EventEmitter } from "ws";
 import { sendFactory } from "./helpers/event";
 import { createMessageEvent } from "./events/message";
-import { acceptJoinRequestEvent, addMembersEvent, changeVisibilityEvent, deleteGroupEvent, memberJoinEvent, newGroupDayTurnEvent, newGroupPictureEvent, newGroupTitleEvent, putAdminEvent, removeMemberEvent, sendJoinRequestEvent } from "./events/channel";
+import { acceptJoinRequestEvent, addMembersEvent, changeVisibilityEvent, deleteGroupEvent, memberJoinEvent, newDescriptionEvent, newGroupDayTurnEvent, newGroupPictureEvent, newGroupTitleEvent, putAdminEvent, removeMemberEvent, sendJoinRequestEvent } from "./events/channel";
 import cron from "node-cron"
 
 function heartbeat(this: { isAlive: boolean }) {
@@ -120,8 +120,6 @@ const sendToIds = sendFactory(idToTokens, users);
 export const ev = new EventEmitter();
 
 ev.on("createMessage", (message: z.infer<typeof messageSchema>) => {
-  
-
   createMessageEvent({
     payload: message,
     users,
@@ -231,6 +229,15 @@ ev.on("acceptJoinRequest", (payload: z.infer<typeof acceptJoinRequestSchema>) =>
 
 ev.on("newGroupDayTurn", (payload: z.infer<typeof newGroupDayTurnSchema>) => {
   newGroupDayTurnEvent({
+    payload,
+    users,
+    idToTokens,
+    sendToIds,
+  })
+});
+
+ev.on("newDescription", (payload: z.infer<typeof newDescriptionSchema>) => {
+  newDescriptionEvent({
     payload,
     users,
     idToTokens,

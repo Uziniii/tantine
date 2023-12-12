@@ -113,6 +113,7 @@ model JoinRequest {
 
 model Carousel {
   id        Int     @id @default(autoincrement())
+  createdAt DateTime @default(now())
   message   Message @relation(fields: [messageId], references: [id])
   messageId Int     @unique()
   users     User[]  @relation("CarouselUsers")
