@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "foreignKeys"
 }
 
 model User {
@@ -49,6 +50,8 @@ model CommunityMessage {
   author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade, name: "CommunityMessageRelation")
   authorId  Int?
   invite    Int?
+
+  @@index([authorId])
 }
 
 model Message {
@@ -64,6 +67,8 @@ model Message {
   channelId Int
   invite    Int?
   carousel  Carousel?
+
+  @@index([channelId, authorId])
 }
 
 model Channel {
@@ -74,6 +79,8 @@ model Channel {
   privateId Int?
   group     GroupChannel?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int?
+
+  @@index([privateId, groupId])
 }
 
 model PrivateChannel {
@@ -100,6 +107,9 @@ model GroupChannel {
 
   Admin       User[]        @relation("GroupAdmin")
   JoinRequest JoinRequest[]
+  Carousel    Carousel[]
+
+  @@index([visibility, dayTurn])
 }
 
 model JoinRequest {
@@ -112,11 +122,15 @@ model JoinRequest {
 }
 
 model Carousel {
-  id        Int     @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  message   Message @relation(fields: [messageId], references: [id])
-  messageId Int     @unique()
-  users     User[]  @relation("CarouselUsers")
-  winner    User?   @relation(fields: [winnerId], references: [id], name: "WinnerUser")
-  winnerId  Int?    @unique()
+  id        Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now())
+  message   Message      @relation(fields: [messageId], references: [id])
+  messageId Int          @unique()
+  users     User[]       @relation("CarouselUsers")
+  winner    User         @relation(fields: [winnerId], references: [id], name: "WinnerUser")
+  winnerId  Int          @unique()
+  group     GroupChannel @relation(fields: [groupId], references: [id])
+  groupId   Int
+
+  @@index([groupId])
 }

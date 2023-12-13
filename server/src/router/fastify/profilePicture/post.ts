@@ -117,7 +117,7 @@ export default async function (fastify: FastifyInstance) {
     }
     
     const data = await (req as any).file();
-
+    
     await prisma.user.update({
       where: {
         id: user.id,
