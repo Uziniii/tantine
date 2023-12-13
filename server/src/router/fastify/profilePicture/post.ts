@@ -112,20 +112,20 @@ export default async function (fastify: FastifyInstance) {
         channelId: channel.id,
         profilePicture: `picture.${data.filename.split(".").at(-1)}`,
       });
-
+      
       return res.send({ ok: true });
     }
+    
+    const data = await (req as any).file();
 
     await prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        profilePicture: `picture.${(req as any).file().filename.split(".").at(-1)}`,
+        profilePicture: `picture.${data.filename.split(".").at(-1)}`,
       },
     });
-
-    const data = await (req as any).file();
 
     try {
       fs.rmSync(`./uploads/users/${user.id}/profilePicture/`, {

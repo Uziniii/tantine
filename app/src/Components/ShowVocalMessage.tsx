@@ -11,10 +11,11 @@ const Container = styled.View`
   width: 100%;
   align-items: center;
   margin-top: 20px;
+  display:flex;
 `;
 
 const ButtonPlay = styled(TouchableOpacity)`
-  width: 100px;
+  width: 350px;
   height: 50px;
   background-color: #3498db;
   justify-content: center;
@@ -38,6 +39,7 @@ interface ShowRecordVoiceMessageProps {
   channelId: string;
   audioFile: string;
 }
+
 
 export default function ShowVocalMessage ({ channelId, audioFile }: ShowRecordVoiceMessageProps){
   const [voiceMessage, setVoiceMessage] = useState<Audio.Sound | null>(null);

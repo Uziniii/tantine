@@ -8,6 +8,7 @@ export const UserContainer = styled(TouchableOpacity)`
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
+  background-color: red;
 `;
 
 export const InfoContainer = styled.View`
@@ -19,7 +20,7 @@ export const ProfilePictureContainer = styled.View<{ $size?: string, $margin?: s
   margin-right: ${({ $margin }) => $margin ?? "10px"};
   width: ${({ $size }) => $size ?? "50px"};
   height: ${({ $size }) => $size ?? "50px"};
-  border-radius: 200px;
+  border-radius: 999999px;
   display: flex;
   justify-content: center;
   align-items: center;

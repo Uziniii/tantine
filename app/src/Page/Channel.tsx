@@ -22,6 +22,8 @@ import { addChannel } from "../store/slices/channelsSlice";
 import Invite from "../Components/Search/InvitGroup";
 import { MessageText } from "../Components/GiftedChat/MessageText";
 import Carousel from "../Components/Carousel";
+import GetUserPictureProfil from "../Components/GetUserPictureProfil";
+import { user } from "../../../server/src/router/user/schema";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -137,7 +139,6 @@ export default function Channel ({ navigation }: Props) {
   const join = trpc.channel.group.join.useMutation({
     onSuccess(data) {
       if (data.group === null) return
-
       dispatch(addChannel({
         id: data.id,
         title: data.group.title,
@@ -167,6 +168,9 @@ export default function Channel ({ navigation }: Props) {
     dispatch(clearNotifications(+route.params.id))
   }, [])
 
+
+  console.log(lookupId);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShadowVisible: false,
@@ -176,7 +180,7 @@ export default function Channel ({ navigation }: Props) {
       headerTitle() {
         return <TitleContainer onPress={onTitlePress}>
           <ProfilePictureContainer $size="36px">
-            <FontAwesome name={type === "private" ? "user" : "group"} size={20} />
+            <GetUserPictureProfil id={lookupId} type="user" />
           </ProfilePictureContainer>
           <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}

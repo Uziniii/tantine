@@ -4,11 +4,14 @@ import { Image } from 'react-native';
 import { host } from '../utils/host';
 import * as FileSystem from 'expo-file-system';
 import { useAppSelector } from '../store/store';
+import styled from 'styled-components/native';
 
 interface Props {
   id: number;
   type: string;
 }
+
+
 
 export default function GetUserPictureProfil({ id, type }: Props) {
   const [image, setImage] = useState<string | undefined>(undefined);
@@ -24,21 +27,25 @@ export default function GetUserPictureProfil({ id, type }: Props) {
       const fileUri = `${FileSystem.documentDirectory}${type}/profilePicture/${id}.jpg`;
       
       const { uri } = await FileSystem.downloadAsync(audioFileUrl, fileUri, {
-        headers: {
+        headers: {   
           Authorization: `Bearer ${token}`,
         },
         cache: true
       });
 
-      console.log(uri);
       setImage(uri);
-
     }
 
     type == "user" ? getPicture("user") : getPicture("channel");
   }, [])
 
-  return <>
-    {image && <Image source={{ uri: image }} style={{ width: "100%", height: "100%", borderRadius:999999 }} />}
-  </>
+    return <>
+      {
+        image && (
+        <Image
+          source={{ uri: image }}
+          style={{ flex: 1, aspectRatio: 1, resizeMode: 'cover', width: '100%', height: '100%', borderRadius:999999 }}
+        />
+      )}
+    </>
 }
