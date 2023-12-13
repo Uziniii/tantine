@@ -40,6 +40,13 @@ const Container = styled.View`
   padding: 20px 10px 0 10px;
 `
 
+const ContainerPictureProfil = styled.View`
+  width: 200px;
+  height: 200px;
+  background-color:white;
+  border-radius: 99999px;
+`
+
 
 export default function ChannelList({ navigation }: Props) {
   const dispatch = useAppDispatch();

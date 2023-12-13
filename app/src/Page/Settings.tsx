@@ -3,7 +3,6 @@ import { Button, View } from "react-native";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { FText } from "../Components/FText";
 import { Group } from "./css/lookup.css";
-import { ProfilePictureContainer } from "./css/user.css";
 import { FontAwesome } from "@expo/vector-icons"
 import SettingsButton from "../Components/SettingsButton";
 import { langData } from "../data/lang/lang";
@@ -33,6 +32,12 @@ const Container = styled.View`
   padding: 20px 10px 0 10px;
 `
 
+const ContainerPictureProfil = styled.View`
+  width: 200px;
+  height: 200px;
+  border-radius: 99999px;
+`
+
 export default function Settings ({ navigation }: Props) {
   const dispatch = useAppDispatch()
   const me = useAppSelector(state => state.me)
@@ -44,9 +49,9 @@ export default function Settings ({ navigation }: Props) {
 
   return <View>
     <Container>
-      <ProfilePictureContainer $size="100px">
-        <GetUserPictureProfil id={me.id} type="user" />
-      </ProfilePictureContainer>
+      <ContainerPictureProfil>
+        <GetUserPictureProfil id={me.id} type="user"/>
+      </ContainerPictureProfil>
       <Group>
         <FText $size="24px" $color="white">{me.surname} {me.name}</FText>
         <FText $size="16px" $color="white">{me.email}</FText>
@@ -56,8 +61,6 @@ export default function Settings ({ navigation }: Props) {
       AsyncStorage.removeItem("token")
     }} />
     </Container>
-
     <SettingsButton text={lang.language} onPress={() => navigation.navigate("chooseLanguage")} />
-
   </View>
 }

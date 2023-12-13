@@ -30,7 +30,7 @@ export default function UploadPictureProfil({ setImage,  image }: Props): JSX.El
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
+      allowsEditing: false,
       aspect: [4, 4],
       quality: 1,
     });

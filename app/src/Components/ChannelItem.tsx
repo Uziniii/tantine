@@ -1,4 +1,4 @@
-import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "../Page/css/user.css";
+import { Group, InfoContainer, UserContainer } from "../Page/css/user.css";
 import { FontAwesome } from "@expo/vector-icons";
 import { FText } from "./FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
@@ -13,6 +13,15 @@ interface ChannelProps {
   item: IChannel;
   me: Me | null;
 }
+
+const ContainerPictureProfil = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 99999px;
+  background-color: white;
+  margin: 0 20px 0 0;
+`
+
 
 const Circle = styled.View`
   width: 30px;
@@ -38,10 +47,10 @@ export default function ChannelItem({ item, me }: ChannelProps) {
   });
 
   return (
-    <UserContainer style={{ flex: 1 }} disabled>
-      <ProfilePictureContainer>
+    <UserContainer style={{ flex: 1, alignItems: 'center'}} disabled>
+      <ContainerPictureProfil>
         <GetUserPictureProfil id={user.id} type={item.type === "private" ? "user" : "group"} />
-      </ProfilePictureContainer>
+      </ContainerPictureProfil>
       <InfoContainer>
         <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
           <FText $size="15px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
