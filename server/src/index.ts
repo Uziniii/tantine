@@ -12,6 +12,7 @@ import getAudioMessage from "./router/fastify/audioMessage/get";
 import postProfilePicture from "./router/fastify/profilePicture/post";
 import getProfilePicture from "./router/fastify/profilePicture/get";
 import cron from "node-cron"
+import { prisma } from "./db";
 
 dotenv.config();
 
@@ -79,6 +80,12 @@ server.register(getProfilePicture);
   }
 
   cron.schedule("1 * * * *", async () => {
+    console.log("Check wheel turn");
     
+    const channels = await prisma.channel.findMany({
+      include: {
+        
+      }
+    });
   });
 })();
