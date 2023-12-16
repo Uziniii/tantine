@@ -128,5 +128,8 @@
   },
   "channelList": {
     "recentMessage": "Message récent"
+  },
+  "community": {
+    "title": "Communauté"
   }
 }
