@@ -1,7 +1,7 @@
 import { CommunityMessage, Message } from "../../../../schema";
 import { trpc } from "../../utils/trpc";
 import { ChannelsState, addChannel } from "../slices/channelsSlice";
-import { addCommunityMessage, removeCommunityTempMessage } from "../slices/communityMessage";
+import { addCommunityMessage, removeCommunityTempMessage } from "../slices/communityMessagesSlice";
 import { Me } from "../slices/meSlice";
 import { addMessage, removeTempMessage } from "../slices/messagesSlice";
 import { addNotification, toFirstPosition } from "../slices/notificationSlice";
@@ -82,18 +82,22 @@ interface CreateCommunityMessageProps {
 export function createCommunityMessageEventFactory({
   dispatch,
 }: CreateCommunityMessageProps) {
-  return async function event(payload: CommunityMessage) {
+  return async function event(payload: {
+    message: CommunityMessage;
+    nonce: number;
+  }) {
+    console.log(payload);
+    
     dispatch(
       addCommunityMessage({
         message: {
-          id: payload.id,
-          authorId: payload.authorId,
-          content: payload.content,
-          audioFile: payload.audioFile,
-          createdAt: payload.createdAt.toString(),
-          updatedAt: payload.updatedAt.toString(),
-          system: payload.system,
-          invite: payload.invite,
+          id: payload.message.id,
+          authorId: payload.message?.authorId,
+          content: payload.message.content,
+          audioFile: payload.message?.audioFile,
+          createdAt: payload.message.createdAt.toString(),
+          updatedAt: payload.message.updatedAt.toString(),
+          system: payload.message.system,
         },
       })
     );

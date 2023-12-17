@@ -1,17 +1,82 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Button, View } from "react-native";
+import { View } from "react-native";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { FText } from "../Components/FText";
-import { Group } from "./css/lookup.css";
 import { ProfilePictureContainer } from "./css/user.css";
 import { FontAwesome } from "@expo/vector-icons"
-import SettingsButton from "../Components/SettingsButton";
 import { langData } from "../data/lang/lang";
 import { NavigationProp, useRoute } from "@react-navigation/native";
 import styled from 'styled-components/native';
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { trpc } from "../utils/trpc";
+import { isKeyboard } from "../hooks/isKeyboard";
+import { addCommunityTempMessage, addManyCommunityMessages, initCommunityMessages } from "../store/slices/communityMessagesSlice";
+import Loading from "../Components/Loading";
+import { GiftedChat, SystemMessage } from "react-native-gifted-chat";
+import { MessageText } from "../Components/GiftedChat/MessageText";
+import Bubble from "../Components/GiftedChat/Bubble";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import RecordVoiceMessage from "../Components/RecordVoiceMessage";
+import { Message } from "../store/slices/messagesSlice";
+
+const SendChatContainer = styled.View`
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const SearchInput = styled.TextInput<{
+  $width: string
+}>`
+  height: 80px;
+  width: ${props => props.$width ?? "250px"};
+  padding: 10px 5px 10px 20px;
+  border-radius: 50px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  background-color: #333541;
+  color: white;
+  align-self: center;
+`;
+
+const ContainerButtonSend = styled(TouchableWithoutFeedback)`
+  height: 40px;
+  width: 40px;
+  background-color:#333541;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px 0 0;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+`;
+
+const TitleContainer = styled(TouchableWithoutFeedback)`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 8px;
+`
+
+const Wrapper = styled.View`
+  flex: 1;
+  background-color:#24252D;
+`
+
+const InputContainer = styled.View`
+  /* border: 0px solid #333541;
+  border-top-width: 1px; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px 14px;
+  /* margin-bottom: 16px; */
+  justify-content: space-between;
+`
+
+function isMessageSystem(message: Message): message is Message & { system: true } {
+  return Boolean(message.system)
+}
 
 interface Props {
   navigation: NavigationProp<any>
@@ -27,18 +92,15 @@ export default function Community ({ navigation }: Props) {
   const [canLoad, setCanLoad] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
 
-  const channels = useAppSelector(state => state.channels)
-  const type = useAppSelector(state => state.channels[route.params.id]?.type)
   const me = useAppSelector(state => state.me)
   const users = useAppSelector(state => state.users)
   const isKeyboardShow = isKeyboard()
-  const retrieveMessages = trpc.channel.message.retrieveMessages.useMutation({
+  const retrieveMessages = trpc.channel.message.retrieveCommunityMessage.useMutation({
     onSuccess(data, variables) {
-      if (variables.beforeId !== undefined) return
+      if (variables?.beforeId !== undefined) return
+console.log(data);
 
-      dispatch(initMessages({
-        channelId: +variables.channelId,
-        messages: data.map(message => ({
+      dispatch(initCommunityMessages(data.map(message => ({
           id: message.id,
           authorId: message.authorId,
           content: message.content,
@@ -47,9 +109,8 @@ export default function Community ({ navigation }: Props) {
           updatedAt: message.updatedAt.toString(),
           system: message.system,
           invite: message.invite,
-          carousel: message.carousel,
         })),
-      }))
+      ))
     },
   })
 
@@ -78,13 +139,13 @@ export default function Community ({ navigation }: Props) {
   let sendMessage = trpc.channel.message.createCommunityMessage.useMutation()
 
   const msgState = useAppSelector(state => {
-    const channel = state.messages[+route.params.id]
+    console.log(state.communityMessages);
+    
+    if (!state.communityMessages.init) return undefined
 
-    if (!channel) return undefined
-
-    return channel.position.map(
+    return state.communityMessages.position.map(
       x => {
-        return channel.messages[x] ? channel.messages[x] : channel.temp[x]
+        return state.communityMessages.messages[x] ? state.communityMessages.messages[x] : state.communityMessages.temp[x]
       }
     ).filter(x => x !== undefined)
   })
@@ -92,12 +153,9 @@ export default function Community ({ navigation }: Props) {
   useEffect(() => {
     if (msgState || retrieveMessages.isLoading) return
 
-    retrieveMessages.mutate({
-      channelId: +route.params.id,
-    })
+    retrieveMessages.mutate()
   })
 
-  if (title === undefined && lookupId === undefined) return null
   if (retrieveMessages.status === "loading") return <Loading />
 
   const onSend = (content: string) => {
@@ -110,11 +168,9 @@ export default function Community ({ navigation }: Props) {
     const now = new Date()
     const nonce = now.getTime() + Math.random()
 
-    dispatch(addTempMessage({
-      channelId: +route.params.id,
+    dispatch(addCommunityTempMessage({
       message: {
         id: nonce,
-
         authorId: me?.id as number,
         content,
         createdAt: now.toString(),
@@ -126,7 +182,6 @@ export default function Community ({ navigation }: Props) {
     }))
 
     sendMessage.mutate({
-      channelId: route.params.id,
       content: content,
       nonce,
     })
@@ -136,8 +191,6 @@ export default function Community ({ navigation }: Props) {
     <GiftedChat
       renderSystemMessage={(props) => {
         if (!props.currentMessage) return null
-
-        if (props.currentMessage.carousel) return <Carousel />
 
         return <SystemMessage
           containerStyle={props.wrapperStyle}
@@ -167,58 +220,11 @@ export default function Community ({ navigation }: Props) {
           '#E6E6E6',
         ];
 
-        interface GroupInfo {
-          id: number;
-          title: string;
-          visibility: number;
-        }
-
-        (props as any).onJoinPress = (groupInfo: GroupInfo | null) => {
-          if (groupInfo === null) return;
-
-          if (channels[groupInfo.id] !== undefined) {
-            Alert.alert(lang.alreadyInThisGroupAlertTitle)
-
-            return
-          }
-
-          // public
-          if (groupInfo.visibility === 0) {
-            Alert.alert(lang.publicJoin.title, replace(lang.publicJoin.message, groupInfo.title), [
-              {
-                text: lang.publicJoin.cancel,
-                style: "cancel",
-              },
-              {
-                text: lang.publicJoin.join,
-                async onPress() {
-                  await join.mutateAsync(groupInfo.id)
-                },
-              },
-            ])
-
-            return
-          }
-
-          Alert.alert(lang.privateJoin.title, replace(lang.privateJoin.message, groupInfo.title), [
-            {
-              text: lang.privateJoin.cancel,
-              style: "cancel",
-            },
-            {
-              text: lang.privateJoin.send,
-              onPress: () => {
-                setClose(false)
-              },
-            },
-          ])
-        }
-
         return <Bubble color={colors[sumChars % colors.length]} {...props} />
       }}
       renderInputToolbar={(props) => {
         return <InputContainer>
-          <SendChatContaier>
+          <SendChatContainer>
             <SearchInput
               multiline
               $width="76%"
@@ -231,8 +237,8 @@ export default function Community ({ navigation }: Props) {
             <ContainerButtonSend onPress={() => onSend(input)}>
               <FontAwesome size={20} color="#707179" name="send" />
             </ContainerButtonSend>
-          </SendChatContaier>
-          <RecordVoiceMessage channelId={route.params.id} />
+          </SendChatContainer>
+          <RecordVoiceMessage channelId={"community"} />
         </InputContainer>
       }}
       messages={msgState?.map(message => {
@@ -242,7 +248,6 @@ export default function Community ({ navigation }: Props) {
             received: true,
             text: message.content,
             createdAt: new Date(message.createdAt),
-            carousel: message.carousel,
             user: {
               _id: 1,
             },
@@ -256,7 +261,6 @@ export default function Community ({ navigation }: Props) {
           text: message.content || " ",
           invite: message.invite,
           audioFile: message.audioFile,
-          channelId: route.params.id,
           createdAt: new Date(message.createdAt),
           user: {
             _id: message.authorId as number,
@@ -274,15 +278,13 @@ export default function Community ({ navigation }: Props) {
       onLoadEarlier={async () => {
         setIsLoading(true)
         const messages = await retrieveMessages.mutateAsync({
-          channelId: +route.params.id,
           beforeId: msgState?.at(-1)?.id,
         })
 
         if (messages.length === 0) return setCanLoad(false)
 
-        dispatch(addManyMessages({
-          channelId: +route.params.id,
-          messages: messages.map(message => ({
+        dispatch(addManyCommunityMessages(
+          messages.map(message => ({
             id: message.id,
             authorId: message.authorId,
             content: message.content,
@@ -292,7 +294,7 @@ export default function Community ({ navigation }: Props) {
             system: message.system,
             invite: message.invite,
           })),
-        }))
+        ))
         setIsLoading(false)
       }}
       user={{
@@ -301,7 +303,7 @@ export default function Community ({ navigation }: Props) {
       timeFormat="HH:mm"
       renderUsernameOnMessage={true}
     />
-    {!close && <Invite onClose={() => setClose(true)} onJoinPress={() => null} />}
+    {/* {!close && <Invite onClose={() => setClose(true)} onJoinPress={() => null} />} */}
     <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "#24252D" }}></View>
   </Wrapper>
 }

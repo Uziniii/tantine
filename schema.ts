@@ -35,7 +35,9 @@ export interface SystemMessage {
 
 export type Message = NormalMessage | SystemMessage
 
-export type CommunityMessage = Omit<Message, "channelId">
+export type CommunityMessage =
+  | Omit<NormalMessage, "channelId" | "invite">
+  | Omit<SystemMessage, "channelId" | "invite">;
 
 interface NewGroupTitle {
   title: string;

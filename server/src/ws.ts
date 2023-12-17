@@ -3,10 +3,10 @@ import { z } from "zod";
 import { Payload, verifyJwtToken } from "./jwt";
 import { decode } from "jsonwebtoken";
 import { prisma } from "./db";
-import { IMapUser, acceptJoinRequestSchema, addMemberSchema, changeVisibilitySchema, deleteGroupSchema, memberJoinSchema, messageSchema, newDescriptionSchema, newGroupDayTurnSchema, newGroupPictureSchema, newGroupTitleSchema, removeMemberSchema, sendJoinRequestSchema } from "./events/schema";
+import { IMapUser, acceptJoinRequestSchema, addMemberSchema, changeVisibilitySchema, communityMessageSchema, deleteGroupSchema, memberJoinSchema, messageSchema, newDescriptionSchema, newGroupDayTurnSchema, newGroupPictureSchema, newGroupTitleSchema, removeMemberSchema, sendJoinRequestSchema } from "./events/schema";
 import { EventEmitter } from "ws";
 import { sendFactory } from "./helpers/event";
-import { createMessageEvent } from "./events/message";
+import { createCommunityMessageEvent, createMessageEvent } from "./events/message";
 import { acceptJoinRequestEvent, addMembersEvent, changeVisibilityEvent, deleteGroupEvent, memberJoinEvent, newDescriptionEvent, newGroupDayTurnEvent, newGroupPictureEvent, newGroupTitleEvent, putAdminEvent, removeMemberEvent, sendJoinRequestEvent } from "./events/channel";
 import cron from "node-cron"
 
@@ -128,32 +128,41 @@ ev.on("createMessage", (message: z.infer<typeof messageSchema>) => {
   })
 });
 
-ev.on("newGroupTitle", (payload: z.infer<typeof newGroupTitleSchema>) =>
+ev.on("createCommunityMessage", (message: z.infer<typeof communityMessageSchema>) => {
+  createCommunityMessageEvent({
+    payload: message,
+    users,
+    idToTokens,
+    sendToIds,
+  });
+});
+
+ev.on("newGroupTitle", (payload: z.infer<typeof newGroupTitleSchema>) => {
   newGroupTitleEvent({
     payload,
     users,
     idToTokens,
     sendToIds,
   })
-);
+});
 
-ev.on("removeMember", (payload: z.infer<typeof removeMemberSchema>) =>
+ev.on("removeMember", (payload: z.infer<typeof removeMemberSchema>) => {
   removeMemberEvent({
     payload,
     users,
     idToTokens,
     sendToIds,
   })
-);
+});
 
-ev.on("addMembers", (payload: z.infer<typeof addMemberSchema>) =>
+ev.on("addMembers", (payload: z.infer<typeof addMemberSchema>) => {
   addMembersEvent({
     payload,
     users,
     idToTokens,
     sendToIds,
   })
-);
+});
 
 ev.on("deleteGroup", (payload: z.infer<typeof deleteGroupSchema>) => {
   deleteGroupEvent({
@@ -193,15 +202,6 @@ ev.on("putAdmin", (payload: z.infer<typeof memberJoinSchema>) => {
 
 ev.on("newGroupPicture", (payload: z.infer<typeof newGroupPictureSchema >) => {
   newGroupPictureEvent({
-    payload,
-    users,
-    idToTokens,
-    sendToIds,
-  });
-});
-
-ev.on("createCommunityMessage", (payload: z.infer<typeof messageSchema>) => {
-  createMessageEvent({
     payload,
     users,
     idToTokens,

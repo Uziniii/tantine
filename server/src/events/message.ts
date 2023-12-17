@@ -1,4 +1,3 @@
-import { CommunityMessage } from '../../../schema';
 import { prisma } from '../db';
 import { Args, communityMessageSchema, messageSchema } from './schema';
 import z from "zod"
@@ -7,8 +6,6 @@ export const createMessageEvent = async ({
   payload,
   sendToIds
 }: Args<z.infer<typeof messageSchema>>) => {
-  console.log(payload.channelId);
-  
   const channel = await prisma.channel.findUnique({
     where: {
       id: +payload.channelId,
@@ -30,7 +27,6 @@ export const createMessageEvent = async ({
 
   if (!channel) return;
 // console.log(channel.users.map((user) => user.id));
-console.log(payload);
 
   sendToIds(
     channel.users.map((user) => user.id),
@@ -39,7 +35,7 @@ console.log(payload);
   )
 };
 
-export const createCommunityMessage = async ({
+export const createCommunityMessageEvent = async ({
   payload,
   idToTokens,
   sendToIds

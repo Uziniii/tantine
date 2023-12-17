@@ -47,7 +47,6 @@ const ContainerPictureProfil = styled.View`
   border-radius: 99999px;
 `
 
-
 export default function ChannelList({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const route = useRoute<{
@@ -133,6 +132,7 @@ export default function ChannelList({ navigation }: Props) {
     />
   </Stack.Navigator>
 }
+
 function List() {
   const lang = useAppSelector((state) => langData[state.language].channelList);
   const channels = useAppSelector((state) => {

@@ -8,6 +8,7 @@ import meSlice from "./slices/meSlice";
 import messagesSlice from "./slices/messagesSlice";
 import notificationSlice from "./slices/notificationSlice";
 import languageSlice from "./slices/languageSlice";
+import communityMessagesSlice from "./slices/communityMessagesSlice";
 
 const combinedReducer = combineReducers({
   me: meSlice,
@@ -17,6 +18,7 @@ const combinedReducer = combineReducers({
   messages: messagesSlice,
   notification: notificationSlice,
   language: languageSlice,
+  communityMessages: communityMessagesSlice,
 });
 
 const rootReducer = (state: any, action: AnyAction) => {

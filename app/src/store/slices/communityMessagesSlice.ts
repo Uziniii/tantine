@@ -23,9 +23,14 @@ interface State {
   };
 }
 
-const messagesSlice = createSlice({
-  name: "messages",
-  initialState: {} as State,
+const communityMessagesSlice = createSlice({
+  name: "communityMessages",
+  initialState: {
+    init: false,
+    messages: {},
+    position: [],
+    temp: {},
+  } as State,
   reducers: {
     init: (
       state,
@@ -33,6 +38,7 @@ const messagesSlice = createSlice({
     ) => {
       if (state.init) return state;
 
+      state.init = true;
       const messages = action.payload;
 
       for (const message of messages) {
@@ -91,6 +97,18 @@ const messagesSlice = createSlice({
       state.position.unshift(+message.id);
       return state;
     },
+    addMany: (
+      state,
+      action: PayloadAction<CommunityMessage[]>
+    ) => {
+      for (const message of action.payload) {
+        if (state.messages[+message.id]) continue;
+        state.messages[+message.id] = message;
+        state.position.push(+message.id);
+      }
+      
+      return state;
+    },
   },
 });
 
@@ -99,6 +117,7 @@ export const {
   add: addCommunityMessage,
   addTemp: addCommunityTempMessage,
   removeTemp: removeCommunityTempMessage,
-} = messagesSlice.actions;
+  addMany: addManyCommunityMessages,
+} = communityMessagesSlice.actions;
 
-export default messagesSlice.reducer;
+export default communityMessagesSlice.reducer;

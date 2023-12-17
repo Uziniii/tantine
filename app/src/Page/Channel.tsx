@@ -29,7 +29,7 @@ interface Props {
   navigation: NavigationProp<any>
 }
 
-const SendChatContaier = styled.View`
+const SendChatContainer = styled.View`
   display:flex;
   flex-direction: row;
   align-items: center;
@@ -233,7 +233,6 @@ export default function Channel ({ navigation }: Props) {
       channelId: +route.params.id,
       message: {
         id: nonce,
-        
         authorId: me?.id as number,
         content,
         createdAt: now.toString(),
@@ -337,7 +336,7 @@ export default function Channel ({ navigation }: Props) {
       }}
       renderInputToolbar={(props) => {
         return <InputContainer>
-          <SendChatContaier>
+          <SendChatContainer>
             <SearchInput
               multiline 
               $width="76%"
@@ -350,7 +349,7 @@ export default function Channel ({ navigation }: Props) {
             <ContainerButtonSend onPress={() => onSend(input)}>
               <FontAwesome size={20} color="#707179" name="send"/>
             </ContainerButtonSend>
-          </SendChatContaier>
+          </SendChatContainer>
           <RecordVoiceMessage channelId={route.params.id}/>
         </InputContainer>
       }}

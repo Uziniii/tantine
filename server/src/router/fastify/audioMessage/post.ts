@@ -26,6 +26,42 @@ export default async function (server: FastifyInstance) {
       return res.status(400).send({ error: "No channel id provided" });
     }
 
+    if (channelId === "community") {
+      const data = await(req as any).file();
+
+      const message = await prisma.$transaction(async (tx) => {
+        const message = await tx.communityMessage.create({
+          data: {
+            authorId: jwt.id,
+            content: "",
+          },
+        });
+
+        fs.mkdirSync(`./uploads/channels/${channelId}/audios/`, {
+          recursive: true,
+        });
+        await pump(
+          data.file,
+          fs.createWriteStream(
+            `./uploads/channels/${channelId}/audios/${message.id}.m4a`
+          )
+        );
+
+        return tx.communityMessage.update({
+          where: {
+            id: message.id,
+          },
+          data: {
+            audioFile: `${message.id}.m4a`,
+          },
+        });
+      });
+
+      ev.emit("createCommunityMessage", message);
+
+      return res.send({ ok: true });
+    }
+
     const channel = await prisma.channel.findUnique({
       where: {
         id: +channelId,
@@ -48,7 +84,6 @@ export default async function (server: FastifyInstance) {
 
     const data = await (req as any).file();
 
-    console.time("upload");
     const message = await prisma.$transaction(async (tx) => {
       const message = await tx.message.create({
         data: {
@@ -77,7 +112,6 @@ export default async function (server: FastifyInstance) {
         },
       });
     });
-    console.timeEnd("upload");
 
     ev.emit("createMessage", message);
 
