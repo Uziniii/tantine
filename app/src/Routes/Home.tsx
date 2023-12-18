@@ -113,12 +113,21 @@ export function Home() {
               console.log("useEffect")
 
               if (navigation.isFocused()) {
-                console.log(navigation.getState())
                 navigation.reset({
-                  routes: [{
-                    name: "communityScreen"
-                  }]
+                  index: 1,
+                  key: "stack-1",
+                  routes: [
+                    {
+                      name: "home"
+                    },
+                    {
+                      name: "communityScreen"
+                    },
+                  ],
+                  type: "stack"
                 })
+                // console.log(navigation.getState());
+                // navigation.navigate("communityScreen")
               }
             }, [])
 
