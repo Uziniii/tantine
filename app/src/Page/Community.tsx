@@ -86,6 +86,7 @@ export default function Community ({ navigation }: Props) {
   const dispatch = useAppDispatch()
   const lang = useAppSelector(state => langData[state.language].community)
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
+  console.log(navigation.getState());
 
   const [close, setClose] = useState(true)
   const [input, setInput] = useState("")
