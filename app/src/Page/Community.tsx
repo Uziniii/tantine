@@ -139,8 +139,6 @@ export default function Community ({ navigation }: Props) {
   let sendMessage = trpc.channel.message.createCommunityMessage.useMutation()
 
   const msgState = useAppSelector(state => {
-    console.log(state.communityMessages);
-    
     if (!state.communityMessages.init) return undefined
 
     return state.communityMessages.position.map(

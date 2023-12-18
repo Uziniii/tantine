@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Dimensions, ScrollView, Animated, Easing, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { AntDesign } from '@expo/vector-icons'; 
+import { useAppSelector } from '../store/store';
+import { Carousel as CarouselType } from '../../../schema';
 
 const { width } = Dimensions.get('window');
 
@@ -20,18 +22,30 @@ const Card = styled.View`
   
 `;
 
-const Carousel:React.FC = () => {
-  const translateX = useRef(new Animated.Value(0)).current;
-  const initialNames = ['Alice', 'Bob', 'Charlie', 'David', 'Emma', 'Alice', 'Bob', 'Charlie', 'David', 'Emma'];
-  const names = useRef([...Array(5)].flatMap(() => initialNames)).current;
-  const [time, setTime] = useState<number>(0);
+interface Props {
+  carousel: CarouselType;
+}
 
+export default function Carousel({ carousel }: Props) {
+  const translateX = useRef(new Animated.Value(0)).current;
+
+  const initialNames = useAppSelector(state => {
+    // put carousel.winnerId at the end of the array
+    const users = carousel.users.filter(user => user.id !== carousel.winnerId);
+    users.push({ id: carousel.winnerId })
+    
+    return users.map(user => `${state.users[user.id].surname} ${state.users[user.id].name}`)
+  })
+
+  // const initialNames = ['Alice', 'Bob', 'Charlie', 'David', 'Emma', 'Alice', 'Bob', 'Charlie', 'David', 'Emma'];
+  const names = useRef([...Array(5)].flatMap(() => initialNames)).current;
+  // const [time, setTime] = useState<number>(0);
 
   const animateCarousel = () => {
     const duration = 2500;
-    setTime(duration);
+    // setTime(duration);
     const easingFast = Easing.bezier(0.25, 0.1, 0.25, 1);
-    const easingSlow = Easing.bezier(0.42, 0, 1, 1);
+    // const easingSlow = Easing.bezier(0.42, 0, 1, 1);
   
     Animated.loop(
       Animated.timing(translateX, {
@@ -39,7 +53,6 @@ const Carousel:React.FC = () => {
         duration: duration,
         easing: easingFast,
         useNativeDriver: true,
-        
       }),
       { iterations: 1 },
     ).start();
@@ -71,7 +84,7 @@ const Carousel:React.FC = () => {
     <View style={styles.container}>
       <ContainerChoice><AntDesign name="caretdown" size={24} color="black" /></ContainerChoice>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <Animated.View style={[styles.cardsContainer, animatedStyles, { width: cardOffset * names.length }]}>
+        <Animated.View  style={[styles.cardsContainer, animatedStyles, { width: cardOffset * names.length }]}>
           {displayNames()}
         </Animated.View>
       </ScrollView>
@@ -105,5 +118,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 });
-
-export default Carousel;
