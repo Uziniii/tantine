@@ -5,13 +5,18 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useAppSelector } from "../store/store";
 import { langData } from "../data/lang/lang";
 import { FontAwesome, Feather } from "@expo/vector-icons";
-import { MaterialIcons } from '@expo/vector-icons'; 
-import { useNavigation } from "@react-navigation/native";
+import { MaterialIcons } from '@expo/vector-icons';
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ChannelList from "../Page/ChannelList";
 import Settings from "../Page/Settings";
 import styled from "styled-components/native";
 import Community from "../Page/Community";
+import { useEffect } from "react";
+
+interface Props {
+  navigation: NavigationProp<any>
+}
 
 const Tab = createBottomTabNavigator();
 
@@ -28,137 +33,147 @@ const ButtonSearch = styled(TouchableOpacity)`
 export function Home() {
   const lang = useAppSelector(state => langData[state.language].tab)
 
-  return ( 
-  
-  <View style={{ flex: 1, backgroundColor: '#333541'}}>
-  <Tab.Navigator screenOptions={{
-    headerShadowVisible: false,
-    tabBarStyle: {
-      height: '10%',
-      width: '90%',
-      alignSelf: 'center',
-      marginTop: 20,
-      paddingBottom: 16,
-      backgroundColor: '#24252D',
-      borderTopWidth: 0,
-      borderRadius: 99990,
-      // borderWidth: 1,
-      // borderTopWidth: 1,
-      // borderTopColor: "#D4B216",
-      // borderColor: "#D4B216",
-    },
-    headerStyle: {
-      backgroundColor: "#24252D",
-      height: 150
-    },
-  }}>
-    <Tab.Screen
-      name="chat"
-      key={"chat"}
-      component={ChannelList}
-      options={{
-        
-        tabBarActiveTintColor: '#D4B216',
-
-        tabBarIcon(props) {
-          return <FontAwesome name="comments" size={30} color={props.color} />
+  return (
+    <View style={{ flex: 1, backgroundColor: '#333541' }}>
+      <Tab.Navigator screenOptions={{
+        headerShadowVisible: false,
+        tabBarStyle: {
+          height: '10%',
+          width: '90%',
+          alignSelf: 'center',
+          marginTop: 20,
+          paddingBottom: 16,
+          backgroundColor: '#24252D',
+          borderTopWidth: 0,
+          borderRadius: 99990,
+          // borderWidth: 1,
+          // borderTopWidth: 1,
+          // borderTopColor: "#D4B216",
+          // borderColor: "#D4B216",
         },
-        tabBarLabel() {
-          return <FText $color='#FFFF' $size='12px'>{lang.chat}</FText>
+        headerStyle: {
+          backgroundColor: "#24252D",
+          height: 150
         },
-        headerTitleAlign: "center",
-        headerTitle() {
-          return <View>
-            <FText
-              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-              $size={"25px"}
-              $color='#FFF'
-            >
-              {lang.chat}
-            </FText>
-          </View>
-        },
-        headerRight() {
-          const navigation = useNavigation()
+      }}>
+        <Tab.Screen
+          name="chat"
+          key={"chat"}
+          component={ChannelList}
+          options={{
 
-          return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginRight: 16 }}>
-            <ButtonSearch onPress={() => navigation.navigate("search" as never)}>
-              <Feather name="search" size={25} color={"#fff"} />
-            </ButtonSearch>
-          </View>
-        },
+            tabBarActiveTintColor: '#D4B216',
 
-        headerLeft(){
-          const navigation = useNavigation()
+            tabBarIcon(props) {
+              return <FontAwesome name="comments" size={30} color={props.color} />
+            },
+            tabBarLabel() {
+              return <FText $color='#FFFF' $size='12px'>{lang.chat}</FText>
+            },
+            headerTitleAlign: "center",
+            headerTitle() {
+              return <View>
+                <FText
+                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+                  $size={"25px"}
+                  $color='#FFF'
+                >
+                  {lang.chat}
+                </FText>
+              </View>
+            },
+            headerRight() {
+              const navigation = useNavigation()
 
-          return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginLeft: 16 }}>
-            <ButtonSearch onPress={() => navigation.navigate("createGroup" as never)}>
-              <Feather name="plus" size={25} color={"#fff"} />
-            </ButtonSearch>
-          </View>
-        }
-      }}
-    />
+              return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginRight: 16 }}>
+                <ButtonSearch onPress={() => navigation.navigate("search" as never)}>
+                  <Feather name="search" size={25} color={"#fff"} />
+                </ButtonSearch>
+              </View>
+            },
 
+            headerLeft() {
+              const navigation = useNavigation()
 
-    <Tab.Screen
-      name='community'
-      key={"community"}
-      component={Community}
-      options={{
+              return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginLeft: 16 }}>
+                <ButtonSearch onPress={() => navigation.navigate("createGroup" as never)}>
+                  <Feather name="plus" size={25} color={"#fff"} />
+                </ButtonSearch>
+              </View>
+            }
+          }}
+        />
+        <Tab.Screen
+          name='community'
+          key={"community"}
+          component={({ navigation }: Props) => {
+            console.log("render")
 
-        tabBarActiveTintColor: '#D4B216',
+            useEffect(() => {
+              console.log("useEffect")
 
-        tabBarIcon(props) {
-          return <MaterialIcons name="groups" size={30} color={props.color} />
-        },
-        tabBarLabel(props) {
-          return <FText $color='#FFFF' $size='12px'>Communauté</FText>
-        },
-        
-        headerTitle() {
-          return <View>
-            <FText
-              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-              $size={"25px"}
-              $color='#FFF'
-            >
-              Communauté
-            </FText>
-          </View>
-        },
-      }}
-    />
+              if (navigation.isFocused()) {
+                console.log(navigation.getState())
+                navigation.reset({
+                  routes: [{
+                    name: "communityScreen"
+                  }]
+                })
+              }
+            }, [])
 
-    <Tab.Screen
-      name='settings'
-      key={"settings"}
-      component={Settings}
-      options={{
+            return null
+          }}
+          options={{
+            unmountOnBlur: true,
+            tabBarActiveTintColor: '#D4B216',
+            tabBarIcon(props) {
+              return <MaterialIcons name="groups" size={30} color={props.color} />
+            },
+            tabBarLabel(props) {
+              return <FText $color='#FFFF' $size='12px'>Communauté</FText>
+            },
+            headerTitle() {
+              return <View>
+                <FText
+                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+                  $size={"25px"}
+                  $color='#FFF'
+                >
+                  Communauté
+                </FText>
+              </View>
+            },
+          }}
+        />
+        <Tab.Screen
+          name='settings'
+          key={"settings"}
+          component={Settings}
+          options={{
+            tabBarActiveTintColor: '#D4B216',
+            tabBarIcon(props) {
+              return <FontAwesome name="gear" size={30} color={props.color} />
+            },
+            tabBarLabel(props) {
+              return <FText $color='#FFFF' $size='12px'>{lang.settings}</FText>
+            },
 
-        tabBarActiveTintColor: '#D4B216',
-
-        tabBarIcon(props) {
-          return <FontAwesome name="gear" size={30} color={props.color} />
-        },
-        tabBarLabel(props) {
-          return <FText $color='#FFFF' $size='12px'>{lang.settings}</FText>
-        },
-        
-        headerTitle() {
-          return <View>
-            <FText
-              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-              $size={"25px"}
-              $color='#FFF'
-            >
-              {lang.settings}
-            </FText>
-          </View>
-        },
-      }}
-    />
-  </Tab.Navigator>
-  <View style={{ height: 40 }} /> 
-  </View>
-);}
+            headerTitle() {
+              return <View>
+                <FText
+                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+                  $size={"25px"}
+                  $color='#FFF'
+                >
+                  {lang.settings}
+                </FText>
+              </View>
+            },
+          }}
+        />
+      </Tab.Navigator>
+      <View style={{ height: 40 }} />
+    </View>
+  );
+}

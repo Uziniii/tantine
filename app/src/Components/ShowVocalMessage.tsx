@@ -6,26 +6,30 @@ import { DimensionValue, TouchableOpacity } from 'react-native';
 import { FText } from './FText';
 import * as FileSystem from 'expo-file-system';
 import { useAppSelector } from '../store/store';
+import { Entypo } from '@expo/vector-icons'; 
+import { AntDesign } from '@expo/vector-icons'; 
 
 const Container = styled.View`
-  width: 100%;
+  width: 80%;
+  padding: 0 20px 0 20px;
   align-items: center;
   margin-top: 20px;
-  display:flex;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
 `;
 
 const ButtonPlay = styled(TouchableOpacity)`
-  width: 350px;
-  height: 50px;
   background-color: #3498db;
-  justify-content: center;
-  align-items: center;
+  align-self: center;
   border-radius: 8px;
 `;
 
 const ProgressBarContainer = styled.View`
   width: 80%;
   height: 10px;
+  display: flex;
   background-color: #ddd;
   margin-top: 20px;
 `;
@@ -40,8 +44,7 @@ interface ShowRecordVoiceMessageProps {
   audioFile: string;
 }
 
-
-export default function ShowVocalMessage ({ channelId, audioFile }: ShowRecordVoiceMessageProps){
+export default function ShowVocalMessage({ channelId, audioFile }: ShowRecordVoiceMessageProps) {
   const [voiceMessage, setVoiceMessage] = useState<Audio.Sound | null>(null);
   const [playbackStatus, setPlaybackStatus] = useState<AVPlaybackStatusSuccess | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -57,31 +60,27 @@ export default function ShowVocalMessage ({ channelId, audioFile }: ShowRecordVo
       FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}${channelId}`, { intermediates: true });
       const fileUri = `${FileSystem.documentDirectory}${channelId}/${audioFile}`;
       
-      console.log(audioFileUrl);
-      
       const { uri } = await FileSystem.downloadAsync(audioFileUrl, fileUri, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
         cache: true
       });
-      console.log('File downloaded to:', uri);
 
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
-        // staysActiveInBackground: false,
         interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
         shouldDuckAndroid: false,
-      })
+      });
+      
       await soundObject.loadAsync({
         uri,
-        // @ts-ignore
         mimeType: 'audio/x-m4a' 
       });
 
       soundObject.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded) {
-          setPlaybackStatus(status); // Mise à jour du statut de lecture
+          setPlaybackStatus(status);
         }
       });
 
@@ -101,7 +100,7 @@ export default function ShowVocalMessage ({ channelId, audioFile }: ShowRecordVo
     }
 
     await loadSound();
-  }
+  };
 
   const getProgressBarWidth = (): DimensionValue => {
     if (playbackStatus && playbackStatus.durationMillis && playbackStatus.positionMillis) {
@@ -114,7 +113,7 @@ export default function ShowVocalMessage ({ channelId, audioFile }: ShowRecordVo
   return (
     <Container>
       <ButtonPlay onPress={handlePlay}>
-        <FText>Play</FText>
+        {isPlaying ? <AntDesign name="pause" size={24} color="black" /> : <Entypo name="controller-play" size={24} color="black" />}
       </ButtonPlay>
       <ProgressBarContainer>
         <ProgressBar style={{ width: getProgressBarWidth() }} />

@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Home } from "./Home";
 import Search from "../Page/Search";
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 import Channel from "../Page/Channel";
 import UserLookup from "../Page/Lookup/UserLookup";
 import { FText } from "../Components/FText";
@@ -19,6 +19,7 @@ import { FontAwesome, Feather } from "@expo/vector-icons";
 import Invite from "../Page/Lookup/Group/Invite/Invite";
 import InviteConfirm from "../Page/Lookup/Group/Invite/InviteConfirm";
 import ChooseLanguage from "../Page/Settings/ChooseLanguage";
+import Community from "../Page/Community";
 
 const Stack = createNativeStackNavigator();
 
@@ -75,11 +76,9 @@ export default function AllRoute () {
       component={CreateGroup}
       options={{
         headerShadowVisible: false,
-
         headerStyle: {
           backgroundColor: "#24252D",
         },
-
         headerTitle() {
           return <TitleCreateGroup> 
             <FText
@@ -103,7 +102,6 @@ export default function AllRoute () {
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
     />
-
     <Stack.Screen
       name="userLookup"
       component={UserLookup}
@@ -307,6 +305,10 @@ export default function AllRoute () {
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
+    />
+    <Stack.Screen
+      name="communityScreen"
+      component={Community}
     />
   </Stack.Navigator>
 }

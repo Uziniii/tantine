@@ -97,8 +97,7 @@ export default function Community ({ navigation }: Props) {
   const isKeyboardShow = isKeyboard()
   const retrieveMessages = trpc.channel.message.retrieveCommunityMessage.useMutation({
     onSuccess(data, variables) {
-      if (variables?.beforeId !== undefined) return
-console.log(data);
+      if (variables !== undefined) return
 
       dispatch(initCommunityMessages(data.map(message => ({
           id: message.id,
@@ -277,9 +276,7 @@ console.log(data);
       loadEarlier={canLoad}
       onLoadEarlier={async () => {
         setIsLoading(true)
-        const messages = await retrieveMessages.mutateAsync({
-          beforeId: msgState?.at(-1)?.id,
-        })
+        const messages = await retrieveMessages.mutateAsync(msgState?.at(-1)?.id)
 
         if (messages.length === 0) return setCanLoad(false)
 
