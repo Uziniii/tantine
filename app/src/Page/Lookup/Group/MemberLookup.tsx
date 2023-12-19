@@ -10,6 +10,7 @@ import { langData } from "../../../data/lang/lang"
 import { Dimensions } from "react-native"
 import { trpc } from "../../../utils/trpc"
 import { useMemo } from "react"
+import GetUserPictureProfil from "../../../Components/GetUserPictureProfil"
 
 const width = Dimensions.get("window").width
 
@@ -69,8 +70,8 @@ export default function MemberLookup ({ navigation }: Props) {
           )}
       </FText>
     </Group>
-    <ProfilePictureContainer $margin="0px" $size="100px">
-      <FontAwesome name="user" size={50} color="black" />
+    <ProfilePictureContainer $margin="0px" $size="200px">
+      <GetUserPictureProfil id={user.id} type="user" />
     </ProfilePictureContainer>
     <Group>
       <FText $color="white" $size="24px">{user.surname} {user.name}</FText>

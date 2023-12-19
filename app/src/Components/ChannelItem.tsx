@@ -18,10 +18,9 @@ const ContainerPictureProfil = styled.View`
   width: 50px;
   height: 50px;
   border-radius: 99999px;
-  background-color: white;
+  /* background-color: white; */
   margin: 0 20px 0 0;
 `
-
 
 const Circle = styled.View`
   width: 30px;

@@ -98,11 +98,13 @@ export default function InviteConfirm({ navigation }: Props) {
 
   return <View style={{ flex: 1, alignItems: "center" }}>
     <SearchInput
+      placeholderTextColor={"gray"}
       placeholder={lang.messagePlaceholder}
-      multiline
+      // multiline
       style={{
         marginTop: 20,
         maxHeight: 200,
+        color: "white",
       }}
       $width="95%"
       value={input}

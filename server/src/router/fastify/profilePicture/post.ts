@@ -130,8 +130,11 @@ export default async function (fastify: FastifyInstance) {
     try {
       fs.rmSync(`./uploads/users/${user.id}/profilePicture/`, {
         recursive: true,
+        force: true,
       });
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
     fs.mkdirSync(`./uploads/users/${user.id}/profilePicture/`, {
       recursive: true,
     });
@@ -140,7 +143,10 @@ export default async function (fastify: FastifyInstance) {
       fs.createWriteStream(
         `./uploads/users/${user.id}/profilePicture/picture.${data.filename
           .split(".")
-          .at(-1)}`
+          .at(-1)}`,
+        {
+          flags: "w",
+        }
       )
     );
 

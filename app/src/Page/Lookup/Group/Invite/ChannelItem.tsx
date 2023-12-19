@@ -7,6 +7,7 @@ import { Radio, VerticalGroup } from "../../../css/search.css"
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "../../../css/user.css"
 import UserItem from "../../../../Components/UserItem"
 import { FontAwesome } from '@expo/vector-icons'
+import GetUserPictureProfil from "../../../../Components/GetUserPictureProfil"
 
 interface ViewModeItemProps {
   viewMode: true
@@ -43,7 +44,7 @@ export function ChannelItem({ viewMode, item, addedChannels, setAddedChannels, g
       <InfoContainer style={{ flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
         <VerticalGroup>
           <ProfilePictureContainer>
-            <FontAwesome name="group" size={24} />
+            <GetUserPictureProfil id={item.id} type="group" />
           </ProfilePictureContainer>
           <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
             <FText $size="18px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>

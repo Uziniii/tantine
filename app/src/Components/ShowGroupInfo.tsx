@@ -58,30 +58,6 @@ export default function ShowGroupInfo({ type, visibility, channelId }: Props) {
     }
   })
 
-  const buttons = useMemo(() => {
-    const stack = []
-    
-    if (type === "author" || type === "admin" || (type === "user" && visibility === 0)) stack.push(
-      <Button onPress={onInvitePress}>
-        <FText $color='white'>{lang.invite}</FText>
-      </Button>
-    )
-    
-    if (type === "admin" || type === "user") stack.push(
-      <Button onPress={onQuitGroupPress}>
-        <FText $color='white'>{lang.quitGroup}</FText>
-      </Button>
-    )
-
-    if (type === "author") stack.push(
-      <Button onPress={createDeleteConfirmAlert}>
-        <FText $color='white'>{lang.deleteGroupButton}</FText>
-      </Button>
-    )
-
-    return stack
-  }, [type])
-
   const quitGroup = trpc.channel.group.quit.useMutation()
 
   const onQuitGroupPress = () => {
@@ -134,6 +110,30 @@ export default function ShowGroupInfo({ type, visibility, channelId }: Props) {
       id: channelId
     })
   }
+
+  const buttons = useMemo(() => {
+    const stack = []
+
+    if (type === "author" || type === "admin" || (type === "user" && visibility === 0)) stack.push(
+      <Button key={"invite"} onPress={onInvitePress}>
+        <FText $color='white'>{lang.invite}</FText>
+      </Button>
+    )
+
+    if (type === "admin" || type === "user") stack.push(
+      <Button key={"quit"} onPress={onQuitGroupPress}>
+        <FText $color='white'>{lang.quitGroup}</FText>
+      </Button>
+    )
+
+    if (type === "author") stack.push(
+      <Button key={"delete"} onPress={createDeleteConfirmAlert}>
+        <FText $color='white'>{lang.deleteGroupButton}</FText>
+      </Button>
+    )
+
+    return stack
+  }, [type])
 
   return <ShowGroupInfoContainer>
     {buttons}

@@ -20,6 +20,8 @@ type Props = {
   channelId: string;
 };
 
+const Button = styled(TouchableOpacity)``
+
 export default function GroupInfo({ type, visibility, channelId }: Props) {
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
 

@@ -27,7 +27,8 @@ const Container = styled.View`
   display:flex;
   align-items:center;
   background-color:#333541;
-  position:fixed;
+  position:abosulte;
+  z-index:1;
   bottom:0;
   flex-direction:column;
   justify-content:center;
@@ -48,9 +49,9 @@ export default function Invite({ onClose, onJoinPress, group }: Props) {
   const lang = useAppSelector(state => langData[state.language].joinRequestPopup)
 
   return (
-    <Container>
+    <Container containerStyle={{ justifyContent: 'flex-end' }}>
       <CloseContainer>
-        <FontAwesome size={16} color={"white"} name='close' onPress={onClose} />
+        <FontAwesome size={20} color={"white"} name='close' onPress={onClose} />
       </CloseContainer>
       <ProfilePictureContainer>
         <GetUserPictureProfil id={group.id} type='group'/>

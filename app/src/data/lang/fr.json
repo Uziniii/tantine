@@ -24,8 +24,13 @@
       "passwordMin": "Le mot de passe doit faire minimum 8 caractères",
       "passwordNotMatch": "Les mots de passe ne correspondent pas",
       "stateMin": "Le département ou l'état doit faire minimum 2 caractères",
-      "cityMin": "La ville doit faire minimum 2 caractères"
-    }
+      "cityMin": "La ville doit faire minimum 2 caractères",
+      "incorrectCredentials": "L'email ou le mot de passe est incorrect"
+    },
+    "loginTitle": "Ravis de vous revoir !",
+    "loginSub": "Entrez vos identifiants pour vous connecter",
+    "registerTitle": "S'inscrire",
+    "registerSub": "Crééez votre compte pour rejoindre la communauté Tantine"
   },
   "dropdown": {
     "search": "Rechercher",
@@ -133,5 +138,9 @@
   "community": {
     "title": "Communauté"
   },
-  "joinRequestPopup": "Demander à rejoindre"
+  "joinRequestPopup": "Demander à rejoindre",
+  "welcome": {
+    "title": "Laissez Tantine vous guidez !",
+    "sub": "Tantine est notre assistante vocal"
+  }
 }

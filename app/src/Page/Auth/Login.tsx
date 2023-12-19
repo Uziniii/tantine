@@ -11,9 +11,11 @@ import { useAppDispatch, useAppSelector } from '../../store/store';
 import { setLogin } from '../../store/slices/loginSlice';
 import { set } from '../../store/slices/meSlice';
 import TitleSubAuth from '../../Components/TitleSubAuth';
+import { langData } from '../../data/lang/lang';
 
 export default function Login() {
   const dispatch = useAppDispatch()
+  const lang = useAppSelector(state => langData[state.language].auth)
   const [inputs, setInputs] = useInputsReducer([
     "email",
     "password",
@@ -40,7 +42,7 @@ export default function Login() {
           input: inputs.password.input,
           parser: z.string()
             .refine(() => false, {
-              message: "L'email ou le mot de passe est incorrect"
+              message: lang.error.incorrectCredentials
             }) as unknown as z.ZodString
         })
       }
@@ -57,16 +59,16 @@ export default function Login() {
   return <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}>  
-      <TitleSubAuth title="Ravis de vour revoir !" sub="Entrez vos informations, pour poursuivre" />
+      <TitleSubAuth title={lang.loginTitle} sub={lang.loginSub} />
       <Container>
         <Form>
           {renderInput({
             setInputs,
             inputs,
             parser: z.string()
-              .email({ message: "L'email est incorrect" }),
+              .email({ message: lang.error.emailInvalid }),
             state: "email",
-            label: "Adresse email",
+            label: lang.email,
             inputMode: "email",
             maxLength: 200,
           })}
@@ -75,9 +77,9 @@ export default function Login() {
           {renderInput({
             setInputs,
             inputs,
-            label: "Mot de passe",
+            label: lang.password,
             parser: z.string()
-              .min(8, { message: "Le mot de passe doit faire minimum 8 caractère" }),
+              .min(8, { message: lang.error.passwordMin }),
             state: "password",
             maxLength: 64,
             secureTextEntry: true,
@@ -89,7 +91,7 @@ export default function Login() {
             onPress={sendLoginData}
             $background='#333541'
             >
-            <FText $color='white'>Se connecter</FText>
+            <FText $color='white'>{lang.login}</FText>
           </Button>
         </Form>
       </Container>

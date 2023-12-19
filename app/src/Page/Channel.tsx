@@ -5,7 +5,6 @@ import { ProfilePictureContainer } from "./css/user.css";
 import { FText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { FontAwesome } from '@expo/vector-icons'; 
-import { MaterialIcons } from '@expo/vector-icons'; 
 import styled from "styled-components/native"
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { trpc } from "../utils/trpc";
@@ -23,7 +22,7 @@ import Invite from "../Components/Search/InvitGroup";
 import { MessageText } from "../Components/GiftedChat/MessageText";
 import Carousel from "../Components/Carousel";
 import GetUserPictureProfil from "../Components/GetUserPictureProfil";
-import { user } from "../../../server/src/router/user/schema";
+import { addUsers } from "../store/slices/usersSlice";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -105,7 +104,7 @@ export default function Channel ({ navigation }: Props) {
     return [`${user.surname} ${user.name}`, user.id]
   })
 
-  const [close, setClose] = useState(true)
+  const [selectedGroup, setSelectedGroup] = useState<null | { id: number, title: string }>(null)
   const [input, setInput] = useState("")
   const [canLoad, setCanLoad] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
@@ -114,9 +113,29 @@ export default function Channel ({ navigation }: Props) {
   const type = useAppSelector(state => state.channels[route.params.id]?.type)
   const me = useAppSelector(state => state.me)
   const users = useAppSelector(state => state.users)
+  const usersId = useAppSelector(state => Object.keys(state.users))
   const isKeyboardShow = isKeyboard()
+
+  const retrieveUsers = trpc.user.retrieveUsers.useMutation()
+
   const retrieveMessages = trpc.channel.message.retrieveMessages.useMutation({
-    onSuccess(data, variables) {
+    async onSuccess(data, variables) {
+      if (type === "group") {
+        let toFetch = new Set()
+
+        for (const message of data) {
+          if (message.system || usersId.includes(message.authorId.toString())) continue
+
+          toFetch.add(+message.authorId)
+        }
+
+        if (toFetch.size > 0) {
+          let fetchedUsers = await retrieveUsers.mutateAsync([...toFetch.values()])
+  
+          dispatch(addUsers(fetchedUsers))
+        }
+      }
+
       if (variables.beforeId !== undefined) return
 
       dispatch(initMessages({
@@ -179,7 +198,7 @@ export default function Channel ({ navigation }: Props) {
       headerTitle() {
         return <TitleContainer onPress={onTitlePress}>
           <ProfilePictureContainer $size="36px">
-            <GetUserPictureProfil id={lookupId} type="user" />
+            <GetUserPictureProfil size={16} id={lookupId || -1} type={type === "private" ? "user" : "group"} />
           </ProfilePictureContainer>
           <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
@@ -267,6 +286,7 @@ export default function Channel ({ navigation }: Props) {
           textProps={props.textProps}
           textStyle={props.textStyle}
           currentMessage={props.currentMessage}
+          onJoinPress={(props as any).onJoinPress}
         />
       }}
       renderBubble={(props) => {
@@ -291,6 +311,8 @@ export default function Channel ({ navigation }: Props) {
         }
 
         (props as any).onJoinPress = (groupInfo: GroupInfo | null) => {
+          console.log(groupInfo);
+          
           if (groupInfo === null) return;
 
           if (channels[groupInfo.id] !== undefined) {
@@ -317,18 +339,10 @@ export default function Channel ({ navigation }: Props) {
             return
           }
 
-          Alert.alert(lang.privateJoin.title, replace(lang.privateJoin.message, groupInfo.title), [
-            {
-              text: lang.privateJoin.cancel,
-              style: "cancel",
-            },
-            {
-              text: lang.privateJoin.send,
-              onPress: () => {
-                setClose(false)
-              },
-            },
-          ])
+          setSelectedGroup({
+            id: groupInfo.id,
+            title: groupInfo.title,
+          })
         }
 
         return <Bubble color={colors[sumChars % colors.length]} {...props}/>
@@ -418,7 +432,7 @@ export default function Channel ({ navigation }: Props) {
       timeFormat="HH:mm"
       renderUsernameOnMessage={true}
     />
-    {!close && <Invite onClose={() => setClose(true)} onJoinPress={() => null} />}
+    {selectedGroup !== null && <Invite group={selectedGroup} onClose={() => setSelectedGroup(null)} onJoinPress={() => null} />}
     <View style={{ width: "100%", height: isKeyboardShow ? 0 : 32, backgroundColor: "#24252D" }}></View>
   </Wrapper>
 }

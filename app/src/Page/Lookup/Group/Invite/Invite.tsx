@@ -110,11 +110,12 @@ export default function Invite({ navigation }: Props) {
 
   return <View>
     <SearchInput
-      placeholder="fopzefkjp"
-      multiline
+      placeholder={lang.search}
+      placeholderTextColor={"gray"}
       style={{
         marginTop: 20,
         maxHeight: 200,
+        color: "white",
       }}
       $width="95%"
       value={search}

@@ -196,5 +196,5 @@ server.register(getProfilePicture);
         }
       })
     }
-  })
+  }, {runOnInit: true})
 })();

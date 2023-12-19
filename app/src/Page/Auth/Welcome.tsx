@@ -1,27 +1,14 @@
-import { trpc } from '../../utils/trpc';
-import { Pressable, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import z from "zod"
-import { useInputsReducer } from '../../hooks/inputsReducer';
+import { Platform } from 'react-native';
 import { FText } from '../../Components/FText';
 import { NavigationProp } from '@react-navigation/native';
-import { Container, Form, InputGroup, BottomContainer } from "../css/auth.css"
-import { useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/store';
-import { setLogin } from '../../store/slices/loginSlice';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import DropdownCountry from '../../Components/DropdownCountry';
-import { langData, replace } from '../../data/lang/lang';
-import DropdownGender from '../../Components/DropdownGender';
-import { isKeyboard } from '../../hooks/isKeyboard';
-import { NextButton } from './LangSelect';
-import { FontAwesome } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { langData } from '../../data/lang/lang';
 import TitleSubAuth from '../../Components/TitleSubAuth';
 import styled from "styled-components/native";
 import { Image } from 'expo-image';
 import { useAssets } from 'expo-asset';
 import { Montserrat_700Bold } from '@expo-google-fonts/montserrat';
-
 
 interface Props {
   navigation: NavigationProp<any>;
@@ -51,18 +38,17 @@ const ContainerButton = styled.View`
 `;
 
 export default function Welcome({ navigation }: Props) {
-  const dispatch = useAppDispatch()
   const lang = useAppSelector(state => {
     return {
-      ...langData[state.language].auth,
-      originCountryPlaceholder: langData[state.language].dropdown.originCountryPlaceholder,
-      next: langData[state.language].langSelect.next,
+      register: langData[state.language].auth.register,
+      login: langData[state.language].auth.login,
+      ...langData[state.language].welcome,
     }
   })
   const [assets, error] = useAssets([require('./avatar.png')]);
 
   return <>
-    <TitleSubAuth title="Laissez Tantine vous guidez !" sub="Tantine est notre assistante vocal" />
+    <TitleSubAuth title={lang.title} sub={lang.sub} />
     {assets ? 
       <Image
         style={{
@@ -78,11 +64,11 @@ export default function Welcome({ navigation }: Props) {
 
     <ContainerButton>
       <Button onPress={() => navigation.navigate("login")}>
-        <FText $color='white' font={[Montserrat_700Bold, "Montserrat_700Bold"]}>Login</FText>
+        <FText $color='white' font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.login}</FText>
       </Button>
 
       <Button onPress={() => navigation.navigate("register")}>
-        <FText $color='white' font={[Montserrat_700Bold, "Montserrat_700Bold"]}>Register</FText>
+        <FText $color='white' font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.register}</FText>
       </Button>
     </ContainerButton>
     </>
