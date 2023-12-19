@@ -20,15 +20,19 @@ export default function GroupSearch({ search, isSearchEmpty }: Props) {
     enabled: search.length > 1
   })
   const joinGroup = trpc.channel.group.join.useMutation()
+  const sendJoinRequest = trpc.channel.group.sendJoinRequest.useMutation()
 
-  const [close, setClose] = useState(true)
+  const [selectedGroup, setSelectedGroup] = useState<null | { id: number, title: string }>(null)
 
   const onGroupPress = async (index: number) => {
     const group = searchedGroups.data?.[index]
 
     if (!group) return
     if (group.visibility === 1) {
-      setClose(false)
+      setSelectedGroup({
+        id: group.id,
+        title: group.title
+      })
       return
     }
 
@@ -55,6 +59,6 @@ export default function GroupSearch({ search, isSearchEmpty }: Props) {
       }
       keyExtractor={item => item.id.toString()}
     />
-    {!close && <InvitGroup onJoinPress={onJoinPress} onClose={() => setClose(true)}/>}
+    {selectedGroup !== null && <InvitGroup onJoinPress={onJoinPress} onClose={() => setSelectedGroup(null)} group={selectedGroup}/>}
   </>;
 }

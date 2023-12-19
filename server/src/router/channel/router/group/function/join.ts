@@ -38,7 +38,7 @@ export const join = protectedProcedure
     if (channel.users.some((user) => user.id === ctx.user.id)) throw new TRPCError({ code: "FORBIDDEN" });
     
     if (channel.group.visibility === 1) {
-      
+      throw new TRPCError({ code: "FORBIDDEN" })
     }
 
     const updatedChannel = await ctx.prisma.channel.update({
@@ -70,7 +70,14 @@ export const join = protectedProcedure
               select: {
                 id: true,
               },
-            }
+            },
+            JoinRequest: {
+              select: {
+                id: true,
+                userId: true,
+              }
+            },
+            dayTurn: true,
           },
         },
       },

@@ -18,6 +18,7 @@ import Bubble from "../Components/GiftedChat/Bubble";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import RecordVoiceMessage from "../Components/RecordVoiceMessage";
 import { Message } from "../store/slices/messagesSlice";
+import { addUsers } from "../store/slices/usersSlice";
 
 const SendChatContainer = styled.View`
   display:flex;
@@ -95,9 +96,27 @@ export default function Community ({ navigation }: Props) {
 
   const me = useAppSelector(state => state.me)
   const users = useAppSelector(state => state.users)
+  const usersId = useAppSelector(state => Object.keys(state.users))
   const isKeyboardShow = isKeyboard()
+
+  const retrieveUsers = trpc.user.retrieve.useMutation()
+
   const retrieveMessages = trpc.channel.message.retrieveCommunityMessage.useMutation({
-    onSuccess(data, variables) {
+    async onSuccess(data, variables) {
+      let toFetch = new Set()
+
+      for (const message of data) {
+        if (usersId.includes(message.authorId.toString())) continue
+
+        toFetch.add(+message.authorId)
+      }
+
+      if (toFetch.size > 0) {
+        let fetchedUsers = await retrieveUsers.mutateAsync([...toFetch.values()])
+
+        dispatch(addUsers(fetchedUsers))
+      }
+
       if (variables !== undefined) return
 
       dispatch(initCommunityMessages(data.map(message => ({
@@ -240,18 +259,18 @@ export default function Community ({ navigation }: Props) {
         </InputContainer>
       }}
       messages={msgState?.map(message => {
-        if (isMessageSystem(message)) {
-          return {
-            _id: message.id.toString(),
-            received: true,
-            text: message.content,
-            createdAt: new Date(message.createdAt),
-            user: {
-              _id: 1,
-            },
-            system: message.system,
-          }
-        }
+        // if (isMessageSystem(message)) {
+        //   return {
+        //     _id: message.id.toString(),
+        //     received: true,
+        //     text: message.content,
+        //     createdAt: new Date(message.createdAt),
+        //     user: {
+        //       _id: 1,
+        //     },
+        //     system: message.system,
+        //   }
+        // }
 
         return {
           _id: message.id.toString(),

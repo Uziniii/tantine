@@ -6,11 +6,13 @@ import { FText } from "../../Components/FText";
 import { Container, Group } from "../css/lookup.css";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
-import { Alert, Dimensions, View } from "react-native";
+import { Alert, Button, Dimensions, Pressable, View } from "react-native";
 import { langData, replace } from "../../data/lang/lang";;
 import { trpc } from "../../utils/trpc";
 import styled from 'styled-components/native';
 import GroupInfo from "../../Components/GroupInfo";
+import { useLayoutEffect, useMemo } from "react";
+import GetUserPictureProfil from "../../Components/GetUserPictureProfil";
 
 const { width } = Dimensions.get("window")
 
@@ -42,11 +44,37 @@ export default function GroupLookup({ navigation }: Props) {
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const group = useAppSelector(state => state.channels[route.params.id])
   const me = useAppSelector(state => state.me)
+  const permission = useMemo(() => {
+    if (group === undefined) return null
+    if (group.type !== "group" || me === null) return null
 
-  const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
+    if (group.authorId === me.id) return "author"
+    if (group.admins.includes(me.id)) return "admin"
+    
+    return "user"
+  }, [group, me])
+
+  // const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
+
+  // useLayoutEffect(() => {
+  //   if (group === undefined) return () => {}
+  //   if (group.type !== "group" || me === null) return () => {}
+  //   if (permission === null) return () => {}
+
+  //   navigation.setOptions({
+  //     headerRight: () => {
+  //       return <GroupInfo
+  //           type={permission}
+  //           visibility={group.visibility}
+  //           channelId={route.params.id}
+  //         />
+  //     }
+  //   })
+  // })
 
   if (group === undefined) return null
   if (group.type !== "group" || me === null) return null
+  if (permission === null) return () => {}
 
   const onUserPress = (id: number) => {
     navigation.navigate("memberLookup", { 
@@ -77,12 +105,13 @@ export default function GroupLookup({ navigation }: Props) {
 
   return <>
     <GroupInfo
-      type={group.authorId === me.id || group.admins.includes(me.id) ? "admin" : "user"}
+      type={permission}
+      visibility={group.visibility}
       channelId={route.params.id}
     />
     <Container $marginTop={100}>
-      <ProfilePictureContainer $size="100px">
-        <FontAwesome name="group" size={50} color="black" />
+      <ProfilePictureContainer $size="120px">
+        <GetUserPictureProfil size={46} id={+route.params.id} type="group"/>
       </ProfilePictureContainer>
       <Group>
         <FText $color="white" $size="24px">{group.title}</FText>
@@ -111,16 +140,20 @@ interface UserProps {
   item: number;
 }
 
+const ModifiedInfoContainer = styled(InfoContainer)`
+  justify-content: space-between;
+`;
+
 function User ({ item }: UserProps) {
   const user = useAppSelector(state => state.users[item])
 
   return <UserContainer style={{ flex: 1 }} disabled>
     <ProfilePictureContainer>
-      <FontAwesome name="user" size={24} />
+      <GetUserPictureProfil id={item} type="user" />
     </ProfilePictureContainer>
-    <InfoContainer>
+    <ModifiedInfoContainer>
       <FText $color="white" $size="18px" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{user.surname} {user.name}</FText>
       <FText $color="white">{user.email}</FText>
-    </InfoContainer>
+    </ModifiedInfoContainer>
   </UserContainer>
 }

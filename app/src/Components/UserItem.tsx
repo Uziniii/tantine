@@ -3,6 +3,7 @@ import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "..
 import { FontAwesome } from '@expo/vector-icons'
 import { FText } from "./FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
+import GetUserPictureProfil from "./GetUserPictureProfil";
 
 interface IUser {
   id: number,
@@ -35,7 +36,8 @@ export default function UserItem({ item, addedUsers, groupMode, userPress, theme
   return <UserContainer style={{ justifyContent: "space-between" }} onPress={() => userPress(item.id)}>
     <VerticalGroup>
       <ProfilePictureContainer>
-        <FontAwesome name="user" size={24} />
+        <GetUserPictureProfil id={item.id} type="user" />
+        {/* <FontAwesome name="user" size={24} /> */}
       </ProfilePictureContainer>
       <InfoContainer>
         <Group>

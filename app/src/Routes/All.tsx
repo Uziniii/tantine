@@ -36,6 +36,8 @@ const TitleCreateGroup = styled.View`
   gap: 10px;
 `
 
+const headerColor = "#24252D";
+
 export default function AllRoute () {
   const lang = useAppSelector(state => langData[state.language].route)
 
@@ -77,7 +79,7 @@ export default function AllRoute () {
       options={{
         headerShadowVisible: false,
         headerStyle: {
-          backgroundColor: "#24252D",
+          backgroundColor: headerColor,
         },
         headerTitle() {
           return <TitleCreateGroup> 
@@ -97,7 +99,7 @@ export default function AllRoute () {
       component={Channel}
       options={{
         headerStyle: {
-          backgroundColor: "#24252D",
+          backgroundColor: headerColor,
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
@@ -108,7 +110,7 @@ export default function AllRoute () {
       options={{
 
         headerStyle: {
-          backgroundColor: "#24252D",
+          backgroundColor: headerColor,
         },
         headerShadowVisible: false,
         headerBackTitleVisible: false,
@@ -132,11 +134,9 @@ export default function AllRoute () {
         headerShadowVisible: false,
         headerBackTitleVisible: false,
         headerShown: false,
-
         headerStyle: {
-          backgroundColor: "#24252D"
+          backgroundColor: headerColor
         },
-
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
     /> 
@@ -149,10 +149,8 @@ export default function AllRoute () {
         headerTitleAlign: "center",
 
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
-
-
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
@@ -171,7 +169,7 @@ export default function AllRoute () {
       options={{
 
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
 
         headerBackTitleVisible: false,
@@ -193,7 +191,7 @@ export default function AllRoute () {
       component={AddMember}
       options={{
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
@@ -216,7 +214,7 @@ export default function AllRoute () {
       component={AddMemberConfirm}
       options={{
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
         headerShadowVisible: false,
         headerBackTitleVisible: false,
@@ -240,7 +238,7 @@ export default function AllRoute () {
       component={Invite}
       options={{
         headerStyle: {
-          backgroundColor: "#24252D",
+          backgroundColor: headerColor,
         },
         headerShadowVisible: false,
         headerBackTitleVisible: false,
@@ -264,7 +262,7 @@ export default function AllRoute () {
       component={InviteConfirm}
       options={{
         headerStyle: {
-          backgroundColor: "#24252D",
+          backgroundColor: headerColor,
         },
         headerShadowVisible: false,
         headerBackTitleVisible: false,
@@ -288,7 +286,7 @@ export default function AllRoute () {
       component={ChooseLanguage}
       options={{
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
         headerBackTitleVisible: false,
         headerTitleAlign: "left",

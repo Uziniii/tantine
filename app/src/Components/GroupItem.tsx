@@ -4,6 +4,7 @@ import { useAppSelector } from "../store/store";
 import { FText } from "./FText";
 import { FontAwesome } from "@expo/vector-icons";
 import { langData } from "../data/lang/lang";
+import GetUserPictureProfil from "./GetUserPictureProfil";
 
 interface Props {
   item: {
@@ -22,7 +23,7 @@ export default function GroupItem ({ item, index, onPress }: Props) {
 
   return <UserContainer onPress={() => onPress(index)} style={{ flex: 1 }}>
     <ProfilePictureContainer>
-      <FontAwesome name="group" size={24} />
+      <GetUserPictureProfil type="group" id={item.id}/>
     </ProfilePictureContainer>
     <InfoContainer>
       <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>

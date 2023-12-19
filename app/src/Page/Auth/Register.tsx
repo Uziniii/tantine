@@ -53,25 +53,23 @@ export default function Register({ navigation }: Props) {
     async onSuccess(data) {
       await AsyncStorage.setItem("token", data)
     
-      console.log(image);
-      
-      if (image === undefined) return
-
-      const extension = image.split(".").pop()
-
-      const formData = new FormData()
-      formData.append('audio', {
-        uri: image,
-        type: `image/${extension}`, 
-        name: `image.${extension}`,
-      } as any);
-
-      await ky.post(`http://${host}:3000/profilePicture/`, {
-        headers: {
-          Authorization: `Bearer ${data}`,
-        },
-        body: formData,
-      })
+      if (image) {
+        const extension = image.split(".").pop()
+  
+        const formData = new FormData()
+        formData.append('audio', {
+          uri: image,
+          type: `image/${extension}`, 
+          name: `image.${extension}`,
+        } as any);
+  
+        await ky.post(`http://${host}:3000/profilePicture/`, {
+          headers: {
+            Authorization: `Bearer ${data}`,
+          },
+          body: formData,
+        })
+      }
 
       dispatch(setLogin(true))
     },
@@ -118,7 +116,7 @@ export default function Register({ navigation }: Props) {
   const [image, setImage] = useState<string | undefined>(undefined)
 
   return <View>
-    <TitleSubAuth title="S’inscrire" sub="Crée votre compte afin pouvoir accéder afin d’acceder à l’application" />
+    <TitleSubAuth title={lang.registerTitle} sub={lang.registerSub} />
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "position"}>
       <ScrollView

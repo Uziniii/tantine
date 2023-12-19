@@ -7,6 +7,7 @@ import { trpc } from '../utils/trpc';
 import { removeChannelNotification } from '../store/slices/notificationSlice';
 import { removeChannel } from '../store/slices/channelsSlice';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { useMemo } from 'react';
 
 const ShowGroupInfoContainer = styled.View`
   width: 220px;
@@ -35,11 +36,12 @@ const Button = styled.TouchableOpacity`
 `;
 
 type Props = {
-  type: string;
+  type: "author" | "admin" | "user";
+  visibility: number;
   channelId: string;
 }
 
-export default function ShowGroupInfo({ type, channelId }: Props) {
+export default function ShowGroupInfo({ type, visibility, channelId }: Props) {
   const navigation = useNavigation<NavigationProp<any>>();
   const dispatch = useAppDispatch()
   const lang = useAppSelector(state => langData[state.language].groupLookup)
@@ -103,14 +105,37 @@ export default function ShowGroupInfo({ type, channelId }: Props) {
     })
   }
 
-  return type === 'admin' ? (
-    <ShowGroupInfoContainer>
-      <Button onPress={onInvitePress}><FText $color='white'>{lang.invite}</FText></Button>
-      <Button onPress={createDeleteConfirmAlert}><FText $color='white'>{lang.deleteGroupButton}</FText></Button>
-		</ShowGroupInfoContainer>
-	) : (
-    <ShowGroupInfoContainer>
-      <Button onPress={onQuitGroupPress}><FText $color='white'>{lang.quitGroup}</FText></Button>
-    </ShowGroupInfoContainer>
-  )
+  const onEditGroupPress = () => {
+    navigation.navigate("editGroup", {
+      id: channelId
+    })
+  }
+
+  const buttons = useMemo(() => {
+    const stack = []
+
+    if (type === "author" || type === "admin" || (type === "user" && visibility === 0)) stack.push(
+      <Button key={"invite"} onPress={onInvitePress}>
+        <FText $color='white'>{lang.invite}</FText>
+      </Button>
+    )
+
+    if (type === "admin" || type === "user") stack.push(
+      <Button key={"quit"} onPress={onQuitGroupPress}>
+        <FText $color='white'>{lang.quitGroup}</FText>
+      </Button>
+    )
+
+    if (type === "author") stack.push(
+      <Button key={"delete"} onPress={createDeleteConfirmAlert}>
+        <FText $color='white'>{lang.deleteGroupButton}</FText>
+      </Button>
+    )
+
+    return stack
+  }, [type])
+
+  return <ShowGroupInfoContainer>
+    {buttons}
+  </ShowGroupInfoContainer>
 }

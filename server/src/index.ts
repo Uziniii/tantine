@@ -83,7 +83,7 @@ server.register(getProfilePicture);
   // cron.schedule("*/1 * * * *", async () => {
   cron.schedule("* */6 * * *", async () => {
     console.log("Check wheel turn");
-    
+    // date diff
     const channels = await prisma.$queryRaw<{ id: number }[]>`
       SELECT
         ch.id
@@ -196,5 +196,5 @@ server.register(getProfilePicture);
         }
       })
     }
-  })
+  }, {runOnInit: true})
 })();

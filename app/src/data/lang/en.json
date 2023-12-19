@@ -24,8 +24,13 @@
       "passwordMin": "The password must be at least 8 characters long",
       "passwordNotMatch": "The password confirmation does not match",
       "stateMin": "The state or department must be at least 2 characters long",
-      "cityMin": "The city must be at least 2 characters long"
-    }
+      "cityMin": "The city must be at least 2 characters long",
+      "incorrectCredentials": "Incorrect email address or password"
+    },
+    "loginTitle": "Welcome back!",
+    "loginSub": "Enter your login details",
+    "registerTitle": "Register",
+    "registerSub": "Create your account to join the Tantine community"
   },
   "dropdown": {
     "search": "Search",
@@ -81,6 +86,7 @@
       "message": "The winner is {} !"
     },
     "edit": {
+      "editOption": "Edit group",
       "changeName": "Change name",
       "visibility": "Visibility",
       "public": "Public",
@@ -131,5 +137,10 @@
   },
   "community": {
     "title": "Community"
+  },
+  "joinRequestPopup": "Apply to join",
+  "welcome": {
+    "title": "Let Tantine guide you !",
+    "sub": "Tantine is our voice assistant"
   }
 }

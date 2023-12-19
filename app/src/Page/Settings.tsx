@@ -8,7 +8,11 @@ import SettingsButton from "../Components/SettingsButton";
 import { langData } from "../data/lang/lang";
 import { NavigationProp } from "@react-navigation/native";
 import styled from 'styled-components/native';
-import GetUserPictureProfil from "../Components/GetUserPictureProfil";
+import { getPicture } from "../Components/GetUserPictureProfil";
+import UploadPictureProfil from "../Components/UploadPictureProfil";
+import { useEffect, useState } from "react";
+import ky from "ky";
+import { host } from "../utils/host";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -43,23 +47,51 @@ export default function Settings ({ navigation }: Props) {
   const me = useAppSelector(state => state.me)
   const lang = useAppSelector(state => langData[state.language].settings)
 
+  const [image, setImage] = useState<string | undefined>()
+
+  useEffect(() => {
+    if (!me?.id || !me?.token) return
+
+    getPicture("user", me.id, me.token, setImage)
+  }, [])
+
   if (!me) return null
 
-  console.log(me.id);
+  const onImageChange = async (uri: string) => {
+    const extension = uri.split(".").pop()
+
+    const formData = new FormData()
+    formData.append('audio', {
+      uri,
+      type: `image/${extension}`,
+      name: `image.${extension}`,
+    } as any);
+
+    await ky.post(`http://${host}:3000/profilePicture/`, {
+      headers: {
+        Authorization: `Bearer ${me.token}`,
+      },
+      body: formData,
+      keepalive: true,
+      cache: 'no-cache',
+    })
+
+    setImage(uri)
+  }
 
   return <View>
     <Container>
       <ContainerPictureProfil>
-        <GetUserPictureProfil id={me.id} type="user"/>
+        <UploadPictureProfil setImage={onImageChange} image={image} />
       </ContainerPictureProfil>
       <Group>
         <FText $size="24px" $color="white">{me.surname} {me.name}</FText>
         <FText $size="16px" $color="white">{me.email}</FText>
       </Group>
-    <Button color={"red"} title="Déconnexion" onPress={() => {
-      dispatch({ type: "RESET" })
-      AsyncStorage.removeItem("token")
-    }} />
+      <Button color={"red"} title="Déconnexion" onPress={() => {
+        dispatch({ type: "RESET" })
+        AsyncStorage.removeItem("token")
+      }} />
     </Container>
     <SettingsButton text={lang.language} onPress={() => navigation.navigate("chooseLanguage")} />
   </View>
