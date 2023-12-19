@@ -254,7 +254,7 @@ export default function Channel ({ navigation }: Props) {
       renderSystemMessage={(props) => {
         if (!props.currentMessage) return null
 
-        if (props.currentMessage.carousel) return <Carousel/>
+        if (props.currentMessage.carousel) return <Carousel carousel={props.currentMessage.carousel} />
 
         return <SystemMessage
           containerStyle={props.wrapperStyle}

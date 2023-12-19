@@ -80,7 +80,8 @@ server.register(getProfilePicture);
     process.exit(1);
   }
 
-  cron.schedule("* 6 * * *", async () => {
+  // cron.schedule("*/1 * * * *", async () => {
+  cron.schedule("* */6 * * *", async () => {
     console.log("Check wheel turn");
     // date diff
     const channels = await prisma.$queryRaw<{ id: number }[]>`
@@ -166,6 +167,9 @@ server.register(getProfilePicture);
                 }
               }
             }
+          },
+          users: {
+            connect: channel.users.map((user) => ({ id: user }))
           }
         },
         select: {
@@ -186,6 +190,10 @@ server.register(getProfilePicture);
         createdAt: carousel.message.createdAt,
         updatedAt: carousel.message.updatedAt,
         channelId: channel.channelId,
+        carousel: {
+          users: channel.users.map((user) => ({ id: user })),
+          winnerId: channel.winnerId,
+        }
       })
     }
   })

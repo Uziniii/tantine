@@ -3,7 +3,7 @@ interface EventSchema<Payload> {
   payload: Payload;
 }
 
-interface Carousel {
+export interface Carousel {
   users: {
     id: number;
   }[];
