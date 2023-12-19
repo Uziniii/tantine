@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { Audio, AVPlaybackStatusSuccess, InterruptionModeAndroid } from 'expo-av';
+import React, { useState, useEffect, useRef } from 'react';
+import { Audio, AVPlaybackStatus, InterruptionModeAndroid } from 'expo-av';
 import styled from 'styled-components/native';
-import { host } from '../utils/host';
-import { DimensionValue, TouchableOpacity } from 'react-native';
-import { FText } from './FText';
+import { TouchableOpacity, Animated } from 'react-native';
 import * as FileSystem from 'expo-file-system';
+import { host } from '../utils/host';
 import { useAppSelector } from '../store/store';
-import { Entypo } from '@expo/vector-icons'; 
-import { AntDesign } from '@expo/vector-icons'; 
+import { Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
 const Container = styled.View`
   width: 80%;
   padding: 0 20px 0 20px;
+  gap: 20px;
   align-items: center;
   margin-top: 20px;
   display: flex;
@@ -21,8 +21,6 @@ const Container = styled.View`
 `;
 
 const ButtonPlay = styled(TouchableOpacity)`
-  background-color: #3498db;
-  align-self: center;
   border-radius: 8px;
 `;
 
@@ -30,13 +28,16 @@ const ProgressBarContainer = styled.View`
   width: 80%;
   height: 10px;
   display: flex;
-  background-color: #ddd;
-  margin-top: 20px;
+  flex-direction: row;
+  align-items: flex-end;
+  margin: 0 0 7px 0;
+  gap: 2px;
 `;
 
-const ProgressBar = styled.View`
-  height: 100%;
-  background-color: #3498db;
+const ProgressBarUnit = styled.View`
+  height: ${({ height }: { height: number }) => `${height}px`};
+  width: 5px;
+  border-radius: 8px;
 `;
 
 interface ShowRecordVoiceMessageProps {
@@ -46,9 +47,12 @@ interface ShowRecordVoiceMessageProps {
 
 export default function ShowVocalMessage({ channelId, audioFile }: ShowRecordVoiceMessageProps) {
   const [voiceMessage, setVoiceMessage] = useState<Audio.Sound | null>(null);
-  const [playbackStatus, setPlaybackStatus] = useState<AVPlaybackStatusSuccess | null>(null);
+  const [playbackStatus, setPlaybackStatus] = useState<AVPlaybackStatus | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [playedUnits, setPlayedUnits] = useState<number>(0);
   const token = useAppSelector((state) => state.me?.token);
+
+  const progressBarWidth = useRef(new Animated.Value(0)).current;
 
   const loadSound = async () => {
     const soundObject = new Audio.Sound();
@@ -57,14 +61,14 @@ export default function ShowVocalMessage({ channelId, audioFile }: ShowRecordVoi
     if (!token) return console.log('No token');
 
     try {
-      FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}${channelId}`, { intermediates: true });
+      await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}${channelId}`, { intermediates: true });
       const fileUri = `${FileSystem.documentDirectory}${channelId}/${audioFile}`;
-      
+
       const { uri } = await FileSystem.downloadAsync(audioFileUrl, fileUri, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        cache: true
+        cache: true,
       });
 
       await Audio.setAudioModeAsync({
@@ -72,10 +76,10 @@ export default function ShowVocalMessage({ channelId, audioFile }: ShowRecordVoi
         interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
         shouldDuckAndroid: false,
       });
-      
+
       await soundObject.loadAsync({
         uri,
-        mimeType: 'audio/x-m4a' 
+        mimeType: 'audio/x-m4a',
       });
 
       soundObject.setOnPlaybackStatusUpdate((status) => {
@@ -92,32 +96,60 @@ export default function ShowVocalMessage({ channelId, audioFile }: ShowRecordVoi
   };
 
   const handlePlay = async () => {
-    if (voiceMessage && !isPlaying) {
+    if (!voiceMessage) {
+      await loadSound();
       setIsPlaying(true);
-      await voiceMessage.playFromPositionAsync(0);
+    }
+    if (!isPlaying) {
+      setIsPlaying(true);
+      await voiceMessage.playAsync();
+    } else {
       setIsPlaying(false);
-      return;
+      await voiceMessage.pauseAsync();
     }
-
-    await loadSound();
   };
 
-  const getProgressBarWidth = (): DimensionValue => {
-    if (playbackStatus && playbackStatus.durationMillis && playbackStatus.positionMillis) {
+  const renderProgressBarUnits = () => {
+    const units: JSX.Element[] = [];
+    for (let i = 0; i < 20; i++) {
+      const height = Math.floor(Math.random() * 15) + 5;
+      units.push(
+        <ProgressBarUnit
+          key={i}
+          height={height}
+          style={{
+            backgroundColor: i < playedUnits ? '#3498db' : '#000',
+            opacity: i < playedUnits ? 1 : 0.3,
+          }}
+        />
+      );
+    }
+    return units;
+  };
+
+  useEffect(() => {
+    if (playbackStatus && playbackStatus.positionMillis !== undefined && playbackStatus.durationMillis !== undefined) {
       const progress = (playbackStatus.positionMillis / playbackStatus.durationMillis) * 100;
-      return `${progress}%`;
+      const units = Math.floor((progress / 100) * 20);
+      Animated.timing(progressBarWidth, {
+        toValue: progress,
+        duration: 500,
+        useNativeDriver: false,
+      }).start();
+      setPlayedUnits(units);
     }
-    return '0%';
-  };
+  }, [playbackStatus]);
 
   return (
     <Container>
       <ButtonPlay onPress={handlePlay}>
-        {isPlaying ? <AntDesign name="pause" size={24} color="black" /> : <Entypo name="controller-play" size={24} color="black" />}
+        {isPlaying ? (
+          <AntDesign name="pause" size={30} color="black" />
+        ) : (
+          <Entypo name="controller-play" size={30} color="black" />
+        )}
       </ButtonPlay>
-      <ProgressBarContainer>
-        <ProgressBar style={{ width: getProgressBarWidth() }} />
-      </ProgressBarContainer>
+      <ProgressBarContainer>{renderProgressBarUnits()}</ProgressBarContainer>
     </Container>
   );
 }

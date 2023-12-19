@@ -8,7 +8,6 @@ export const UserContainer = styled(TouchableOpacity)`
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
-  background-color: red;
 `;
 
 export const InfoContainer = styled.View`
