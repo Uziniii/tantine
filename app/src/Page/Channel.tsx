@@ -148,6 +148,8 @@ export default function Channel ({ navigation }: Props) {
         visibility: data.group.visibility,
         type: "group",
         users: data.users.map(user => user.id),
+        dayTurn: data.dayTurn,
+        joinRequests: data.joinRequests,
       }))
     },
   })
@@ -167,9 +169,6 @@ export default function Channel ({ navigation }: Props) {
   useEffect(() => {
     dispatch(clearNotifications(+route.params.id))
   }, [])
-
-
-  console.log(lookupId);
 
   useLayoutEffect(() => {
     navigation.setOptions({

@@ -81,6 +81,7 @@
       "message": "The winner is {} !"
     },
     "edit": {
+      "editOption": "Edit group",
       "changeName": "Change name",
       "visibility": "Visibility",
       "public": "Public",
@@ -131,5 +132,6 @@
   },
   "community": {
     "title": "Community"
-  }
+  },
+  "joinRequestPopup": "Apply to join"
 }

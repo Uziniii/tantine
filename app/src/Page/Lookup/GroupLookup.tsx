@@ -11,6 +11,7 @@ import { langData, replace } from "../../data/lang/lang";;
 import { trpc } from "../../utils/trpc";
 import styled from 'styled-components/native';
 import GroupInfo from "../../Components/GroupInfo";
+import { useMemo } from "react";
 
 const { width } = Dimensions.get("window")
 
@@ -42,11 +43,21 @@ export default function GroupLookup({ navigation }: Props) {
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const group = useAppSelector(state => state.channels[route.params.id])
   const me = useAppSelector(state => state.me)
+  const permission = useMemo(() => {
+    if (group === undefined) return null
+    if (group.type !== "group" || me === null) return null
 
-  const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
+    if (group.authorId === me.id) return "author"
+    if (group.admins.includes(me.id)) return "admin"
+    
+    return "user"
+  }, [group, me])
+
+  // const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
 
   if (group === undefined) return null
   if (group.type !== "group" || me === null) return null
+  if (permission === null) return null
 
   const onUserPress = (id: number) => {
     navigation.navigate("memberLookup", { 
@@ -77,7 +88,8 @@ export default function GroupLookup({ navigation }: Props) {
 
   return <>
     <GroupInfo
-      type={group.authorId === me.id || group.admins.includes(me.id) ? "admin" : "user"}
+      type={permission}
+      visibility={group.visibility}
       channelId={route.params.id}
     />
     <Container $marginTop={100}>

@@ -24,7 +24,7 @@ export const search = protectedProcedure
           title: {
             contains: input.query,
           },
-          visibility: 0,
+          // visibility: 0,
         },
       },
       select: {

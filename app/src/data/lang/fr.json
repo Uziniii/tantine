@@ -81,6 +81,7 @@
       "message": "Le gagnant est {} !"
     },
     "edit": {
+      "edit":"Modifier le groupe",
       "changeName": "Changer le nom",
       "visibility": "Visibilité",
       "public": "Publique",
@@ -131,5 +132,6 @@
   },
   "community": {
     "title": "Communauté"
-  }
+  },
+  "joinRequestPopup": "Demander à rejoindre"
 }

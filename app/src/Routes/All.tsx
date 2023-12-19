@@ -151,8 +151,6 @@ export default function AllRoute () {
         headerStyle: {
           backgroundColor: "#202E44",
         },
-
-
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
