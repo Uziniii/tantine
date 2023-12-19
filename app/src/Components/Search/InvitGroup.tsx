@@ -49,7 +49,7 @@ export default function Invite({ onClose, onJoinPress, group }: Props) {
   const lang = useAppSelector(state => langData[state.language].joinRequestPopup)
 
   return (
-    <Container containerStyle={{ justifyContent: 'flex-end' }}>
+    <Container>
       <CloseContainer>
         <FontAwesome size={20} color={"white"} name='close' onPress={onClose} />
       </CloseContainer>
