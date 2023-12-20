@@ -18,7 +18,7 @@ import { LogBox } from 'react-native';
 import { setLanguage } from './src/store/slices/languageSlice';
 import Auth from './src/Routes/Auth';
 import AllRoute from './src/Routes/All';
-import { host } from './src/utils/host';
+import { host, port } from './src/utils/host';
 import WSLayer from './src/WSLayer';
 import Loading from './src/Components/Loading';
 
@@ -111,7 +111,7 @@ function Base() {
     return trpc.createClient({
       links: [
         httpBatchLink<any>({
-          url: `http://${host}:3000/trpc/`,
+          url: `http://${host}:${port}/trpc/`,
           async headers() {
             if (!token) return {}
 

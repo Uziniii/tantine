@@ -2,7 +2,7 @@ import { PropsWithChildren } from "react";
 import { useAppDispatch, useAppSelector } from "./store/store";
 import { trpc } from "./utils/trpc";
 import useWebSocket from "react-use-websocket";
-import { host } from "./utils/host";
+import { host, port } from "./utils/host";
 import { allSchemaEvent } from "../schema";
 import { createCommunityMessageEventFactory, createMessageEventFactory } from "./store/event/messageEvent";
 import { acceptJoinRequestEventFactory, addMembersEventFactory, changeVisibilityEventFactory, createJoinRequestEventFactory, deleteGroupEventFactory, newGroupDayTurnFactory, newGroupTitleEventFactory, putAdminEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
@@ -16,7 +16,7 @@ export default function WSLayer({ children }: PropsWithChildren) {
   const fetchUsers = trpc.user.retrieve.useMutation();
   const retrieveUsers = trpc.user.retrieve.useMutation()
 
-  const { sendJsonMessage } = useWebSocket(`ws://${host}:3000/ws?token=${me?.token}`, {
+  const { sendJsonMessage } = useWebSocket(`ws://${host}:${port}/ws?token=${me?.token}`, {
     onClose(event) {
       if (event.code === 1001) {
         console.log("La connexion a été fermée par le client.");

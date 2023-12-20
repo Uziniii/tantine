@@ -21,7 +21,7 @@ import { NextButton } from './LangSelect';
 import { FontAwesome } from '@expo/vector-icons';
 import UploadPictureProfil from '../../Components/UploadPictureProfil';
 import ky from 'ky';
-import { host } from '../../utils/host';
+import { host, port } from '../../utils/host';
 
 interface Props {
   navigation: NavigationProp<any>;
@@ -63,7 +63,7 @@ export default function Register({ navigation }: Props) {
           name: `image.${extension}`,
         } as any);
   
-        await ky.post(`http://${host}:3000/profilePicture/`, {
+        await ky.post(`http://${host}:${port}/profilePicture/`, {
           headers: {
             Authorization: `Bearer ${data}`,
           },

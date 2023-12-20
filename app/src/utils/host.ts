@@ -6,9 +6,14 @@ let tempHost = manifest2 !== null
   ? manifest2?.extra?.expoGo?.debuggerHost?.split(":").shift()
   : process.env.EXPO_PUBLIC_HOST;
 
-// if (process.env.EXPO_PUBLIC_HOST && process.env.EXPO_PUBLIC_USE_ENV_HOST === "true") {
-//   tempHost = process.env.EXPO_PUBLIC_HOST;
-// }
+let tempPort = "3000";
+
+if (process.env.EXPO_PUBLIC_HOST && process.env.EXPO_PUBLIC_USE_ENV_HOST === "true") {
+  tempHost = process.env.EXPO_PUBLIC_HOST;
+}
+if (process.env.EXPO_PUBLIC_PORT && process.env.EXPO_PUBLIC_USE_ENV_PORT === "true") {
+  tempPort = process.env.EXPO_PUBLIC_PORT;
+}
 
 export const host = tempHost;
-export const port = 3000; // 45376
+export const port = tempPort; // 45376
