@@ -76,32 +76,41 @@ export function createMessageEventFactory({
 }
 
 interface CreateCommunityMessageProps {
+  users: UsersState;
+  fetchUsers: ReturnType<typeof trpc.user.retrieve.useMutation>;
   dispatch: AppDispatch;
 }
 
 export function createCommunityMessageEventFactory({
+  users,
+  fetchUsers,
   dispatch,
 }: CreateCommunityMessageProps) {
   return async function event(payload: {
     message: CommunityMessage;
     nonce: number;
   }) {
-    console.log(payload);
+    if (!payload.message.system && payload.message.authorId) {
+      const fetchedUsers = await fetchUsers.mutateAsync([payload.message.authorId]);
+      dispatch(addUsers(fetchedUsers));
+    };
     
-    dispatch(
-      addCommunityMessage({
-        message: {
-          id: payload.message.id,
-          authorId: payload.message?.authorId,
-          content: payload.message.content,
-          audioFile: payload.message?.audioFile,
-          createdAt: payload.message.createdAt.toString(),
-          updatedAt: payload.message.updatedAt.toString(),
-          system: payload.message.system,
-        },
-      })
-    );
+    if (!payload.message.system) {
+      dispatch(
+        addCommunityMessage({
+          message: {
+            id: payload.message.id,
+            authorId: payload.message?.authorId,
+            content: payload.message.content,
+            audioFile: payload.message?.audioFile,
+            createdAt: payload.message.createdAt.toString(),
+            updatedAt: payload.message.updatedAt.toString(),
+            system: payload.message.system,
+          },
+        })
+      );
 
-    dispatch(removeCommunityTempMessage(payload.nonce));
+      dispatch(removeCommunityTempMessage(payload.nonce));
+    }
   }
 }

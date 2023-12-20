@@ -61,6 +61,8 @@ export default function WSLayer({ children }: PropsWithChildren) {
           me,
         }),
         createCommunityMessage: createCommunityMessageEventFactory({
+          users,
+          fetchUsers,
           dispatch,
         }),
         editGroupTitle: newGroupTitleEventFactory({
