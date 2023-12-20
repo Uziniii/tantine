@@ -90,7 +90,7 @@ export function createCommunityMessageEventFactory({
     message: CommunityMessage;
     nonce: number;
   }) {
-    if (!payload.message.system && payload.message.authorId) {
+    if (!payload.message.system && !users[payload.message.authorId]) {
       const fetchedUsers = await fetchUsers.mutateAsync([payload.message.authorId]);
       dispatch(addUsers(fetchedUsers));
     };
