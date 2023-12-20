@@ -1,4 +1,4 @@
-import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "../Page/css/user.css";
+import { Group, InfoContainer, UserContainer } from "../Page/css/user.css";
 import { FontAwesome } from "@expo/vector-icons";
 import { FText } from "./FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
@@ -7,11 +7,20 @@ import { Channel as IChannel } from "../store/slices/channelsSlice";
 import { langData } from "../data/lang/lang";
 import { Me } from "../store/slices/meSlice";
 import styled from "styled-components/native";
+import GetUserPictureProfil from "./GetUserPictureProfil";
 
 interface ChannelProps {
   item: IChannel;
   me: Me | null;
 }
+
+const ContainerPictureProfil = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 99999px;
+  /* background-color: white; */
+  margin: 0 20px 0 0;
+`
 
 const Circle = styled.View`
   width: 30px;
@@ -37,16 +46,16 @@ export default function ChannelItem({ item, me }: ChannelProps) {
   });
 
   return (
-    <UserContainer style={{ flex: 1 }} disabled>
-      <ProfilePictureContainer>
-        <FontAwesome name={item.type === "private" ? "user" : "group"} size={24} />
-      </ProfilePictureContainer>
+    <UserContainer style={{ flex: 1, alignItems: 'center'}} disabled>
+      <ContainerPictureProfil>
+        <GetUserPictureProfil id={user.id} type={item.type === "private" ? "user" : "group"} />
+      </ContainerPictureProfil>
       <InfoContainer>
         <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
-          <FText $size="18px" $color="#202E44" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+          <FText $size="15px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
             {item.type === "group" ? item.title : `${user.surname} ${user.name}`}
           </FText>
-          <FText $size="15px" $color="#202E44">
+          <FText $size="15px" $color="white">
             {item.type === "group" ? `${item.users.length} ${lang.member}` : user.email}
           </FText>
         </Group>

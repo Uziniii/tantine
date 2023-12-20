@@ -1,7 +1,7 @@
 import styled from "styled-components/native";
 
 export const Container = styled.View<{ $marginTop?: number }>`
-  margin-top: ${props => props.$marginTop || 42}px;
+  margin-top: ${props => props.$marginTop || 10}px;
   display: flex;
   flex-direction: column;
   align-items: center;

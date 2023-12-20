@@ -6,20 +6,24 @@ import { FText } from "../../Components/FText";
 import { Container, Group } from "../css/lookup.css";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
-import { Alert, Dimensions, View } from "react-native";
-import { useLayoutEffect, useMemo } from "react";
-import { langData, replace } from "../../data/lang/lang";
-import { Button } from "../css/auth.css";
+import { Alert, Button, Dimensions, Pressable, View } from "react-native";
+import { langData, replace } from "../../data/lang/lang";;
 import { trpc } from "../../utils/trpc";
-import { removeChannelNotification } from "../../store/slices/notificationSlice";
-import { removeChannel } from "../../store/slices/channelsSlice";
-import styled from 'styled-components';
+import styled from 'styled-components/native';
+import GroupInfo from "../../Components/GroupInfo";
+import { useLayoutEffect, useMemo } from "react";
+import GetUserPictureProfil from "../../Components/GetUserPictureProfil";
 
 const { width } = Dimensions.get("window")
 
 interface Props {
   navigation: NavigationProp<any>
 }
+
+const ContainerHeader = styled.View`
+  width: 100%;
+  height: 300px;
+`;
 
 const ButtonEdit = styled(TouchableOpacity)`
   width: 40px;
@@ -31,45 +35,46 @@ const ButtonEdit = styled(TouchableOpacity)`
   justify-content:center;
 `
 
+const ContainerAddTitle = styled.View`
+  padding: 50px 0 0 10px;
+`;
+
 export default function GroupLookup({ navigation }: Props) {
-  const dispatch = useAppDispatch()
   const lang = useAppSelector(state => langData[state.language].groupLookup)
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const group = useAppSelector(state => state.channels[route.params.id])
   const me = useAppSelector(state => state.me)
-  const deleteGroup = trpc.channel.group.delete.useMutation({
-    onSuccess(_, variables) {
-      dispatch(removeChannelNotification(+variables.channelId))
-      dispatch(removeChannel(+variables.channelId))
-      
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'home' }], // replace 'ChannelList' with the name of your screen
-      });
-    }
-  })
-  const users = useAppSelector(state => state.users)
+  const permission = useMemo(() => {
+    if (group === undefined) return null
+    if (group.type !== "group" || me === null) return null
 
-  const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
+    if (group.authorId === me.id) return "author"
+    if (group.admins.includes(me.id)) return "admin"
+    
+    return "user"
+  }, [group, me])
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => {
-        if (group !== undefined && group.type === "group" && me !== null && group.authorId !== me.id) return null
+  // const turnWheel = trpc.channel.group.turnTheWheel.useMutation()
 
-        return <View>
-          <ButtonEdit onPress={
-            () => navigation.navigate("editGroup", { id: route.params.id })
-          }>
-            <Feather name="edit" size={18} color={"white"} />
-          </ButtonEdit>
-        </View>
-      }
-    })
-  })
+  // useLayoutEffect(() => {
+  //   if (group === undefined) return () => {}
+  //   if (group.type !== "group" || me === null) return () => {}
+  //   if (permission === null) return () => {}
+
+  //   navigation.setOptions({
+  //     headerRight: () => {
+  //       return <GroupInfo
+  //           type={permission}
+  //           visibility={group.visibility}
+  //           channelId={route.params.id}
+  //         />
+  //     }
+  //   })
+  // })
 
   if (group === undefined) return null
   if (group.type !== "group" || me === null) return null
+  if (permission === null) return () => {}
 
   const onUserPress = (id: number) => {
     navigation.navigate("memberLookup", { 
@@ -84,70 +89,38 @@ export default function GroupLookup({ navigation }: Props) {
   //   })
   // }
 
-  const onPressTurnWheel = async () => {
-    const winner = await turnWheel.mutateAsync({
-      channelId: route.params.id
-    })
+  // const onPressTurnWheel = async () => {
+  //   const winner = await turnWheel.mutateAsync({
+  //     channelId: route.params.id
+  //   })
 
-    Alert.alert(
-      lang.winnerPopup.title,
-      replace(lang.winnerPopup.message, `${users[winner].surname} ${users[winner].name}`),
-      [{
-        text: "OK",
-      }]
-    )
-  }
-
-  const onInvitePress = () => {
-    navigation.navigate("invite", {
-      id: route.params.id
-    })
-  }
-
-  const createConfirmAlert = () => {
-    Alert.alert(lang.deleteGroupAlertTitle, lang.deleteGroupAlertMessage, [
-      {
-        text: lang.cancel,
-        style: "cancel",
-      },
-      {
-        text: lang.confirm,
-        onPress() {
-          deleteGroup.mutate({
-            channelId: route.params.id
-          })
-        },
-        style: "destructive",
-      }
-    ])
-  }
+  //   Alert.alert(
+  //     lang.winnerPopup.title,
+  //     replace(lang.winnerPopup.message, `${users[winner].surname} ${users[winner].name}`),
+  //     [{
+  //       text: "OK",
+  //     }]
+  //   )
+  // }
 
   return <>
-    <Container>
-      <ProfilePictureContainer $size="100px">
-        <FontAwesome name="group" size={50} color="black" />
+    <GroupInfo
+      type={permission}
+      visibility={group.visibility}
+      channelId={route.params.id}
+    />
+    <Container $marginTop={100}>
+      <ProfilePictureContainer $size="120px">
+        <GetUserPictureProfil size={46} id={+route.params.id} type="group"/>
       </ProfilePictureContainer>
       <Group>
         <FText $color="white" $size="24px">{group.title}</FText>
         <FText $color="white" $size="16px">{group.users.length} {group.users.length <= 1 ? lang.member : `${lang.member}s`}</FText>
       </Group>
-      {(group.visibility === 0 || group.authorId === me.id) && <>
-        <Button onPress={onInvitePress} $width={`${width * 0.8}px`}>
-          <FText $color="white">{lang.invite}</FText>
-        </Button>
-      </>}
-      {group.authorId === me.id && <>
-        <Button onPress={onPressTurnWheel} $width={`${width * 0.8}px`}>
-          <FText $color="white">{lang.wheelButton}</FText>
-        </Button>
-        {/* <Button onPress={onAddPress} $width={`${width * 0.8}px`}>
-          <FText $color="white">{lang.addMembers}</FText>
-        </Button> */}
-        <Button onPress={createConfirmAlert} $width={`${width * 0.8}px`} $background="red">
-          <FText $color="white">{lang.deleteGroupButton}</FText>
-        </Button>
-      </>}
     </Container>
+    <ContainerAddTitle>
+      <FText $color="white" $size="18px">Utilisateur ajoutés</FText>
+    </ContainerAddTitle>
     <FlatList
       style={{
         marginTop: 24,
@@ -167,16 +140,20 @@ interface UserProps {
   item: number;
 }
 
+const ModifiedInfoContainer = styled(InfoContainer)`
+  justify-content: space-between;
+`;
+
 function User ({ item }: UserProps) {
   const user = useAppSelector(state => state.users[item])
 
   return <UserContainer style={{ flex: 1 }} disabled>
     <ProfilePictureContainer>
-      <FontAwesome name="user" size={24} />
+      <GetUserPictureProfil id={item} type="user" />
     </ProfilePictureContainer>
-    <InfoContainer>
+    <ModifiedInfoContainer>
       <FText $color="white" $size="18px" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{user.surname} {user.name}</FText>
       <FText $color="white">{user.email}</FText>
-    </InfoContainer>
+    </ModifiedInfoContainer>
   </UserContainer>
 }

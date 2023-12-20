@@ -28,14 +28,14 @@ export const InputGroup = styled.View`
   display: flex;
   flex-direction: row;
   gap: 16px;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 `;
 
 export const Container = styled.View`
   width: 100%;
-  height: 90%;
-  margin-top: 50px;
+  height: 70%;
+  margin-top: 40px;
   border-top-right-radius: 20px;
   border-top-left-radius: 20px;
   display: flex;
@@ -45,6 +45,7 @@ export const Container = styled.View`
 
 export const Form = styled.View`
   gap: 16px;
-  width: 80%;
+  width: 90%;
   display: flex;
+  justify-content: flex-start;
 `;

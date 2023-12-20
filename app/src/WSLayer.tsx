@@ -4,8 +4,8 @@ import { trpc } from "./utils/trpc";
 import useWebSocket from "react-use-websocket";
 import { host } from "./utils/host";
 import { allSchemaEvent } from "../schema";
-import { createMessageEventFactory } from "./store/event/messageEvent";
-import { addMembersEventFactory, changeVisibilityEventFactory, deleteGroupEventFactory, newGroupTitleEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
+import { createCommunityMessageEventFactory, createMessageEventFactory } from "./store/event/messageEvent";
+import { acceptJoinRequestEventFactory, addMembersEventFactory, changeVisibilityEventFactory, createJoinRequestEventFactory, deleteGroupEventFactory, newGroupDayTurnFactory, newGroupTitleEventFactory, putAdminEventFactory, removeMemberEventFactory } from "./store/event/channelEvent";
 
 export default function WSLayer({ children }: PropsWithChildren) {
   const dispatch = useAppDispatch();
@@ -16,7 +16,7 @@ export default function WSLayer({ children }: PropsWithChildren) {
   const fetchUsers = trpc.user.retrieve.useMutation();
   const retrieveUsers = trpc.user.retrieve.useMutation()
 
-  const { sendJsonMessage } = useWebSocket(`ws://${host}:3000/${me?.token}`, {
+  const { sendJsonMessage } = useWebSocket(`ws://${host}:3000/ws?token=${me?.token}`, {
     onClose(event) {
       if (event.code === 1001) {
         console.log("La connexion a été fermée par le client.");
@@ -60,6 +60,9 @@ export default function WSLayer({ children }: PropsWithChildren) {
           fetchUsers,
           me,
         }),
+        createCommunityMessage: createCommunityMessageEventFactory({
+          dispatch,
+        }),
         editGroupTitle: newGroupTitleEventFactory({
           dispatch,
         }),
@@ -79,6 +82,18 @@ export default function WSLayer({ children }: PropsWithChildren) {
         }),
         changeVisibility: changeVisibilityEventFactory({
           dispatch
+        }),
+        putAdmin: putAdminEventFactory({
+          dispatch,
+        }),
+        createJoinRequest: createJoinRequestEventFactory({
+          dispatch,
+        }),
+        acceptJoinRequest: acceptJoinRequestEventFactory({
+          dispatch,
+        }),
+        newGroupDayTurn: newGroupDayTurnFactory({
+          dispatch,
         }),
       } as const;
 

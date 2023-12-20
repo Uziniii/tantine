@@ -3,6 +3,7 @@ import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "..
 import { FontAwesome } from '@expo/vector-icons'
 import { FText } from "./FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
+import GetUserPictureProfil from "./GetUserPictureProfil";
 
 interface IUser {
   id: number,
@@ -16,15 +17,16 @@ interface BasicProps {
   userPress: (id: number) => void,
   theme?: "light" | "dark",
   strong?: boolean,
+  groupMode?: boolean,
 }
 
 interface NormalProps extends BasicProps {
-  groupMode: false,
+  groupMode?: false,
   addedUsers: undefined,
 }
 
 interface GroupModeProps extends BasicProps {
-  groupMode: true,
+  groupMode?: true,
   addedUsers: Record<number, boolean>,
 }
 
@@ -34,7 +36,8 @@ export default function UserItem({ item, addedUsers, groupMode, userPress, theme
   return <UserContainer style={{ justifyContent: "space-between" }} onPress={() => userPress(item.id)}>
     <VerticalGroup>
       <ProfilePictureContainer>
-        <FontAwesome name="user" size={24} />
+        <GetUserPictureProfil id={item.id} type="user" />
+        {/* <FontAwesome name="user" size={24} /> */}
       </ProfilePictureContainer>
       <InfoContainer>
         <Group>
@@ -45,7 +48,7 @@ export default function UserItem({ item, addedUsers, groupMode, userPress, theme
     </VerticalGroup>
     {groupMode && <VerticalGroup>
       <Radio style={{
-        backgroundColor: addedUsers[item.id] ? "#202E44" : undefined,
+        backgroundColor: addedUsers[item.id] ? "#333541" : undefined,
       }}>
         {addedUsers[item.id] && <FontAwesome name="check" color={theme === "dark" ? "white" : "white"} size={16} />}
       </Radio>

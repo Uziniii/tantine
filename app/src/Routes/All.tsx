@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Home } from "./Home";
 import Search from "../Page/Search";
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 import Channel from "../Page/Channel";
 import UserLookup from "../Page/Lookup/UserLookup";
 import { FText } from "../Components/FText";
@@ -18,6 +18,8 @@ import AddMemberConfirm from "../Page/Lookup/Group/Add/AddMemberConfirm";
 import { FontAwesome, Feather } from "@expo/vector-icons";
 import Invite from "../Page/Lookup/Group/Invite/Invite";
 import InviteConfirm from "../Page/Lookup/Group/Invite/InviteConfirm";
+import ChooseLanguage from "../Page/Settings/ChooseLanguage";
+import Community from "../Page/Community";
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +35,8 @@ const TitleCreateGroup = styled.View`
   justify-content: center;
   gap: 10px;
 `
+
+const headerColor = "#24252D";
 
 export default function AllRoute () {
   const lang = useAppSelector(state => langData[state.language].route)
@@ -51,6 +55,7 @@ export default function AllRoute () {
       name='search'
       component={Search}
       options={{
+        headerShown: false,
         headerTitle() {
           return <TitleCreateGroup> 
             <FontAwesome name="search" size={30} color="#14213d"/>
@@ -72,13 +77,16 @@ export default function AllRoute () {
       name='createGroup'
       component={CreateGroup}
       options={{
+        headerShadowVisible: false,
+        headerStyle: {
+          backgroundColor: headerColor,
+        },
         headerTitle() {
           return <TitleCreateGroup> 
-            <FontAwesome name="comments" size={30} color="#14213d"/>
             <FText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
-              $color="#14213d"
+              $color="white"
             >{lang.createGroup}</FText>
           </TitleCreateGroup>
         },
@@ -90,6 +98,9 @@ export default function AllRoute () {
       name="channel"
       component={Channel}
       options={{
+        headerStyle: {
+          backgroundColor: headerColor,
+        },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
     />
@@ -97,7 +108,13 @@ export default function AllRoute () {
       name="userLookup"
       component={UserLookup}
       options={{
+
+        headerStyle: {
+          backgroundColor: headerColor,
+        },
+        headerShadowVisible: false,
         headerBackTitleVisible: false,
+        headerTitleAlign: "left",
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
@@ -116,19 +133,9 @@ export default function AllRoute () {
         headerTitleAlign: "center",
         headerShadowVisible: false,
         headerBackTitleVisible: false,
-        
+        headerShown: false,
         headerStyle: {
-          backgroundColor: "#202E44",
-        },
-
-        headerTitle() {
-          return <FText
-            font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-            $size={"24px"}
-            $color="white"
-          >
-            {lang.info}
-          </FText>
+          backgroundColor: headerColor
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
@@ -142,10 +149,8 @@ export default function AllRoute () {
         headerTitleAlign: "center",
 
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
-
-
         headerTitle() {
           return <FText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
@@ -164,7 +169,7 @@ export default function AllRoute () {
       options={{
 
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
 
         headerBackTitleVisible: false,
@@ -186,7 +191,7 @@ export default function AllRoute () {
       component={AddMember}
       options={{
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
@@ -209,7 +214,7 @@ export default function AllRoute () {
       component={AddMemberConfirm}
       options={{
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
         headerShadowVisible: false,
         headerBackTitleVisible: false,
@@ -233,8 +238,9 @@ export default function AllRoute () {
       component={Invite}
       options={{
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
+        headerShadowVisible: false,
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
         headerTitle() {
@@ -256,8 +262,9 @@ export default function AllRoute () {
       component={InviteConfirm}
       options={{
         headerStyle: {
-          backgroundColor: "#202E44",
+          backgroundColor: headerColor,
         },
+        headerShadowVisible: false,
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
         headerTitle() {
@@ -273,6 +280,33 @@ export default function AllRoute () {
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
+    />
+    <Stack.Screen
+      name="chooseLanguage"
+      component={ChooseLanguage}
+      options={{
+        headerStyle: {
+          backgroundColor: headerColor,
+        },
+        headerBackTitleVisible: false,
+        headerTitleAlign: "left",
+        headerTitle() {
+          return <Container>
+            <FText
+              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+              $size={"20px"}
+              $color="white"
+            >
+              {lang.chooseLanguage}
+            </FText>
+          </Container>
+        },
+        animation: Platform.OS === "android" ? "slide_from_right" : "default"
+      }}
+    />
+    <Stack.Screen
+      name="communityScreen"
+      component={Community}
     />
   </Stack.Navigator>
 }

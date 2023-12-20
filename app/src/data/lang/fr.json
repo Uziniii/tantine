@@ -24,8 +24,13 @@
       "passwordMin": "Le mot de passe doit faire minimum 8 caractères",
       "passwordNotMatch": "Les mots de passe ne correspondent pas",
       "stateMin": "Le département ou l'état doit faire minimum 2 caractères",
-      "cityMin": "La ville doit faire minimum 2 caractères"
-    }
+      "cityMin": "La ville doit faire minimum 2 caractères",
+      "incorrectCredentials": "L'email ou le mot de passe est incorrect"
+    },
+    "loginTitle": "Ravis de vous revoir !",
+    "loginSub": "Entrez vos identifiants pour vous connecter",
+    "registerTitle": "S'inscrire",
+    "registerSub": "Crééez votre compte pour rejoindre la communauté Tantine"
   },
   "dropdown": {
     "search": "Rechercher",
@@ -49,7 +54,8 @@
     "addMember": "Ajouter des membres",
     "search": "Rechercher",
     "createGroup": "Nouveau groupe",
-    "invite": "Invitation"
+    "invite": "Invitation",
+    "chooseLanguage": "Choissisez votre langue"
   },
   "search": {
     "search": "Rechercher",
@@ -62,18 +68,25 @@
   "groupLookup": {
     "member": "membre",
     "cancel": "Annuler",
-    "confirm": "Supprimer",
+    "deleteConfirm": "Supprimer",
     "addMembers": "Ajouter des membres",
     "deleteGroupButton": "Supprimer le groupe",
     "deleteGroupAlertTitle": "Supprimer le groupe",
     "deleteGroupAlertMessage": "Êtes-vous sûr de vouloir supprimer ce groupe ?",
     "invite": "Inviter",
     "wheelButton": "Tourner la roue",
+    "quitGroup": "Quitter le groupe",
+    "quitAlert": {
+      "title": "Quitter le groupe",
+      "message": "Êtes-vous sûr de vouloir quitter ce groupe ?",
+      "quitConfirm": "Quitter"
+    },
     "winnerPopup": {
       "title": "Résultat",
       "message": "Le gagnant est {} !"
     },
     "edit": {
+      "edit":"Modifier le groupe",
       "changeName": "Changer le nom",
       "visibility": "Visibilité",
       "public": "Publique",
@@ -82,7 +95,12 @@
   },
   "memberLookup": {
     "remove": "Retirer du groupe",
-    "sendMessage": "Envoyer un message"
+    "sendMessage": "Envoyer un message",
+    "putAdmin": "Rendre administrateur",
+    "removeAdmin": "Retirer les droits d'admin",
+    "member": "Membre",
+    "admin": "Administrateur",
+    "author": "Propriétaire du groupe"
   },
   "addMember": {
     "search": "Rechercher",
@@ -95,5 +113,34 @@
   },
   "messageText": {
     "joinInvite": "Rejoindre le groupe"
+  },
+  "channel": {
+    "alreadyInThisGroupAlertTitle": "Vous êtes déjà dans ce groupe",
+    "publicJoin": {
+      "title": "Rejoindre le groupe",
+      "message": "Etes-vous sûr de vouloir rejoindre le groupe {} ?",
+      "cancel": "Annuler",
+      "join": "Rejoindre"
+    },
+    "privateJoin": {
+      "title": "Envoyer une demande",
+      "message": "Etes-vous sûr de vouloir envoyer une demande pour rejoindre le groupe {} ?",
+      "cancel": "Annuler",
+      "send": "Envoyer"
+    }
+  },
+  "settings": {
+    "language": "Langue"
+  },
+  "channelList": {
+    "recentMessage": "Message récent"
+  },
+  "community": {
+    "title": "Communauté"
+  },
+  "joinRequestPopup": "Demander à rejoindre",
+  "welcome": {
+    "title": "Laissez Tantine vous guidez !",
+    "sub": "Tantine est notre assistante vocal"
   }
 }

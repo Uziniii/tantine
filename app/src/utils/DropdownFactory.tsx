@@ -56,19 +56,11 @@ export default function DropdownComponent({
 
 const styles = StyleSheet.create({
   dropdown: {
-    height: 41,
-    backgroundColor: 'white',
+    height: 50,
     borderRadius: 8,
+    borderWidth: 2,
+    borderColor: "#D4B216",
     padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-
-    elevation: 2,
   },
   icon: {
     marginRight: 5,
@@ -85,10 +77,11 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: 14,
-    color: "#c9c9c9"
+    color: "white"
   },
   selectedTextStyle: {
     fontSize: 14,
+    color: "white"
   },
   iconStyle: {
     width: 20,

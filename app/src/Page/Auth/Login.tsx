@@ -10,9 +10,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { setLogin } from '../../store/slices/loginSlice';
 import { set } from '../../store/slices/meSlice';
+import TitleSubAuth from '../../Components/TitleSubAuth';
+import { langData } from '../../data/lang/lang';
 
 export default function Login() {
   const dispatch = useAppDispatch()
+  const lang = useAppSelector(state => langData[state.language].auth)
   const [inputs, setInputs] = useInputsReducer([
     "email",
     "password",
@@ -39,7 +42,7 @@ export default function Login() {
           input: inputs.password.input,
           parser: z.string()
             .refine(() => false, {
-              message: "L'email ou le mot de passe est incorrect"
+              message: lang.error.incorrectCredentials
             }) as unknown as z.ZodString
         })
       }
@@ -56,15 +59,16 @@ export default function Login() {
   return <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}>  
+      <TitleSubAuth title={lang.loginTitle} sub={lang.loginSub} />
       <Container>
         <Form>
           {renderInput({
             setInputs,
             inputs,
             parser: z.string()
-              .email({ message: "L'email est incorrect" }),
+              .email({ message: lang.error.emailInvalid }),
             state: "email",
-            placeholder: "Adresse email",
+            label: lang.email,
             inputMode: "email",
             maxLength: 200,
           })}
@@ -73,10 +77,10 @@ export default function Login() {
           {renderInput({
             setInputs,
             inputs,
+            label: lang.password,
             parser: z.string()
-              .min(8, { message: "Le mot de passe doit faire minimum 8 caractère" }),
+              .min(8, { message: lang.error.passwordMin }),
             state: "password",
-            placeholder: "Mot de passe",
             maxLength: 64,
             secureTextEntry: true,
           })}
@@ -84,8 +88,10 @@ export default function Login() {
 
           <Button
             disabled={!Object.values(inputs).every(x => x.error === undefined) || Object.values(inputs).length <= 0}
-            onPress={sendLoginData}>
-            <FText $color='white'>Se connecter</FText>
+            onPress={sendLoginData}
+            $background='#333541'
+            >
+            <FText $color='white'>{lang.login}</FText>
           </Button>
         </Form>
       </Container>

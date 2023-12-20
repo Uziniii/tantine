@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Linking, StyleSheet, View, } from 'react-native';
+import { Linking, StyleSheet, Text, View, } from 'react-native';
 // @ts-ignore
 import ParsedText from 'react-native-parsed-text';
 import { StylePropType } from 'react-native-gifted-chat/lib/utils';
@@ -10,6 +10,11 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Montserrat_700Bold } from '@expo-google-fonts/montserrat';
 import { useAppSelector } from '../../store/store';
 import { langData } from '../../data/lang/lang';
+import { useId } from 'react';
+import { trpc } from '../../utils/trpc';
+import ShowVocalMessage from "../ShowVocalMessage"
+import Loading from '../Loading';
+
 const WWW_URL_PATTERN = /^www\./i;
 const { textStyle } = StyleSheet.create({
     textStyle: {
@@ -99,30 +104,50 @@ export function MessageText({ currentMessage = {}, optionTitles = DEFAULT_OPTION
         linkStyleProp && linkStyleProp[position],
     ];
     const lang = useAppSelector(state => langData[state.language].messageText)
-    const group = useAppSelector(state => state.channels[currentMessage.invite])
+    const groupInfo = trpc.channel.group.getInfo.useQuery(currentMessage.invite, {
+      enabled: !!currentMessage.invite
+    })
+    const randomId = useId()
     return (<View style={[
             styles[position].container,
             containerStyle && containerStyle[position],
         ]}>
-      <ParsedText style={[
-            styles[position].text,
-            textStyle && textStyle[position],
-            customTextStyle,
-        ]} parse={[
-            ...parsePatterns(linkStyle),
-            { type: 'url', style: linkStyle, onPress: onUrlPress },
-            { type: 'phone', style: linkStyle, onPress: onPhonePress },
-            { type: 'email', style: linkStyle, onPress: onEmailPress },
-        ]} childrenProps={{ ...textProps }}>
-        {currentMessage.text}
-        {(group && group.type === "group" && currentMessage.invite) && <>
-          <TouchableOpacity onPress={() => onJoinPress(currentMessage.invite)}>
-            <FText font={[Montserrat_700Bold, "Montserrat_700Bold"]} $color='#007aff'>
-              {lang.joinInvite} {group.title}
-            </FText>
-          </TouchableOpacity>
-        </>}
-      </ParsedText>
+      {currentMessage.audioFile && (
+        <ShowVocalMessage
+          audioFile={currentMessage.audioFile}
+          channelId={currentMessage.channelId}
+        />
+      )}
+      {currentMessage.invite && groupInfo.status === "loading" 
+        ? <Loading /> 
+        : <ParsedText style={[
+              styles[position].text,
+              textStyle && textStyle[position],
+              customTextStyle,
+          ]} parse={[
+              // ...parsePatterns(linkStyle),
+              { type: 'url', style: linkStyle, onPress: onUrlPress },
+              { type: 'phone', style: linkStyle, onPress: onPhonePress },
+              { type: 'email', style: linkStyle, onPress: onEmailPress },
+              {
+                pattern: /(:[a-zA-Z0-9]*:)/g,
+                style: linkStyle,
+                onPress: (match) => {
+                  if (match !== randomId) return
+
+                  onJoinPress(groupInfo.data)
+                },
+                renderText: () => {
+                  return `${lang.joinInvite} ${groupInfo.data.title}`
+                }
+              }
+          ]} childrenProps={{ ...textProps }}>
+            {[
+              currentMessage.text === " " ? "" : currentMessage.text,
+              currentMessage.invite && `${currentMessage.text !== " " ? "\n" : ""}${randomId}`
+            ].join("")}
+        </ParsedText>
+      }
     </View>);
 }
 MessageText.propTypes = {

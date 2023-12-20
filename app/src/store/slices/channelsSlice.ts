@@ -14,6 +14,12 @@ interface Group {
   description: string;
   authorId: number;
   visibility: number;
+  dayTurn: number;
+  admins: number[];
+  joinRequests: {
+    id: number;
+    userId: number;
+  }[];
 }
 
 export type Channel = Private | Group;
@@ -40,6 +46,18 @@ const channelsSlice = createSlice({
       channel.title = title;
       return state;
     },
+
+    editGroupDayTurn: (state, action: PayloadAction<{ channelId: number; dayTurn: number }>) => {
+      const { channelId, dayTurn } = action.payload;
+      
+      const channel = state[channelId];
+
+      if (channel.type !== "group") return state
+
+      channel.dayTurn = dayTurn;
+      return state;
+    },
+
     removeMember: (
       state,
       action: PayloadAction<{
@@ -87,13 +105,62 @@ const channelsSlice = createSlice({
     ) => {
       const { channelId, visibility } = action.payload;
       const channel = state[channelId];
-      console.log("action", action.payload);
       
-
       if (channel && channel.type !== "group") return state;
-console.log(channel);
 
       channel.visibility = visibility;
+
+      return state;
+    },
+    addAdmin: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        memberId: number;
+      }>
+    ) => {
+      const { channelId, memberId } = action.payload;
+      const channel = state[channelId];
+
+      if (channel && channel.type !== "group") return state;
+
+      channel.admins.push(memberId);
+
+      return state;
+    },
+    addJoinRequest: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        id: number;
+        userId: number;
+      }>
+    ) => {
+      const { channelId, userId, id } = action.payload;
+      const channel = state[channelId];
+
+      if (channel && channel.type !== "group") return state;
+
+      channel.joinRequests.push({
+        id,
+        userId,
+      });
+
+      return state;
+    },
+    removeJoinRequest: (
+      state,
+      action: PayloadAction<{
+        channelId: number;
+        joinRequest: number;
+      }>
+    ) => {
+      const { channelId, joinRequest } = action.payload;
+      const channel = state[channelId];
+
+      if (channel && channel.type !== "group") return state;
+
+      channel.joinRequests = channel.joinRequests.filter((request) => request.id !== joinRequest);
 
       return state;
     }
@@ -103,10 +170,14 @@ console.log(channel);
 export const {
   addChannel,
   editGroupTitle,
+  editGroupDayTurn,
   removeMember,
   removeChannel,
   addMembers,
   changeVisibility,
+  addAdmin,
+  addJoinRequest,
+  removeJoinRequest,
 } = channelsSlice.actions;
 
 export default channelsSlice.reducer;

@@ -1,5 +1,5 @@
 import { trpc } from "../../utils/trpc";
-import { addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeMember } from "../slices/channelsSlice";
+import { addAdmin, addChannel, addMembers, changeVisibility, editGroupTitle, removeChannel, removeJoinRequest, removeMember, editGroupDayTurn } from "../slices/channelsSlice";
 import { Me } from "../slices/meSlice";
 import { addPosition, removeChannelNotification } from "../slices/notificationSlice";
 import { addUsers } from "../slices/usersSlice";
@@ -162,5 +162,63 @@ export const memberJoinEventFactory = ({
       channelId: payload.channelId,
       membersIds: [payload.userId]
     }));
+  };
+};
+
+interface PutAdminProps {
+  dispatch: AppDispatch
+}
+
+export const putAdminEventFactory = ({
+  dispatch,
+}: PutAdminProps) => {
+  return function event(payload: {
+    channelId: number;
+    memberId: number;
+  }) {
+    dispatch(addAdmin(payload))
+  }
+}
+
+interface CreateJoinRequestProps {
+  dispatch: AppDispatch
+}
+
+export const createJoinRequestEventFactory = ({
+  dispatch,
+}: CreateJoinRequestProps) => {
+  return function event(payload: {
+    channelId: number;
+    joinRequest: number;
+  }) {
+    dispatch(removeJoinRequest(payload));
+  };
+};
+
+interface AcceptJoinRequestProps {
+  dispatch: AppDispatch;
+}
+
+export const acceptJoinRequestEventFactory = ({
+  dispatch,
+}: AcceptJoinRequestProps) => {
+  return function event(payload: {
+    channelId: number;
+    joinRequest: number;
+  }) {
+    dispatch(removeJoinRequest(payload))
+  };
+};
+
+export const newGroupDayTurnFactory = ({
+  dispatch,
+}: {
+  dispatch: AppDispatch;
+}) => {
+  return function event(payload: {
+    channelId: number;
+    dayTurn: number;
+  }) {
+    dispatch(editGroupDayTurn(payload))
   };
 };

@@ -7,7 +7,7 @@ import {
 const LoadingContainer = styled.View`
   width: 100%;
   height: 100%;
-  background-color:white;
+  background-color:202E44;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,7 +17,7 @@ export default function Loading() {
 
   return (
     <LoadingContainer>
-      <MaterialIndicator color='#334055' size={40} />
+      <MaterialIndicator color='white' size={40} />
     </LoadingContainer>
   )
 }

@@ -1,20 +1,13 @@
-import ws from 'ws';
-import { IncomingMessage } from "http"
 import { prisma } from './db';
 import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import type { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone"
+import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify"
 import { Payload, verifyJwtToken } from './jwt';
 import { decode } from 'jsonwebtoken';
-import { NodeHTTPCreateContextFnOptions } from '@trpc/server/dist/adapters/node-http';
 import z from "zod"
 
-export const createContext = async ({
-  req,
-}:
-  | CreateHTTPContextOptions
-  | NodeHTTPCreateContextFnOptions<IncomingMessage, ws>) => {
+export const createContext = async ({ req }: CreateFastifyContextOptions) => {
   async function getUserFromHeader() {
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(" ")[1];
@@ -45,6 +38,8 @@ export const createContext = async ({
   }
 
   const user = await getUserFromHeader();
+
+  console.log(req.url);
 
   return {
     prisma,
@@ -113,11 +108,11 @@ export const userIsInChannel = protectedProcedure
       }
     })
 
+    console.log(path, channel?.id);
     if (!channel) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
   
-    console.log(path, channel.id);
 
     if (!channel.users.find(user => user.id === ctx.user.id)) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -131,13 +126,14 @@ export const userIsInChannel = protectedProcedure
     });
   })
 
-export const userIsAuthorOrSuperAdmin = userIsInChannel
+const userIsAuthorOrSuperAdminCheck = userIsInChannel
   .use(async ({ ctx, input, next }) => {
     if (ctx.user.admin) {
       return next({
         ctx: {
           prisma,
           user: ctx.user,
+          channel: undefined
         },
       });
     }
@@ -150,6 +146,14 @@ export const userIsAuthorOrSuperAdmin = userIsInChannel
         group: {
           select: {
             authorId: true,
+            Admin: {
+              where: {
+                id: ctx.user.id
+              },
+              select: {
+                id: true
+              }
+            }
           }
         }
       }
@@ -160,16 +164,60 @@ export const userIsAuthorOrSuperAdmin = userIsInChannel
     }
 
     if (channel.group?.authorId !== ctx.user.id) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+      return next({
+        ctx: {
+          prisma,
+          user: ctx.user,
+          channel
+        },
+      });
     }
 
     return next({
       ctx: {
         prisma,
         user: ctx.user,
+        channel: undefined
       },
     });
   });
+
+export const userIsAuthorOrSuperAdmin = userIsAuthorOrSuperAdminCheck.use(async ({ ctx, input, next }) => {
+  if (ctx.channel !== undefined) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      prisma,
+      user: ctx.user,
+    },
+  });
+});
+
+export const userIsAuthorOrSuperAdminOrAdmin = userIsAuthorOrSuperAdminCheck.use(
+  async ({ ctx, input, next }) => {
+    if (ctx.channel === undefined) {
+      return next({
+        ctx: {
+          prisma,
+          user: ctx.user,
+        },
+      });
+    }
+
+    if (ctx.channel && (ctx.channel as any).group?.Admin[0].id === ctx.user.id) {
+      return next({
+        ctx: {
+          prisma,
+          user: ctx.user,
+        },
+      });
+    }
+
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+);
 
 export const userHasAdminRights = userIsInChannel.use(async ({ ctx, input, next }) => {
   if (ctx.user.admin) {
@@ -264,3 +312,5 @@ export const groupIsPrivate = groupVisibility.use(async ({ ctx, next }) => {
 
   throw new TRPCError({ code: "UNAUTHORIZED" });
 });
+
+

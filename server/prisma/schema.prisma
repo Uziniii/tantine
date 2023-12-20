@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "foreignKeys"
 }
 
 model User {
@@ -24,27 +25,50 @@ model User {
   city           String
   state          String
   origin         String
+  profilePicture String?
 
-  messages Message[]
+  messages          Message[]
+  communityMessages CommunityMessage[] @relation("CommunityMessageRelation")
+
   channels Channel[]
 
   groupChannel GroupChannel[]
   groupAdmins  GroupChannel[] @relation("GroupAdmin")
 
-  joinRequests JoinRequest[]
+  joinRequests   JoinRequest[]
+  Carousel       Carousel[]    @relation("CarouselUsers")
+  CarouselWinner Carousel[]    @relation("WinnerUser")
 }
 
-model Message {
+model CommunityMessage {
   id        Int      @id @default(autoincrement())
   system    Boolean  @default(false)
   content   String
+  audioFile String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade, name: "CommunityMessageRelation")
   authorId  Int?
-  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  invite    Int?
+
+  @@index([authorId])
+}
+
+model Message {
+  id        Int       @id @default(autoincrement())
+  system    Boolean   @default(false)
+  content   String
+  audioFile String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  author    User?     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int?
+  channel   Channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId Int
   invite    Int?
+  carousel  Carousel?
+
+  @@index([channelId, authorId])
 }
 
 model Channel {
@@ -55,6 +79,8 @@ model Channel {
   privateId Int?
   group     GroupChannel?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int?
+
+  @@index([privateId, groupId])
 }
 
 model PrivateChannel {
@@ -65,27 +91,46 @@ model PrivateChannel {
 }
 
 model GroupChannel {
-  id          Int       @id @default(autoincrement())
-  title       String
-  description String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  author      User      @relation(fields: [authorId], references: [id])
-  authorId    Int
-  Channel     Channel[]
+  id             Int       @id @default(autoincrement())
+  title          String
+  description    String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  author         User      @relation(fields: [authorId], references: [id])
+  authorId       Int
+  Channel        Channel[]
   // public = 0 & private = 1
-  visibility  Int       @default(0)
+  visibility     Int       @default(0)
+  profilePicture String?
+  dayTurn        Int       @default(25)
+  updatedDayTurn DateTime?
 
   Admin       User[]        @relation("GroupAdmin")
   JoinRequest JoinRequest[]
+  Carousel    Carousel[]
+
+  @@index([visibility, dayTurn])
 }
 
 model JoinRequest {
   id        Int          @id @default(autoincrement())
   createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
   user      User         @relation(fields: [userId], references: [id])
   userId    Int
   group     GroupChannel @relation(fields: [groupId], references: [id])
   groupId   Int
+}
+
+model Carousel {
+  id        Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now())
+  message   Message      @relation(fields: [messageId], references: [id])
+  messageId Int          @unique()
+  users     User[]       @relation("CarouselUsers")
+  winner    User         @relation(fields: [winnerId], references: [id], name: "WinnerUser")
+  winnerId  Int          @unique()
+  group     GroupChannel @relation(fields: [groupId], references: [id])
+  groupId   Int
+
+  @@index([groupId])
 }

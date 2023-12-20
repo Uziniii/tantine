@@ -5,7 +5,6 @@ export const UserContainer = styled(TouchableOpacity)`
   display: flex;
   flex-direction: row;
   padding: 10px;
-  border: 1px solid #DBDBDB;
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
@@ -16,12 +15,11 @@ export const InfoContainer = styled.View`
   flex-direction: column;
 `;
 
-export const ProfilePictureContainer = styled.View<{ $size?: string }>`
-  margin-right: 10px;
+export const ProfilePictureContainer = styled.View<{ $size?: string, $margin?: string }>`
+  margin-right: ${({ $margin }) => $margin ?? "10px"};
   width: ${({ $size }) => $size ?? "50px"};
   height: ${({ $size }) => $size ?? "50px"};
-  border-radius: 200px;
-  background-color: #ccc;
+  border-radius: 999999px;
   display: flex;
   justify-content: center;
   align-items: center;

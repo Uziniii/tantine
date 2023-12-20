@@ -1,36 +1,21 @@
 import { createContext, router } from "./trpc";
-import { createHTTPServer } from "@trpc/server/adapters/standalone";
-import cors from "cors"
-import dotenv from "dotenv"
-import { userRouter } from "./router/user";
-import { channelRouter } from "./router/channel";
-import { EventEmitter, WebSocketServer } from "ws";
+import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
+import dotenv from "dotenv";
+import { userRouter } from "./router/user/user";
+import { channelRouter } from "./router/channel/channel";
+import fastify from "fastify";
+import fastifyWebsocket from "@fastify/websocket";
+import cors from "@fastify/cors";
+import ws, { ev } from "@/ws";
+import postAudioMessage from "./router/fastify/audioMessage/post";
+import getAudioMessage from "./router/fastify/audioMessage/get";
+import postProfilePicture from "./router/fastify/profilePicture/post";
+import getProfilePicture from "./router/fastify/profilePicture/get";
+import cron from "node-cron"
 import { prisma } from "./db";
-import { decode } from "jsonwebtoken";
-import { Payload, verifyJwtToken } from "./jwt";
-import { createMessageEvent } from "./events/message";
-import {
-  IMapUser,
-  addMemberSchema,
-  changeVisibilitySchema,
-  deleteGroupSchema,
-  memberJoinSchema,
-  messageSchema,
-  newGroupTitleSchema,
-  removeMemberSchema,
-} from "./events/schema";
-import z from "zod";
-import { sendFactory } from "./helpers/event";
-import {
-  addMembersEvent,
-  changeVisibilityEvent,
-  deleteGroupEvent,
-  memberJoinEvent,
-  newGroupTitleEvent,
-  removeMemberEvent,
-} from "./events/channel";
+import { randomInt } from "crypto";
 
-dotenv.config()
+dotenv.config();
 
 const appRouter = router({
   user: userRouter,
@@ -41,215 +26,175 @@ const appRouter = router({
 // NOT the router itself.
 export type AppRouter = typeof appRouter;
 
-const server = createHTTPServer({
-  createContext,
-  router: appRouter,
-  middleware: cors(),
-  onError({ error }) {
-    console.error(error);
+const server = fastify({
+  maxParamLength: 5000,
+  logger: true,
+});
+
+server.register(fastifyTRPCPlugin, {
+  prefix: "/trpc/",
+  trpcOptions: {
+    router: appRouter,
+    createContext,
   },
 });
 
-const users = new Map<string, IMapUser>();
-const idToTokens = new Map<string, Set<string>>();
+server.register(cors, {
+  origin: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Content-Type", "Authorization"],
+  strictPreflight: false,
+  // credentials: true,
+  maxAge: 86400,
+})
 
-function heartbeat(this: { isAlive: boolean }) {
-  this.isAlive = true;
-}
-const wss = new WebSocketServer({
-  server: server.server,
+server.register(require("@fastify/multipart"))
+
+server.register(fastifyWebsocket, {
+  options: {
+    maxPayload: 1048576,
+  },
 });
 
-wss.on("connection", async (ws) => {
-  console.log(`➕ Connection (${wss.clients.size})`);
+server.register(ws);
 
-  (ws as any).isAlive = true;
+// post audio message
+server.register(postAudioMessage);
 
-  ws.on("message", async (message) => {
-    if (message.toString() === "ping") {
-      ws.send(JSON.stringify({ event: "pong" }));
-      heartbeat.bind(ws as any)();
-      return;
-    }
+// get audio message
+server.register(getAudioMessage);
 
-    let parse = z
-      .object({
-        event: z.literal("init"),
-        payload: z.string(),
-      })
-      .safeParse(JSON.parse(message.toString()));
+// post profile picture
+server.register(postProfilePicture);
 
-    if (!parse.success) return;
+// get profile picture
+server.register(getProfilePicture);
 
-    const event = parse.data;
-    const token = event.payload;
+;(async () => {
+  try {
+    await server.listen({ port: 3000, host: "0.0.0.0" });
+    console.log("Server started");
+  } catch (err) {
+    server.log.error(err);
+    process.exit(1);
+  }
 
-    if (!token) {
-      ws.send(JSON.stringify({ error: "No token provided" }));
-      ws.terminate();
-      return;
-    }
+  // cron.schedule("*/1 * * * *", async () => {
+  cron.schedule("* */6 * * *", async () => {
+    console.log("Check wheel turn");
+    // date diff
+    const channels = await prisma.$queryRaw<{ id: number }[]>`
+      SELECT
+        ch.id
+      FROM
+        GroupChannel as gc
+        LEFT JOIN Carousel as c ON c.groupId = gc.id
+        RIGHT JOIN Channel as ch ON ch.groupId = gc.id
+      WHERE
+        c.createdAt IS NULL
+        AND (
+          (
+            gc.updatedDayTurn is not null
+            AND DAY(gc.updatedDayTurn) = DAY(NOW())
+            AND (
+              MONTH(gc.updatedDayTurn) = MONTH(NOW())
+              AND YEAR(gc.updatedDayTurn) = YEAR(NOW())
+            )
+            AND gc.dayTurn <= DAY(c.createdAt)
+            AND NOT (
+              MONTH(c.createdAt) = MONTH(NOW())
+              AND YEAR(c.createdAt) = YEAR(NOW())
+            )
+          )
+          OR gc.dayTurn = DAY(NOW())
+        )
+      GROUP BY
+        gc.id
+      ORDER BY
+        MAX(c.createdAt) asc;
+    `;
 
-    const jwt = decode(token) as Payload;
+    if (channels.length === 0) return;
 
-    if (!jwt) {
-      ws.send(JSON.stringify({ error: "Invalid token" }));
-      ws.terminate();
-      return;
-    }
-
-    const user = await prisma.user.findUnique({
+    const usersByChannel = await prisma.channel.findMany({
       where: {
-        id: jwt.id,
+        id: {
+          in: channels.map(channel => channel.id)
+        }
       },
       select: {
         id: true,
-        email: true,
-        name: true,
-        surname: true,
-        hashedPassword: true,
-      },
-    });
-
-    if (!user) {
-      ws.send(JSON.stringify({ error: "Invalid token" }));
-      ws.terminate();
-      return;
-    }
-
-    if (!verifyJwtToken(token, user.hashedPassword)) {
-      ws.send(JSON.stringify({ error: "Invalid token" }));
-      ws.terminate();
-      return;
-    }
-
-    const tokens = idToTokens.get(user.id.toString());
-
-    if (!tokens) {
-      idToTokens.set(user.id.toString(), new Set([token]));
-    } else {
-      idToTokens.set(user.id.toString(), tokens.add(token));
-    }
-
-    ws.once("close", (e, a) => {
-      console.log(e, a.toString());
-      
-      users.delete(token);
-
-      const tokens = idToTokens.get(user.id.toString());
-
-      if (!tokens) return;
-
-      tokens.delete(token);
-
-      if (tokens.size === 0) {
-        return idToTokens.delete(user.id.toString());
+        groupId: true,
+        users: {
+          select: {
+            id: true,
+          }
+        }
       }
-
-      idToTokens.set(user.id.toString(), tokens);
     });
 
-    users.set(token, {
-      id: user.id,
-      ws,
-    });
-  });
+    const winnersByChannel = usersByChannel
+      .map((channel) => ({
+        channelId: channel.id,
+        groupId: channel.groupId,
+        winnerId: channel.users[randomInt(0, channel.users.length)].id,
+        users: channel.users.map((user) => user.id),
+      }))
+    
+    for (const channel of winnersByChannel) {
+      if (channel.groupId === null) continue;
 
-  ws.once("close", () => {
-    console.log(`➖ Connection (${wss.clients.size})`);
-  });
-});
+      const carousel = await prisma.carousel.create({
+        data: {
+          winner: {
+            connect: {
+              id: channel.winnerId
+            }
+          },
+          group: {
+            connect: {
+              id: channel.groupId
+            }
+          },
+          message: {
+            create: {
+              content: "",
+              system: true,
+              channel: {
+                connect: {
+                  id: channel.channelId
+                }
+              }
+            }
+          },
+          users: {
+            connect: channel.users.map((user) => ({ id: user }))
+          }
+        },
+        select: {
+          message: {
+            select: {
+              id: true,
+              createdAt: true,
+              updatedAt: true,
+            }
+          }
+        }
+      })
 
-const interval = setInterval(function ping() {
-  wss.clients.forEach(function each(ws) {
-    if ((ws as any).isAlive === false) {
-      console.log("❌ Terminating");
-
-      return ws.terminate();
+      ev.emit("createMessage", {
+        id: carousel.message.id,
+        system: true,
+        content: "",
+        createdAt: carousel.message.createdAt,
+        updatedAt: carousel.message.updatedAt,
+        channelId: channel.channelId,
+        carousel: {
+          users: channel.users.map((user) => ({ id: user })),
+          winnerId: channel.winnerId,
+        }
+      })
     }
-
-    (ws as any).isAlive = false;
-    ws.ping();
-  });
-}, 30000);
-
-wss.on("close", function close() {
-  clearInterval(interval);
-});
-
-console.log("✅ WebSocket Server listening on ws://localhost:3000");
-
-process.on("SIGTERM", () => {
-  console.log("SIGTERM");
-  wss.close();
-});
-
-const sendToIds = sendFactory(idToTokens, users);
-
-export const ev = new EventEmitter();
-
-ev.on("createMessage", (message: z.infer<typeof messageSchema>) =>
-  createMessageEvent({
-    payload: message,
-    users,
-    idToTokens,
-    sendToIds,
-  })
-);
-
-ev.on("newGroupTitle", (payload: z.infer<typeof newGroupTitleSchema>) =>
-  newGroupTitleEvent({
-    payload,
-    users,
-    idToTokens,
-    sendToIds,
-  })
-);
-
-ev.on("removeMember", (payload: z.infer<typeof removeMemberSchema>) =>
-  removeMemberEvent({
-    payload,
-    users,
-    idToTokens,
-    sendToIds,
-  })
-);
-
-ev.on("addMembers", (payload: z.infer<typeof addMemberSchema>) =>
-  addMembersEvent({
-    payload,
-    users,
-    idToTokens,
-    sendToIds,
-  })
-);
-
-ev.on("deleteGroup", (payload: z.infer<typeof deleteGroupSchema>) => {
-  deleteGroupEvent({
-    payload,
-    users,
-    idToTokens,
-    sendToIds,
-  });
-});
-
-ev.on("changeVisibility", (payload: z.infer<typeof changeVisibilitySchema>) => {
-  changeVisibilityEvent({
-    payload,
-    users,
-    idToTokens,
-    sendToIds,
-  });
-});
-
-ev.on("memberJoin", (payload: z.infer<typeof memberJoinSchema>) => {
-  memberJoinEvent({
-    payload,
-    users,
-    idToTokens,
-    sendToIds,
-  })
-})
-
-server.listen(3000);
-console.log("Server started");
+  }, {runOnInit: true})
+})();

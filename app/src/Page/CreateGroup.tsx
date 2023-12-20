@@ -17,7 +17,7 @@ interface Props {
 
 const Wrapper = styled.View`
   height: 100%;
-  background-color: white;
+  background-color: #24252D;
 `
 
 export const SearchInput = styled.TextInput<{
@@ -29,15 +29,17 @@ export const SearchInput = styled.TextInput<{
   padding: 0 0 0 20px;
   margin: ${({ $margin }) => $margin ?? "20px 0 0 0"};
   border-radius: 9999px;
-  background-color: #202E44;
+  background-color: #333541;
   color: white;
   align-self: center;
+  align-self: center;
+  border-radius: 10px;
 `
 
 const ValidateGroup = styled(TouchableOpacity)`
   width:70px;
   height:70px;
-  background-color:#202E44;
+  background-color:#333541;
   border-radius: 30px;
   position:fixed;
   margin: 0 10px 40px 0;
@@ -88,7 +90,7 @@ export default function CreateGroup ({ navigation }: Props) {
       style={{ marginTop: 20 }}
       contentInsetAdjustmentBehavior="automatic"
       data={search === "" && Platform.OS === "android" ? [] : searchedUsers.data}
-      renderItem={({ item }) => <UserItem addedUsers={addedUsers} groupMode={true} userPress={onUserPress} item={item} />}
+      renderItem={({ item }) => <UserItem theme="dark" addedUsers={addedUsers} groupMode={true} userPress={onUserPress} item={item} />}
       keyExtractor={item => item.id.toString()}
     />
     <ValidateGroup onPress={onValidateGroupPress}>

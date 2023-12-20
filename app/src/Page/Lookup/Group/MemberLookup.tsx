@@ -9,6 +9,8 @@ import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
 import { langData } from "../../../data/lang/lang"
 import { Dimensions } from "react-native"
 import { trpc } from "../../../utils/trpc"
+import { useMemo } from "react"
+import GetUserPictureProfil from "../../../Components/GetUserPictureProfil"
 
 const width = Dimensions.get("window").width
 
@@ -21,12 +23,18 @@ export default function MemberLookup ({ navigation }: Props) {
   const route = useRoute<{ params: { id: string, channelId: string }, key: string, name: string }>()
   const user = useAppSelector(state => state.users[+route.params.id])
   const group = useAppSelector(state => state.channels[+route.params.channelId])
+  const isAdmin = useMemo(() => {
+    if (user === undefined || group.type !== "group") return false
+
+    return group.admins.includes(user.id)
+  }, [user, group])
   const me = useAppSelector(state => state.me)
   const removeMember = trpc.channel.group.removeMember.useMutation({
     onSuccess() {
       navigation.goBack()
     }
   })
+  const putAdmin = trpc.channel.group.putAdmin.useMutation()
 
   if (group.type !== "group" || me === null) return null
 
@@ -37,21 +45,54 @@ export default function MemberLookup ({ navigation }: Props) {
     })
   }
 
+  const onPutAdminPress = () => {
+    if (putAdmin.isLoading) return
+
+    putAdmin.mutate({
+      channelId: +route.params.channelId,
+      memberId: +route.params.id,
+    })
+  }
+
+  const onRemoveAdminPress = () => {
+    
+  }
+
   return <Container>
-    <ProfilePictureContainer $size="100px">
-      <FontAwesome name="user" size={50} color="black" />
+    <Group>
+      <FText $color="white" $size="24px">
+        {group.authorId === user.id 
+          ? lang.author 
+          : (
+            isAdmin
+              ? lang.admin 
+              : lang.member
+          )}
+      </FText>
+    </Group>
+    <ProfilePictureContainer $margin="0px" $size="200px">
+      <GetUserPictureProfil id={user.id} type="user" />
     </ProfilePictureContainer>
     <Group>
       <FText $color="white" $size="24px">{user.surname} {user.name}</FText>
       <FText $color="white" $size="16px">{user.email}</FText>
     </Group>
-    {(group.authorId === me.id && user.id !== me.id) && <>
+    {user.id !== me.id && (
       <Button $width={`${width * 0.8}px`}>
         <FText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.sendMessage}</FText>
       </Button>
+    )}
+    {(group.authorId === me.id && user.id !== me.id) && (
+      <Button onPress={isAdmin ? onRemoveAdminPress : onPutAdminPress} $width={`${width * 0.8}px`}>
+        <FText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+          {isAdmin ? lang.removeAdmin : lang.putAdmin}
+        </FText>
+      </Button>
+    )}
+    {(group.authorId !== user.id && user.id !== me.id && group.admins.includes(me.id)) && (
       <Button onPress={onRemovePress} $background="red" $width={`${width * 0.8}px`}>
         <FText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.remove}</FText>
       </Button>
-    </>}
+    )}
   </Container>
 }

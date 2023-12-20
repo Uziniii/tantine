@@ -58,7 +58,7 @@ const Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#202E44',
+    background: '#24252D',
   },
 }
 
@@ -111,11 +111,12 @@ function Base() {
     return trpc.createClient({
       links: [
         httpBatchLink<any>({
-          url: `http://${host}:3000`,
+          url: `http://${host}:3000/trpc/`,
           async headers() {
             if (!token) return {}
 
             return {
+              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`
             } as any
           },

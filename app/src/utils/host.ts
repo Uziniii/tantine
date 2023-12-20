@@ -11,3 +11,4 @@ let tempHost = manifest2 !== null
 // }
 
 export const host = tempHost;
+export const port = 3000; // 45376

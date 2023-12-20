@@ -6,7 +6,10 @@
     "esModuleInterop": true,
     "strict": true,
     "outDir": "dist",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
     "src", "src/events/schema.ts",

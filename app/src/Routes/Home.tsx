@@ -5,11 +5,18 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useAppSelector } from "../store/store";
 import { langData } from "../data/lang/lang";
 import { FontAwesome, Feather } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { MaterialIcons } from '@expo/vector-icons';
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ChannelList from "../Page/ChannelList";
 import Settings from "../Page/Settings";
-import styled from "styled-components/native"
+import styled from "styled-components/native";
+import Community from "../Page/Community";
+import { useEffect } from "react";
+
+interface Props {
+  navigation: NavigationProp<any>
+}
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +24,7 @@ const ButtonSearch = styled(TouchableOpacity)`
   width: 50px;
   height: 50px;
   border-radius: 10px;
-  background-color: #334055;
+  background-color: #333541;
   display: flex;
   align-items: center;
   justify-content:center;
@@ -26,82 +33,156 @@ const ButtonSearch = styled(TouchableOpacity)`
 export function Home() {
   const lang = useAppSelector(state => langData[state.language].tab)
 
-  return <Tab.Navigator screenOptions={{
-    headerShadowVisible: false,
-    tabBarStyle: {
-      height: '10%',
-      paddingBottom: 16,
-      backgroundColor: '#202E44',
-      borderTopWidth: 0
-    },
-    headerStyle: {
-      backgroundColor: "#202E44",
-      height: 150
-    },
-  }}>
-    <Tab.Screen
-      name="chat"
-      key={"chat"}
-      component={ChannelList}
-      options={{
-        tabBarIcon(props) {
-          return <FontAwesome name="comments" size={30} color={props.color} />
+  return (
+    <View style={{ flex: 1, backgroundColor: '#333541' }}>
+      <Tab.Navigator screenOptions={{
+        headerShadowVisible: false,
+        tabBarStyle: {
+          height: '10%',
+          width: '90%',
+          alignSelf: 'center',
+          marginTop: 20,
+          paddingBottom: 16,
+          backgroundColor: '#24252D',
+          borderTopWidth: 0,
+          borderRadius: 99990,
+          // borderWidth: 1,
+          // borderTopWidth: 1,
+          // borderTopColor: "#D4B216",
+          // borderColor: "#D4B216",
         },
-        tabBarLabel() {
-          return <FText $color='#FFFF' $size='12px'>{lang.chat}</FText>
+        headerStyle: {
+          backgroundColor: "#24252D",
+          height: 150
         },
-        // headerTitle() {
-        //   return <></>
-        // },
+      }}>
+        <Tab.Screen
+          name="chat"
+          key={"chat"}
+          component={ChannelList}
+          options={{
 
-        //style={{ marginLeft: 16}}
+            tabBarActiveTintColor: '#D4B216',
 
-        headerTitle() {
-          return <View>
-            <FText
-              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-              $size={"25px"}
-              $color='#FFF'
-            >
-              {lang.chat}
-            </FText>
-          </View>
-        },
-        headerRight() {
-          const navigation = useNavigation()
+            tabBarIcon(props) {
+              return <FontAwesome name="comments" size={30} color={props.color} />
+            },
+            tabBarLabel() {
+              return <FText $color='#FFFF' $size='12px'>{lang.chat}</FText>
+            },
+            headerTitleAlign: "center",
+            headerTitle() {
+              return <View>
+                <FText
+                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+                  $size={"25px"}
+                  $color='#FFF'
+                >
+                  {lang.chat}
+                </FText>
+              </View>
+            },
+            headerRight() {
+              const navigation = useNavigation()
 
-          return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginRight: 16 }}>
-            <ButtonSearch onPress={() => navigation.navigate("search" as never)}>
-              <Feather name="search" size={25} color={"#fff"} />
-            </ButtonSearch>
-          </View>
-        },
-      }}
-    />
-    <Tab.Screen
-      name='settings'
-      key={"settings"}
-      component={Settings}
-      options={{
-        tabBarIcon(props) {
-          return <FontAwesome name="gear" size={30} color={props.color} />
-        },
-        tabBarLabel(props) {
-          return <FText $color='#FFFF' $size='12px'>{lang.settings}</FText>
-        },
-        
-        headerTitle() {
-          return <View>
-            <FText
-              font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-              $size={"25px"}
-              $color='#FFF'
-            >
-              {lang.settings}
-            </FText>
-          </View>
-        },
-      }}
-    />
-  </Tab.Navigator>
+              return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginRight: 16 }}>
+                <ButtonSearch onPress={() => navigation.navigate("search" as never)}>
+                  <Feather name="search" size={25} color={"#fff"} />
+                </ButtonSearch>
+              </View>
+            },
+
+            headerLeft() {
+              const navigation = useNavigation()
+
+              return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginLeft: 16 }}>
+                <ButtonSearch onPress={() => navigation.navigate("createGroup" as never)}>
+                  <Feather name="plus" size={25} color={"#fff"} />
+                </ButtonSearch>
+              </View>
+            }
+          }}
+        />
+        <Tab.Screen
+          name='community'
+          key={"community"}
+          component={({ navigation }: Props) => {
+            console.log("render")
+
+            useEffect(() => {
+              console.log("useEffect")
+
+              if (navigation.isFocused()) {
+                navigation.reset({
+                  index: 1,
+                  key: "stack-1",
+                  routes: [
+                    {
+                      name: "home"
+                    },
+                    {
+                      name: "communityScreen"
+                    },
+                  ],
+                  type: "stack"
+                })
+                // console.log(navigation.getState());
+                // navigation.navigate("communityScreen")
+              }
+            }, [])
+
+            return null
+          }}
+          options={{
+            unmountOnBlur: true,
+            tabBarActiveTintColor: '#D4B216',
+            tabBarIcon(props) {
+              return <MaterialIcons name="groups" size={30} color={props.color} />
+            },
+            tabBarLabel(props) {
+              return <FText $color='#FFFF' $size='12px'>Communauté</FText>
+            },
+            headerTitle() {
+              return <View>
+                <FText
+                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+                  $size={"25px"}
+                  $color='#FFF'
+                >
+                  Communauté
+                </FText>
+              </View>
+            },
+          }}
+        />
+        <Tab.Screen
+          name='settings'
+          key={"settings"}
+          component={Settings}
+          options={{
+            tabBarActiveTintColor: '#D4B216',
+            tabBarIcon(props) {
+              return <FontAwesome name="gear" size={30} color={props.color} />
+            },
+            tabBarLabel(props) {
+              return <FText $color='#FFFF' $size='12px'>{lang.settings}</FText>
+            },
+
+            headerTitle() {
+              return <View>
+                <FText
+                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+                  $size={"25px"}
+                  $color='#FFF'
+                >
+                  {lang.settings}
+                </FText>
+              </View>
+            },
+          }}
+        />
+      </Tab.Navigator>
+      <View style={{ height: 40 }} />
+    </View>
+  );
 }

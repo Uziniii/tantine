@@ -62,7 +62,8 @@ export default function UserSearch({ search, isSearchEmpty }: Props) {
           title: data.title,
           description: data.description,
           authorId: data.authorId,
-          visibility: data.visibility
+          visibility: data.visibility,
+          admins: data.admins,
         }))
       } else {
         dispatch(addChannel({
@@ -101,13 +102,12 @@ export default function UserSearch({ search, isSearchEmpty }: Props) {
   return <>
     <FlatList
       style={{
-        borderTopWidth: 1,
-        borderTopColor: "#ccc",
-        backgroundColor: 'white'
+        paddingTop: 20,
+        backgroundColor: '#24252D'
       }}
       contentInsetAdjustmentBehavior="automatic"
       data={isSearchEmpty && Platform.OS === "android" ? [] : usersSearch.data}
-      renderItem={({ item }) => <UserItem addedUsers={undefined} groupMode={false} userPress={onUserPress} item={item} />}
+      renderItem={({ item }) => <UserItem addedUsers={undefined} groupMode={false} theme="dark" userPress={onUserPress} item={item} />}
       keyExtractor={item => item.id.toString()}
     />
   </>

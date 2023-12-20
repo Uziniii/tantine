@@ -15,15 +15,37 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
 import styled from "styled-components/native";
 import { setPositions } from "../store/slices/notificationSlice";
-import CreateGroupButton from "../Components/CreateGroupButton";
 import ChannelItem from "../Components/ChannelItem";
 import Loading from "../Components/Loading";
+import { FText } from "../Components/FText";
+import { langData } from "../data/lang/lang";
 
 const Stack = createNativeStackNavigator();
 
 interface Props {
   navigation: NavigationProp<any>;
 }
+
+const ContainerTitle = styled.View`
+  padding: 10px 0 20px 15px;
+`;
+
+const Container = styled.View`
+  height: 100%;
+  background-color: #333541;
+  border-top-right-radius: 50px;
+  border-top-left-radius: 50px;
+  position: fixed;
+  bottom: 0;
+  padding: 20px 10px 0 10px;
+`
+
+const ContainerPictureProfil = styled.View`
+  width: 200px;
+  height: 200px;
+  background-color:white;
+  border-radius: 99999px;
+`
 
 export default function ChannelList({ navigation }: Props) {
   const dispatch = useAppDispatch();
@@ -32,7 +54,7 @@ export default function ChannelList({ navigation }: Props) {
     key: string;
     name: string;
   }>();
-  const channels = trpc.channel.retrieveRecentChannel.useQuery(undefined, {
+  const channels = trpc.channel.retrieveRecentChannels.useQuery(undefined, {
     staleTime: Infinity,
   });
   const meQuery = trpc.user.me.useQuery(undefined, {
@@ -111,18 +133,8 @@ export default function ChannelList({ navigation }: Props) {
   </Stack.Navigator>
 }
 
-const Container = styled.View`
-  height: 100%;
-  background-color: white;
-  border-top-right-radius: 50px;
-  border-top-left-radius: 50px;
-  position: fixed;
-  bottom: 0;
-  //margin: 50px 0 0 0;
-  padding: 20px 10px 0 10px;
-`
-
 function List() {
+  const lang = useAppSelector((state) => langData[state.language].channelList);
   const channels = useAppSelector((state) => {
     return state.notification.positions.map(id => state.channels[id])
   });
@@ -136,11 +148,14 @@ function List() {
   };
 
   return <Container>
+    <ContainerTitle>
+      <FText $color="white" $size="18px">{lang.recentMessage}</FText>
+    </ContainerTitle>
     <FlatList
       data={channels}
       renderItem={({ item }) => {
         if (item?.id === undefined) return null;
-
+        
         return (
           <TouchableOpacity onPress={() => onChannelPress(item.id)}>
             <ChannelItem item={item} me={me} />
@@ -149,6 +164,5 @@ function List() {
       }}
       keyExtractor={(item) => item.id.toString()}
     />
-    <CreateGroupButton/>
   </Container>
 }

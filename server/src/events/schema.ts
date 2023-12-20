@@ -1,4 +1,4 @@
-import type { Message } from "../../../schema"
+import type { CommunityMessage, Message } from "../../../schema"
 import { WebSocket } from "ws";
 import z from "zod"
 import { sendFactory } from "../helpers/event";
@@ -28,6 +28,35 @@ export const memberJoinSchema = z.object({
   channelId: z.number(),
   userId: z.number(),
 })
+export const putAdminSchema = removeMemberSchema;
+export const newGroupPictureSchema = z.object({
+  channelId: z.number(),
+  profilePicture: z.string(),
+})
+export const newProfilePictureSchema = z.object({
+  userId: z.number(),
+  profilePicture: z.string(),
+})
+export const communityMessageSchema = z.custom<CommunityMessage>()
+export const sendJoinRequestSchema = z.object({
+  id: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  userId: z.number(),
+  groupId: z.number(),
+})
+export const acceptJoinRequestSchema = z.object({
+  channelId: z.number(),
+  joinRequest: z.number(),
+})
+export const newGroupDayTurnSchema = z.object({
+  channelId: z.number(),
+  dayTurn: z.number(),
+})
+export const newDescriptionSchema = z.object({
+  channelId: z.number(),
+  description: z.string().trim().max(500),
+})
 
 const allSchema = z.union([
   messageSchema,
@@ -37,6 +66,14 @@ const allSchema = z.union([
   deleteGroupSchema,
   changeVisibilitySchema,
   memberJoinSchema,
+  putAdminSchema,
+  newGroupPictureSchema,
+  newProfilePictureSchema,
+  communityMessageSchema,
+  sendJoinRequestSchema,
+  acceptJoinRequestSchema,
+  newGroupDayTurnSchema,
+  newDescriptionSchema,
 ]);
 
 export interface IMapUser {
