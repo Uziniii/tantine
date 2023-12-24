@@ -58,7 +58,7 @@ const Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#24252D',
+    background: "#F4F4F4" //'#24252D',
   },
 }
 
@@ -146,7 +146,7 @@ function Base() {
           <Auth />
         </NavigationContainer>
       }
-      <StatusBar style={"light"} hidden={false} translucent={false}/>
+      <StatusBar style={""} hidden={false} translucent={false}/>
     </QueryClientProvider>
   </trpc.Provider>
 }
