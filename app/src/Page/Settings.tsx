@@ -12,7 +12,7 @@ import { getPicture } from "../Components/GetUserPictureProfil";
 import UploadPictureProfil from "../Components/UploadPictureProfil";
 import { useEffect, useState } from "react";
 import ky from "ky";
-import { host } from "../utils/host";
+import { host, port } from "../utils/host";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -67,7 +67,7 @@ export default function Settings ({ navigation }: Props) {
       name: `image.${extension}`,
     } as any);
 
-    await ky.post(`http://${host}:3000/profilePicture/`, {
+    await ky.post(`http://${host}:${port}/profilePicture/`, {
       headers: {
         Authorization: `Bearer ${me.token}`,
       },

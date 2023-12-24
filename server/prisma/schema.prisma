@@ -12,20 +12,20 @@ datasource db {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
-  email          String   @unique
-  name           String
-  surname        String
-  gender         Int
-  salt           String
-  hashedPassword String
-  createdAt      DateTime @default(now())
-  admin          Boolean  @default(false)
-  country        String
-  city           String
-  state          String
-  origin         String
-  profilePicture String?
+  id                        Int                  @id @default(autoincrement())
+  email                     String               @unique
+  name                      String
+  surname                   String
+  gender                    Int
+  salt                      String
+  hashedPassword            String
+  createdAt                 DateTime             @default(now())
+  admin                     Boolean              @default(false)
+  location                  Unsupported("point")
+  locationDisplayName       String
+  originLocation            Unsupported("point")
+  originLocationDisplayName String
+  profilePicture            String?
 
   messages          Message[]
   communityMessages CommunityMessage[] @relation("CommunityMessageRelation")

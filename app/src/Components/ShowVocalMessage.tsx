@@ -3,7 +3,7 @@ import { Audio, AVPlaybackStatus, InterruptionModeAndroid } from 'expo-av';
 import styled from 'styled-components/native';
 import { TouchableOpacity, Animated } from 'react-native';
 import * as FileSystem from 'expo-file-system';
-import { host } from '../utils/host';
+import { host, port } from '../utils/host';
 import { useAppSelector } from '../store/store';
 import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
@@ -56,7 +56,7 @@ export default function ShowVocalMessage({ channelId, audioFile }: ShowRecordVoi
 
   const loadSound = async () => {
     const soundObject = new Audio.Sound();
-    const audioFileUrl = `http://${host}:3000/audioMessage/${channelId}/${audioFile}`;
+    const audioFileUrl = `http://${host}:${port}/audioMessage/${channelId}/${audioFile}`;
 
     if (!token) return console.log('No token');
 

@@ -30,7 +30,8 @@
     "loginTitle": "Welcome back!",
     "loginSub": "Enter your login details",
     "registerTitle": "Register",
-    "registerSub": "Create your account to join the Tantine community"
+    "registerSub": "Create your account to join the Tantine community",
+    "ignore": "Ignore"
   },
   "dropdown": {
     "search": "Search",

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { Image, View } from 'react-native';
-import { host } from '../utils/host';
+import { host, port } from '../utils/host';
 import * as FileSystem from 'expo-file-system';
 import { useAppSelector } from '../store/store';
 import styled from 'styled-components/native';
@@ -25,7 +25,7 @@ const DefaultProfilePictureContainer = styled.View`
 `
 
 export const getPicture = async (type: "user" | "channel", id: number, token: string, setImage: React.Dispatch<React.SetStateAction<string | undefined>>) => {
-  const audioFileUrl = `http://${host}:3000/profilePicture/${type}/${id}`;
+  const audioFileUrl = `http://${host}:${port}/profilePicture/${type}/${id}`;
 
   FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}${type}/profilePicture/`, { intermediates: true });
   const fileUri = `${FileSystem.documentDirectory}${type}/profilePicture/${id}.jpg`;

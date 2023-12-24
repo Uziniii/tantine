@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { FText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { langData } from "../data/lang/lang";
-import Register from "../Page/Auth/Register.tsx";
+import Register from "../Page/Auth/Register";
 import Login from "../Page/Auth/Login";
 import LangSelect from "../Page/Auth/LangSelect";
 import { useAppSelector } from "../store/store";

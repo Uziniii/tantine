@@ -4,7 +4,7 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
-import { host } from '../utils/host';
+import { host, port } from '../utils/host';
 import { useAppSelector } from '../store/store';
 import ky from 'ky';
 
@@ -64,7 +64,7 @@ export default function RecordVoiceMessage({ channelId }: Props): JSX.Element {
         name: 'audio.m4a',
       } as any);
       
-      await ky.post(`http://${host}:3000/create/audioMessage/${channelId}`, {
+      await ky.post(`http://${host}:${port}/create/audioMessage/${channelId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

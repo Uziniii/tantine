@@ -30,7 +30,8 @@
     "loginTitle": "Ravis de vous revoir !",
     "loginSub": "Entrez vos identifiants pour vous connecter",
     "registerTitle": "S'inscrire",
-    "registerSub": "Crééez votre compte pour rejoindre la communauté Tantine"
+    "registerSub": "Crééez votre compte pour rejoindre la communauté Tantine",
+    "ignore": "Ignorer"
   },
   "dropdown": {
     "search": "Rechercher",

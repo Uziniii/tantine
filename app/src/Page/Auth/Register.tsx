@@ -1,28 +1,487 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import NameSurnamePage from "./Register/NameSurnamePage";
-import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { View } from "react-native";
+import { trpc } from '../../utils/trpc';
+import { Pressable, KeyboardAvoidingView, Platform, Dimensions, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import z from "zod"
+import TitleSubAuth from '../../Components/TitleSubAuth';
+import styled from 'styled-components/native';
+import { TextInput, renderInput, showError } from "../../utils/formHelpers"
+import { useInputsReducer } from '../../hooks/inputsReducer';
+import { FText } from '../../Components/FText';
+import { NavigationProp } from '@react-navigation/native';
+import { Container, Form, InputGroup, BottomContainer, Button } from "../css/auth.css"
+import { useEffect, useMemo, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { setLogin } from '../../store/slices/loginSlice';
+import { ScrollView } from 'react-native-gesture-handler';
+import DropdownCountry from '../../Components/DropdownCountry';
+import { langData, replace } from '../../data/lang/lang';
+import DropdownGender from '../../Components/DropdownGender';
+import { isKeyboard } from '../../hooks/isKeyboard';
+import { NextButton } from './LangSelect';
+import { FontAwesome } from '@expo/vector-icons';
+import UploadPictureProfil from '../../Components/UploadPictureProfil';
+import ky from 'ky';
+import { host, port } from '../../utils/host';
+import debounce from 'lodash.debounce';
+interface Props {
+  navigation: NavigationProp<any>;
+}
 
-const Stack = createNativeStackNavigator();
+type Location = {
+  displayName: string;
+  lat: string;
+  lon: string;
+} | undefined
 
-export default function Register() {
-  return <Stack.Navigator>
-    <Stack.Screen
-      name="nameSurname"
-      component={NameSurnamePage}
-      options={{
-        headerTitle: "",
-        headerStyle: {
-          backgroundColor: "#F4F4F4"
-        },
-        
-        headerLeft() {
-          const navigation = useNavigation();
+const inputWidth = Dimensions.get("window").width * 0.4 - 8 + "px"
 
-          return <AntDesign onPress={() => navigation.goBack()} name="arrowleft" size={24} color="black" />
-        },
-      }}
-    />
-  </Stack.Navigator>
+const ButtonBottomContainer = styled.View`
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  position:relative;
+  bottom:0;
+`;
+
+const PlaceButton = styled.Pressable`
+  display:flex;
+  flex-direction:row;
+  width:100%;
+  /* height:48px; */
+  border-radius:8px;
+  border:solid 1px #D4B216;
+  margin-top:20px;
+  padding: 4px 10px;
+`;
+
+export default function Register({ navigation }: Props) {
+  const dispatch = useAppDispatch()
+  const lang = useAppSelector(state => {
+    return {
+      ...langData[state.language].auth,
+      originCountryPlaceholder: langData[state.language].dropdown.originCountryPlaceholder,
+      next: langData[state.language].langSelect.next,
+    }
+  })
+  const isKeyboardOpen = isKeyboard()
+  const [phase, setPhase] = useState<1 | 2 | 3 | 4 | 5>(1)
+
+  const createUser = trpc.user.create.useMutation({
+    async onSuccess(data) {
+      await AsyncStorage.setItem("token", data)
+    
+      if (image) {
+        const extension = image.split(".").pop()
+  
+        const formData = new FormData()
+        formData.append('audio', {
+          uri: image,
+          type: `image/${extension}`, 
+          name: `image.${extension}`,
+        } as any);
+  
+        await ky.post(`http://${host}:${port}/profilePicture/`, {
+          headers: {
+            Authorization: `Bearer ${data}`,
+          },
+          body: formData,
+        })
+      }
+
+      dispatch(setLogin(true))
+    },
+    onError(err) {
+      if (err.message === "EMAIL_ALREADY_USED") {
+        setAlreadyUsedEmail(true)
+      }
+    }
+  })
+
+  const [inputs, setInputs] = useInputsReducer([
+    "name",
+    "surname",
+    "gender",
+    // "country",
+    // "state",
+    // "city",
+    "origin",
+    "email",
+    "password",
+    "passwordConfirm",
+  ])
+  const [lastFocus, setLastFocus] = useState("")
+  const [alreadyUsedEmail, setAlreadyUsedEmail] = useState(false)
+
+  const sendRegisterData = async () => {
+    createUser.mutate({
+      email: inputs.email.input,
+      password: inputs.password.input,
+      name: inputs.name.input,
+      surname: inputs.surname.input,
+      gender: +inputs.gender.input as 1 | 2 | 3,
+      countryOfResidence: inputs.country.input,
+      state: inputs.state.input,
+      city: inputs.city.input,
+      originCountry: inputs.origin.input,
+    })
+  }
+
+  const firstPhaseVeify = useMemo(() => {
+    return [inputs.name, inputs.surname, inputs.gender, /** inputs.country, inputs.origin, inputs.state, inputs.city **/].every(x => x.error === undefined)
+  }, [inputs.name, inputs.surname, inputs.gender, /** inputs.country, inputs.origin, inputs.state, inputs.city **/])
+
+  const [image, setImage] = useState<string | undefined>(undefined)
+
+  const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const isSearchEmpty = useMemo(() => search.length === 0, [search]);
+
+  const debouncedResults = useMemo(() => {
+    return debounce((text) => {
+      setSearch(text);
+    }, 300);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      debouncedResults.cancel();
+    };
+  }, [debouncedResults]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await ky.get(
+          `https://nominatim.openstreetmap.org/search.php?q=${search}&format=jsonv2&addressdetails=1`
+        );
+        setSearchResults(await response.json());
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+      setLoading(false);
+    };
+
+    if (!isSearchEmpty) {
+      fetchData();
+    } else {
+      setSearchResults([]);
+    }
+  }, [search, isSearchEmpty]);
+
+  const [location, setLocation] = useState<Location>(undefined)
+  const [originLocation, setOriginLocation] = useState<Location>(undefined)
+
+  const onLocationChange = (text: string) => {
+    debouncedResults(text);
+    setLocation(undefined)
+  };
+
+  const onOriginLocationChange = (text: string) => {
+    debouncedResults(text);
+    setOriginLocation(undefined)
+  }
+
+  return <View>
+    <TitleSubAuth title={lang.registerTitle} sub={lang.registerSub} />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "position"}>
+      <ScrollView
+        // automaticallyAdjustKeyboardInsets
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Container style={{ justifyContent: "flex-start"}}>
+          <Form>
+            {phase === 1 && <>
+              <InputGroup>
+                {renderInput({
+                  setInputs,
+                  inputs,
+                  parser:
+                    z.string()
+                      .trim()
+                      .min(2, { message: replace(lang.error.nameSurnameMin, lang.surname.toLowerCase()) }),
+                  state: "surname",
+                  maxLength: 18,
+                  $width: inputWidth,
+                  onFocus() {
+                    setLastFocus("surname")
+                  },
+                  label: lang.surname
+                })}
+
+                {renderInput({
+                  setInputs,
+                  inputs,
+                  parser: 
+                    z.string()
+                      .trim()
+                      .min(2, { message: replace(lang.error.nameSurnameMin, lang.name.toLowerCase()) }),
+                  state: "name",
+                  label: lang.name,
+                  maxLength: 32,
+                  $width: inputWidth,
+                  onFocus() {
+                    setLastFocus("name")
+                  },
+                })}
+              </InputGroup>
+
+              {showError(lastFocus === "name" ? inputs.name : inputs.surname)}
+
+              <DropdownGender
+                value={+inputs.gender?.input}
+                setValue={(gender) => {
+                  setInputs({
+                    key: "gender",
+                    input: gender.toString(),
+                    parser: z.string(),
+                  })
+                }}
+              />
+
+              {/* <DropdownCountry
+                value={inputs.country?.input || ""}
+                setValue={(country) => {
+                  setInputs({
+                    key: "country",
+                    input: country,
+                    parser: z.string()
+                  })
+                }}
+              />
+
+              <DropdownCountry
+                placeholder={lang.originCountryPlaceholder}
+                value={inputs.origin?.input || ""}
+                setValue={(origin) => {
+                  setInputs({
+                    key: "origin",
+                    input: origin,
+                    parser: z.string()
+                  })
+                }}
+              />
+              
+              {renderInput({
+                setInputs,
+                inputs,
+                parser:
+                  z.string()
+                    .trim()
+                    .min(2, { message: lang.error.stateMin }),
+                state: "state",
+                label: lang.state,
+                maxLength: 48,
+              })}
+              {showError(inputs.state)}
+
+              {renderInput({
+                setInputs,
+                inputs,
+                parser:
+                  z.string()
+                    .trim()
+                    .min(2, { message: lang.error.cityMin }),
+                state: "city",
+                label: lang.city,
+                maxLength: 48,
+              })} */}
+              {showError(inputs.city)}
+
+              <NextButton disabled={!firstPhaseVeify} onPress={() => setPhase(2)} style={{ marginTop: 0 }}>
+                <FText $color="white" >{lang.next}</FText>
+                <FontAwesome name="arrow-right" size={16} color={"white"} />
+              </NextButton>
+            </>}
+
+            {phase === 2 && <>
+              <FText $color='white'>
+                Entrez votre ville ou votre pays
+              </FText>
+              
+              <TextInput
+                value={location?.displayName}
+                onChangeText={onLocationChange}
+                placeholder='Location'
+              />
+
+              {!loading && location === undefined && searchResults.length > 0 && (
+                <ScrollView>
+                  {searchResults.map((item: any) => (
+                    <PlaceButton
+                      key={item.place_id}
+                      onPress={() => {
+                        setLocation({
+                          displayName: item.display_name,
+                          lat: item.lat,
+                          lon: item.lon,
+                        })
+                      }}
+                    >
+                      <FText $color='white'>{item.display_name}</FText>
+                    </PlaceButton>
+                  ))}
+                </ScrollView>
+              )}
+
+              <ButtonBottomContainer>
+                <NextButton onPress={() => setPhase(1)} $width={inputWidth} style={{ marginTop: 0 }}>
+                  <FText $color="white">{lang.back}</FText>
+                  <FontAwesome name="arrow-left" size={16} color={"white"} />
+                </NextButton>
+                <NextButton $width={inputWidth} disabled={location === undefined} onPress={() => {
+                  setPhase(3)
+                  setSearchResults([])
+                }} style={{ marginTop: 0 }}>
+                  <FText $color="white" >{lang.next}</FText>
+                  <FontAwesome name="arrow-right" size={16} color={"white"} />
+                </NextButton>
+              </ButtonBottomContainer>
+            </>}
+
+            {phase === 3 && <>
+              <FText $color='white'>
+                Entrez votre pays d'origine
+              </FText>
+
+              <TextInput
+                value={originLocation?.displayName}
+                onChangeText={onOriginLocationChange}
+                placeholder='Location'
+              />
+
+              {!loading && originLocation === undefined && searchResults.length > 0 && (
+                <ScrollView>
+                  {searchResults.map((item: any) => (
+                    <PlaceButton
+                      key={item.place_id}
+                      onPress={() => {
+                        setOriginLocation({
+                          displayName: item.display_name,
+                          lat: item.lat,
+                          lon: item.lon,
+                        })
+                      }}
+                    >
+                      <FText $color='white'>{item.display_name}</FText>
+                    </PlaceButton>
+                  ))}
+                </ScrollView>
+              )}
+
+              <ButtonBottomContainer>
+                <NextButton onPress={() => {
+                  setPhase(2)
+                  setSearchResults([])
+                }} $width={inputWidth} style={{ marginTop: 0 }}>
+                  <FText $color="white">{lang.back}</FText>
+                  <FontAwesome name="arrow-left" size={16} color={"white"} />
+                </NextButton>
+                <NextButton $width={inputWidth} disabled={location === undefined} onPress={() => setPhase(4)} style={{ marginTop: 0 }}>
+                  <FText $color="white" >{lang.next}</FText>
+                  <FontAwesome name="arrow-right" size={16} color={"white"} />
+                </NextButton>
+              </ButtonBottomContainer>
+            </>}
+
+            {phase === 4 && <>
+              <UploadPictureProfil setImage={setImage} image={image} />
+            
+              <ButtonBottomContainer>
+                <NextButton onPress={() => setPhase(3)} $width={inputWidth} style={{ marginTop: 0 }}>
+                  <FText $color="white">{lang.back}</FText>
+                  <FontAwesome name="arrow-left" size={16} color={"white"} />
+                </NextButton>
+                <NextButton $width={inputWidth} onPress={() => setPhase(5)} style={{ marginTop: 0 }}>
+                  <FText $color="white" >{image === undefined ? lang.ignore : lang.next}</FText>
+                  <FontAwesome name="arrow-right" size={16} color={"white"} />
+                </NextButton>
+              </ButtonBottomContainer>
+            </>}
+
+            {phase === 5 && <>
+              {renderInput({
+                setInputs,
+                inputs,
+                parser: 
+                  z.string()
+                    .trim()
+                    .email({ message: lang.error.emailInvalid }),
+                state: "email",
+                label: lang.email,
+                inputMode: "email",
+                maxLength: 200,
+                onChangeText() {
+                  setAlreadyUsedEmail(false)
+                },
+              })}
+              {showError(
+                inputs.email?.error
+                  ? inputs.email
+                  : alreadyUsedEmail
+                    ? { error: lang.error.emailAlreadyExists } 
+                    : undefined 
+              )}
+
+              {renderInput({
+                setInputs,
+                inputs,
+                parser: 
+                  z.string()
+                    .trim()
+                    .min(8, { message: lang.error.passwordMin }),
+                state: "password",
+                label: lang.password,
+                maxLength: 64,
+                secureTextEntry: true,
+              })}
+              {showError(inputs.password)}
+
+              {renderInput({
+                setInputs,
+                inputs,
+                parser: 
+                  z.string()
+                    .trim()
+                    .refine((val) => val === inputs.password.input, { message: lang.error.passwordNotMatch }),
+                state: "passwordConfirm",
+                label: lang.confirmPassword,
+                maxLength: 64,
+                secureTextEntry: true,
+              })}
+              {showError(inputs.passwordConfirm)}
+
+              <ButtonBottomContainer>
+                <NextButton onPress={() => setPhase(2)} $width={inputWidth} style={{ marginTop: 0 }}>
+                  <FText $color="white">{lang.back}</FText>
+                  <FontAwesome name="arrow-left" size={16} color={"white"} />
+                </NextButton>
+                <Button
+                  $background='#333541'
+                  $width={inputWidth}
+                  // disabled={!Object.values(inputs).every(x => x.error === undefined) || Object.values(inputs).length <= 0}
+                  onPress={sendRegisterData}>
+                  <FText $color='white'>{lang.register}</FText>
+                </Button>
+              </ButtonBottomContainer>
+            </>}
+          </Form>
+          {!isKeyboardOpen && (<>
+            {/*  <BottomContainer>
+              <FText $color='white' $size='18px'>
+                {lang.alreadyHaveAccount}
+              </FText>
+              <Pressable onPress={() => navigation.navigate("login")}>
+                <FText $size='18px' $color='#575BFD'>{lang.login}</FText>
+              </Pressable>
+            </BottomContainer> */}
+          </>)}
+        </Container>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </View>
 }
