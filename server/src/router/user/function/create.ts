@@ -7,6 +7,7 @@ import { countryType, genderType, trimMin } from "../schema";
 import { publicProcedure } from "../../../trpc";
 
 const location = z.object({
+  displayName: z.string().max(400),
   lat: z.string(),
   lon: z.string(),
 });
@@ -19,9 +20,7 @@ export const create = publicProcedure
       gender: genderType,
       email: z.string().trim().max(200).toLowerCase().email(),
       password: z.string().min(8).max(64),
-      locationDislayName: z.string().max(400),
       location: location,
-      originLocationDisplayName: z.string().max(400),
       originLocation: location,
     })
   )
@@ -30,7 +29,7 @@ export const create = publicProcedure
     const [salt, hashedPassword] = hashPassword(input.password);
 
     try {
-      const user = await ctx.prisma.$queryRaw`
+      const userId = await ctx.prisma.$executeRaw`
         INSERT INTO User (
           email,
           \`name\`,
@@ -49,25 +48,25 @@ export const create = publicProcedure
           ${input.gender},
           ${salt},
           ${hashedPassword},
-          ST_GeomFromText('POINT(${input.location.lon} ${input.location.lat})'),
-          ${input.locationDislayName},
-          ST_GeomFromText('POINT(${input.originLocation.lon} ${input.originLocation.lat})'),
-          ${input.originLocationDisplayName}
-        )
+          ST_GeomFromText('POINT(1 1)'),
+          ${input.location.displayName},
+          ST_GeomFromText('POINT(1 1)'),
+          ${input.originLocation.displayName}
+        );
       `;
-      console.log(user);
-      
 
       return generateAccessToken(
         {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          surname: user.surname,
+          id: userId,
+          email: input.email,
+          name: input.name,
+          surname: input.surname,
         },
         hashedPassword
       );
     } catch (error) {
+      console.log(error);
+      
       if (
         error instanceof PrismaClientKnownRequestError &&
         error.code === "P2002"

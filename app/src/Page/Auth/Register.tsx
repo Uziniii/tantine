@@ -112,20 +112,6 @@ export default function Register({ navigation }: Props) {
   const [lastFocus, setLastFocus] = useState("")
   const [alreadyUsedEmail, setAlreadyUsedEmail] = useState(false)
 
-  const sendRegisterData = async () => {
-    createUser.mutate({
-      email: inputs.email.input,
-      password: inputs.password.input,
-      name: inputs.name.input,
-      surname: inputs.surname.input,
-      gender: +inputs.gender.input as 1 | 2 | 3,
-      countryOfResidence: inputs.country.input,
-      state: inputs.state.input,
-      city: inputs.city.input,
-      originCountry: inputs.origin.input,
-    })
-  }
-
   const firstPhaseVeify = useMemo(() => {
     return [inputs.name, inputs.surname, inputs.gender, /** inputs.country, inputs.origin, inputs.state, inputs.city **/].every(x => x.error === undefined)
   }, [inputs.name, inputs.surname, inputs.gender, /** inputs.country, inputs.origin, inputs.state, inputs.city **/])
@@ -182,6 +168,18 @@ export default function Register({ navigation }: Props) {
   const onOriginLocationChange = (text: string) => {
     debouncedResults(text);
     setOriginLocation(undefined)
+  }
+
+  const sendRegisterData = async () => {
+    createUser.mutate({
+      email: inputs.email.input,
+      password: inputs.password.input,
+      name: inputs.name.input,
+      surname: inputs.surname.input,
+      gender: +inputs.gender.input as 1 | 2 | 3,
+      location,
+      originLocation,
+    })
   }
 
   return <View>
