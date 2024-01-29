@@ -20,8 +20,4 @@ export const user = z.object({
   name: z.string(),
   surname: z.string(),
   gender: z.number(),
-  country: countryType,
-  state: z.string(),
-  city: z.string(),
-  origin: countryType,
 });

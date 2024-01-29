@@ -5,6 +5,7 @@ import { hashPassword } from "../../../password";
 import { z } from "zod";
 import { countryType, genderType, trimMin } from "../schema";
 import { publicProcedure } from "../../../trpc";
+import SqlString from "sqlstring";
 
 const location = z.object({
   displayName: z.string().max(400),
@@ -29,7 +30,7 @@ export const create = publicProcedure
     const [salt, hashedPassword] = hashPassword(input.password);
 
     try {
-      const userId = await ctx.prisma.$executeRaw`
+      const users = await ctx.prisma.$queryRawUnsafe<[{ f0: number }]>(`
         INSERT INTO User (
           email,
           \`name\`,
@@ -42,22 +43,23 @@ export const create = publicProcedure
           originLocation,
           originLocationDisplayName
         ) VALUES (
-          ${input.email},
-          ${input.name},
-          ${input.surname},
-          ${input.gender},
-          ${salt},
-          ${hashedPassword},
-          ST_GeomFromText('POINT(1 1)'),
-          ${input.location.displayName},
-          ST_GeomFromText('POINT(1 1)'),
-          ${input.originLocation.displayName}
-        );
-      `;
+          ${SqlString.escape(input.email)},
+          ${SqlString.escape(input.name)},
+          ${SqlString.escape(input.surname)},
+          ${SqlString.escape(input.gender)},
+          ${SqlString.escape(salt)},
+          ${SqlString.escape(hashedPassword)},
+          ST_GeomFromText(${SqlString.escape(`POINT(${input.location.lon} ${input.location.lat})`)}),
+          ${SqlString.escape(input.location.displayName)},
+          ST_GeomFromText(${SqlString.escape(`POINT(${input.originLocation.lon} ${input.originLocation.lat})`)}),
+          ${SqlString.escape(input.originLocation.displayName)}
+        )
+        RETURNING id;
+      `);
 
       return generateAccessToken(
         {
-          id: userId,
+          id: users[0].f0,
           email: input.email,
           name: input.name,
           surname: input.surname,

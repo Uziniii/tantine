@@ -18,10 +18,8 @@ export const retrieve = protectedProcedure
         name: true,
         surname: true,
         gender: true,
-        country: true,
-        state: true,
-        city: true,
-        origin: true,
+        locationDisplayName: true,
+        originLocationDisplayName: true,
       },
     });
 

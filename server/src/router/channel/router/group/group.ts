@@ -12,6 +12,7 @@ import { removeMember } from './function/removeMember';
 import { editTitle } from './function/editTitle';
 import { deleteGroup } from './function/delete';
 import { router } from "@/trpc";
+import { findNearestGroup } from './function/findNearestGroup';
 
 export const groupRouter = router({
   editTitle,
@@ -68,4 +69,5 @@ export const groupRouter = router({
   putAdmin,
   sendJoinRequest,
   acceptJoinRequest,
+  findNearestGroup,
 })

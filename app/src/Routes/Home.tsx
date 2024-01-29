@@ -13,6 +13,7 @@ import Settings from "../Page/Settings";
 import styled from "styled-components/native";
 import Community from "../Page/Community";
 import { useEffect } from "react";
+import GroupRecommandation from "../Page/GroupRecommandation";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -39,7 +40,7 @@ export function Home() {
         headerShadowVisible: false,
         tabBarStyle: {
           height: '10%',
-          width: '90%',
+          width: '95%',
           alignSelf: 'center',
           marginTop: 20,
           paddingBottom: 16,
@@ -101,6 +102,31 @@ export function Home() {
                 </ButtonSearch>
               </View>
             }
+          }}
+        />
+        <Tab.Screen
+          name='groupRecommandation'
+          key={"groupRecommandation"}
+          component={GroupRecommandation}
+          options={{
+            tabBarActiveTintColor: '#D4B216',
+            tabBarIcon(props) {
+              return <MaterialIcons name="groups" size={30} color={props.color} />
+            },
+            tabBarLabel(props) {
+              return <FText $color='#FFFF' $size='12px'>Groupe</FText>
+            },
+            headerTitle() {
+              return <View>
+                <FText
+                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+                  $size={"25px"}
+                  $color='#FFF'
+                >
+                  Groupe
+                </FText>
+              </View>
+            },
           }}
         />
         <Tab.Screen

@@ -48,7 +48,7 @@ export default function ChannelItem({ item, me }: ChannelProps) {
   return (
     <UserContainer style={{ flex: 1, alignItems: 'center'}} disabled>
       <ContainerPictureProfil>
-        <GetUserPictureProfil id={user.id} type={item.type === "private" ? "user" : "group"} />
+        <GetUserPictureProfil id={item.type === "private" ? user.id : item.id} type={item.type === "private" ? "user" : "group"} />
       </ContainerPictureProfil>
       <InfoContainer>
         <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
