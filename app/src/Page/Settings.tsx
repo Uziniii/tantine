@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Button, View } from "react-native";
 import { useAppDispatch, useAppSelector } from "../store/store";
-import { FText } from "../Components/FText";
+import { TitleText } from "../Components/FText";
 import { Group } from "./css/lookup.css";
 import { FontAwesome } from "@expo/vector-icons"
 import SettingsButton from "../Components/SettingsButton";
@@ -42,7 +42,7 @@ const ContainerPictureProfil = styled.View`
   border-radius: 99999px;
 `
 
-export default function Settings ({ navigation }: Props) {
+export default function Settings({ navigation }: Props) {
   const dispatch = useAppDispatch()
   const me = useAppSelector(state => state.me)
   const lang = useAppSelector(state => langData[state.language].settings)
@@ -85,8 +85,8 @@ export default function Settings ({ navigation }: Props) {
         <UploadPictureProfil setImage={onImageChange} image={image} />
       </ContainerPictureProfil>
       <Group>
-        <FText $size="24px" $color="white">{me.surname} {me.name}</FText>
-        <FText $size="16px" $color="white">{me.email}</FText>
+        <TitleText $size="24px" $color="white">{me.surname} {me.name}</TitleText>
+        <TitleText $size="16px" $color="white">{me.email}</TitleText>
       </Group>
       <Button color={"red"} title="Déconnexion" onPress={() => {
         dispatch({ type: "RESET" })

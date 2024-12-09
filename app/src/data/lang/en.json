@@ -12,11 +12,19 @@
     "surname": "Surname",
     "state": "State or department",
     "city": "City",
+    "origin": "Country of origin",
     "email": "Email",
     "password": "Password",
+    "passwordRecover": "Forgot your password?",
     "confirmPassword": "Confirm password",
     "alreadyHaveAccount": "Already have an account?",
     "back": "Back",
+    "step": "Steps",
+    "age": "Age",
+    "noAccount": {
+      "text": "Don't you have an account?",
+      "button": "Register here"
+    },
     "error": {
       "nameSurnameMin": "The {} must be at least 2 characters long",
       "emailAlreadyExists": "The email already exists",
@@ -118,7 +126,7 @@
   "channel": {
     "alreadyInThisGroupAlertTitle": "Already in this group",
     "publicJoin": {
-      "title": "Join the group", 
+      "title": "Join the group",
       "message": "Are you sure you want to join the group {}?",
       "cancel": "Cancel",
       "join": "Join"

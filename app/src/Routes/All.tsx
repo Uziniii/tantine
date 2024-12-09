@@ -4,7 +4,7 @@ import Search from "../Page/Search";
 import { Platform, View } from "react-native";
 import Channel from "../Page/Channel";
 import UserLookup from "../Page/Lookup/UserLookup";
-import { FText } from "../Components/FText";
+import { TitleText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import GroupLookup from "../Page/Lookup/GroupLookup";
 import EditGroup from "../Page/Lookup/Group/EditGroup";
@@ -38,7 +38,7 @@ const TitleCreateGroup = styled.View`
 
 const headerColor = "#24252D";
 
-export default function AllRoute () {
+export default function AllRoute() {
   const lang = useAppSelector(state => langData[state.language].route)
 
   return <Stack.Navigator
@@ -57,13 +57,13 @@ export default function AllRoute () {
       options={{
         headerShown: false,
         headerTitle() {
-          return <TitleCreateGroup> 
-            <FontAwesome name="search" size={30} color="#14213d"/>
-            <FText
+          return <TitleCreateGroup>
+            <FontAwesome name="search" size={30} color="#14213d" />
+            <TitleText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
               $color="#14213d"
-            >{lang.search}</FText>
+            >{lang.search}</TitleText>
           </TitleCreateGroup>
         },
         contentStyle: {
@@ -82,12 +82,12 @@ export default function AllRoute () {
           backgroundColor: headerColor,
         },
         headerTitle() {
-          return <TitleCreateGroup> 
-            <FText
+          return <TitleCreateGroup>
+            <TitleText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
               $color="white"
-            >{lang.createGroup}</FText>
+            >{lang.createGroup}</TitleText>
           </TitleCreateGroup>
         },
         presentation: "modal",
@@ -116,12 +116,12 @@ export default function AllRoute () {
         headerBackTitleVisible: false,
         headerTitleAlign: "left",
         headerTitle() {
-          return <FText
+          return <TitleText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
           >
             {lang.info}
-          </FText>
+          </TitleText>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
@@ -139,7 +139,7 @@ export default function AllRoute () {
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
-    /> 
+    />
     <Stack.Screen
       name='editGroup'
       component={EditGroup}
@@ -152,13 +152,13 @@ export default function AllRoute () {
           backgroundColor: headerColor,
         },
         headerTitle() {
-          return <FText
+          return <TitleText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
             $color="white"
           >
             {lang.edit}
-          </FText>
+          </TitleText>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
@@ -175,13 +175,13 @@ export default function AllRoute () {
         headerBackTitleVisible: false,
         headerTitleAlign: "center",
         headerTitle() {
-          return <FText
+          return <TitleText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
             $color="white"
           >
             {lang.manageMember}
-          </FText>
+          </TitleText>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
       }}
@@ -197,13 +197,13 @@ export default function AllRoute () {
         headerTitleAlign: "left",
         headerTitle() {
           return <Container>
-            <FText
+            <TitleText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
               $color="white"
             >
               {lang.addMember}
-            </FText>
+            </TitleText>
           </Container>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
@@ -221,13 +221,13 @@ export default function AllRoute () {
         headerTitleAlign: "left",
         headerTitle() {
           return <Container>
-            <FText
+            <TitleText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
               $color="white"
             >
               {lang.addMember}
-            </FText>
+            </TitleText>
           </Container>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
@@ -245,13 +245,13 @@ export default function AllRoute () {
         headerTitleAlign: "left",
         headerTitle() {
           return <Container>
-            <FText
+            <TitleText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
               $color="white"
             >
               {lang.invite}
-            </FText>
+            </TitleText>
           </Container>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
@@ -269,13 +269,13 @@ export default function AllRoute () {
         headerTitleAlign: "left",
         headerTitle() {
           return <Container>
-            <FText
+            <TitleText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
               $color="white"
             >
               {lang.invite}
-            </FText>
+            </TitleText>
           </Container>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"
@@ -292,13 +292,13 @@ export default function AllRoute () {
         headerTitleAlign: "left",
         headerTitle() {
           return <Container>
-            <FText
+            <TitleText
               font={[Montserrat_700Bold, "Montserrat_700Bold"]}
               $size={"20px"}
               $color="white"
             >
               {lang.chooseLanguage}
-            </FText>
+            </TitleText>
           </Container>
         },
         animation: Platform.OS === "android" ? "slide_from_right" : "default"

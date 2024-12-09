@@ -30,36 +30,44 @@ export const create = publicProcedure
     const [salt, hashedPassword] = hashPassword(input.password);
 
     try {
-      const users = await ctx.prisma.$queryRawUnsafe<[{ f0: number }]>(`
-        INSERT INTO User (
-          email,
-          \`name\`,
-          surname,
-          gender,
-          salt,
-          hashedPassword,
-          \`location\`,
-          locationDisplayName,
-          originLocation,
-          originLocationDisplayName
-        ) VALUES (
-          ${SqlString.escape(input.email)},
-          ${SqlString.escape(input.name)},
-          ${SqlString.escape(input.surname)},
-          ${SqlString.escape(input.gender)},
-          ${SqlString.escape(salt)},
-          ${SqlString.escape(hashedPassword)},
-          ST_GeomFromText(${SqlString.escape(`POINT(${input.location.lon} ${input.location.lat})`)}),
-          ${SqlString.escape(input.location.displayName)},
-          ST_GeomFromText(${SqlString.escape(`POINT(${input.originLocation.lon} ${input.originLocation.lat})`)}),
-          ${SqlString.escape(input.originLocation.displayName)}
-        )
-        RETURNING id;
-      `);
+      const id = await ctx.prisma.$transaction(async (tx) => {
+        await tx.$executeRawUnsafe(`
+          INSERT INTO User (
+            email,
+            \`name\`,
+            surname,
+            gender,
+            salt,
+            hashedPassword,
+            \`location\`,
+            locationDisplayName,
+            originLocation,
+            originLocationDisplayName
+          ) VALUES (
+            ${SqlString.escape(input.email)},
+            ${SqlString.escape(input.name)},
+            ${SqlString.escape(input.surname)},
+            ${SqlString.escape(input.gender)},
+            ${SqlString.escape(salt)},
+            ${SqlString.escape(hashedPassword)},
+            ST_GeomFromText(${SqlString.escape(`POINT(${input.location.lon} ${input.location.lat})`)}),
+            ${SqlString.escape(input.location.displayName)},
+            ST_GeomFromText(${SqlString.escape(`POINT(${input.originLocation.lon} ${input.originLocation.lat})`)}),
+            ${SqlString.escape(input.originLocation.displayName)}
+          )
+        `);
+
+        const [{ id }] = await tx.$queryRawUnsafe<{ id: number }[]>(`
+          SELECT LAST_INSERT_ID() as id;
+        `);
+
+        return Number(id)
+      })
+
 
       return generateAccessToken(
         {
-          id: users[0].f0,
+          id,
           email: input.email,
           name: input.name,
           surname: input.surname,
@@ -68,7 +76,7 @@ export const create = publicProcedure
       );
     } catch (error) {
       console.log(error);
-      
+
       if (
         error instanceof PrismaClientKnownRequestError &&
         error.code === "P2002"

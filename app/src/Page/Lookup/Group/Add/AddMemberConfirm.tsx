@@ -5,7 +5,7 @@ import UserItem from "../../../../Components/UserItem";
 import { useLayoutEffect, useState } from "react";
 import { langData } from "../../../../data/lang/lang";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
-import { FText } from "../../../../Components/FText";
+import { TitleText } from "../../../../Components/FText";
 import { trpc } from "../../../../utils/trpc";
 
 interface Props {
@@ -43,8 +43,8 @@ export default function AddMemberConfirm({ navigation }: Props) {
     navigation.setOptions({
       headerRight: () => {
         return <TouchableOpacity onPress={onConfirmPress}>
-          <FText font={[Montserrat_700Bold, "Montserrat_700Bold"]} $color="#007aff">{lang.confirm}</FText>
-        </TouchableOpacity> 
+          <TitleText font={[Montserrat_700Bold, "Montserrat_700Bold"]} $color="#007aff">{lang.confirm}</TitleText>
+        </TouchableOpacity>
       }
     })
   })
@@ -56,7 +56,7 @@ export default function AddMemberConfirm({ navigation }: Props) {
     })
   }
 
-  return <FlatList  
+  return <FlatList
     style={{
       marginTop: 20
     }}

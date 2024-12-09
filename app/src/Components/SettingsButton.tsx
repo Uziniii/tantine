@@ -1,5 +1,5 @@
 import styled from "styled-components/native";
-import { FText } from "./FText";
+import { TitleText } from "./FText";
 import { FontAwesome } from "@expo/vector-icons";
 
 const Button = styled.TouchableOpacity`
@@ -23,7 +23,7 @@ interface Props {
 
 export default function SettingsButton({ text, onPress }: Props) {
   return <Button onPress={onPress}>
-    <FText $color="white">{text}</FText>
-    <FontAwesome color="white" name="arrow-right"/>
+    <TitleText $color="white">{text}</TitleText>
+    <FontAwesome color="white" name="arrow-right" />
   </Button>
 }

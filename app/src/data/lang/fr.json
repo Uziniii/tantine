@@ -6,17 +6,25 @@
     "next": "Suivant"
   },
   "auth": {
-    "register": "S'enregistrer",
+    "register": "S'inscrire",
     "login": "Se connecter",
     "name": "Nom",
     "surname": "Prénom",
     "state": "Département ou état",
     "city": "Ville",
+    "origin": "Pays d'origine",
     "email": "Adresse email",
     "password": "Mot de passe",
+    "passwordRecover": "Mot de passe oublié ?",
     "confirmPassword": "Confirmer votre mot de passe",
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
     "back": "Retour",
+    "step": "Etapes",
+    "age": "Age",
+    "noAccount": {
+      "text": "Tu n’as pas de compte ?",
+      "button": "Inscris toi ici"
+    },
     "error": {
       "nameSurnameMin": "Le {} doit faire minimum 2 caractère",
       "emailAlreadyExists": "Cette adresse email est déjà utilisée",
@@ -87,7 +95,7 @@
       "message": "Le gagnant est {} !"
     },
     "edit": {
-      "edit":"Modifier le groupe",
+      "edit": "Modifier le groupe",
       "changeName": "Changer le nom",
       "visibility": "Visibilité",
       "public": "Publique",

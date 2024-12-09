@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { FText } from '../FText';
+import { TitleText } from '../FText';
 import { Button } from '../../Page/css/auth.css';
 import { ProfilePictureContainer } from '../../Page/css/user.css';
 import { FontAwesome } from "@expo/vector-icons";
@@ -54,15 +54,15 @@ export default function Invite({ onClose, onJoinPress, group }: Props) {
         <FontAwesome size={20} color={"white"} name='close' onPress={onClose} />
       </CloseContainer>
       <ProfilePictureContainer>
-        <GetUserPictureProfil id={group.id} type='group'/>
+        <GetUserPictureProfil id={group.id} type='group' />
       </ProfilePictureContainer>
-      <FText $color='white'>{group.title}</FText>
+      <TitleText $color='white'>{group.title}</TitleText>
       <Button
         $background='#24252D'
         $width={width * 0.8 + 'px'}
         onPress={onJoinPress}
       >
-        <FText $color='white'>{lang}</FText>
+        <TitleText $color='white'>{lang}</TitleText>
       </Button>
     </Container>
   );

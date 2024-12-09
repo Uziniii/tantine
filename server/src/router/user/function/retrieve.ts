@@ -4,7 +4,7 @@ import { user } from "../schema";
 
 export const retrieve = protectedProcedure
   .input(z.array(z.number()))
-  .output(z.array(user))
+  // .output(z.array(user))
   .mutation(async ({ ctx, input }) => {
     const users = await ctx.prisma.user.findMany({
       where: {

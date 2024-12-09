@@ -1,5 +1,5 @@
-import { Platform } from 'react-native';
-import { FText } from '../../Components/FText';
+import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { MTitleText, SText, TitleText } from '../../Components/FText';
 import { NavigationProp } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -7,35 +7,44 @@ import { langData } from '../../data/lang/lang';
 import TitleSubAuth from '../../Components/TitleSubAuth';
 import styled from "styled-components/native";
 import { Image } from 'expo-image';
-import { useAssets } from 'expo-asset';
-import { Montserrat_700Bold } from '@expo-google-fonts/montserrat';
+import { BigGoldGradient } from '../css/gradient.css';
+import color from "../css/color.css"
+import { AntDesign } from '@expo/vector-icons';
+import { TitleWrapper } from '../css/auth.css';
+
+const avatar = require("../../../assets/ethman.png");
 
 interface Props {
   navigation: NavigationProp<any>;
 }
 
 const Button = styled(TouchableOpacity)`
-  width:350px;
+  flex-direction: row;
+  width: 350px;
   align-self: center;
-  border-radius:8px;
-  height:45px;
-  margin:10px;
-  display:flex;
+  border-radius: 8px;
+  height: 55px;
+  margin: 10px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  background-color:#333541;
+  background-color: ${color.primaryBg};
+  border: 2px solid ${color.gold};
 `
 
 const ContainerButton = styled.View`
-  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   display: flex;
   align-items: center;
-  margin:0 0 70px 0;
-  margin:${Platform.OS === 'android' ? '0 0 20px 0' : '0 0 70px 0' };
+  margin: ${Platform.OS === 'android' ? '0 0 20px 0' : '0 0 70px 0'};
 `;
+
+const RightView = styled.View`
+  position: absolute;
+  right: 16px;
+`
 
 export default function Welcome({ navigation }: Props) {
   const lang = useAppSelector(state => {
@@ -45,31 +54,39 @@ export default function Welcome({ navigation }: Props) {
       ...langData[state.language].welcome,
     }
   })
-  const [assets, error] = useAssets([require('./avatar.png')]);
 
-  return <>
-    <TitleSubAuth title={lang.title} sub={lang.sub} />
-    {assets ? 
-      <Image
-        style={{
-          alignSelf: 'center',
-          height: 450,
-          width: 450,
-          marginTop:20,
-          // backgroundColor: '#0553',
-        }}
-        source={assets[0] as any}
-      />
-    : null}
+  return <BigGoldGradient colors={[]} style={{ flex: 1, justifyContent: "flex-start" }}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "position"}
+      style={{ justifyContent: "space-between", height: "100%" }}
+    >
+      <View>
+        <TitleSubAuth title={lang.title} sub={lang.sub} />
+        <Image
+          style={{
+            alignSelf: 'center',
+            height: 350,
+            width: 350,
+            marginTop: 20,
+          }}
+          source={avatar}
+        />
+      </View>
+      <ContainerButton>
+        <Button onPress={() => navigation.navigate("login")}>
+          <MTitleText $color='white'>{lang.login}</MTitleText>
+          <RightView>
+            <AntDesign size={24} color="white" name='arrowright' />
+          </RightView>
+        </Button>
 
-    <ContainerButton>
-      <Button onPress={() => navigation.navigate("login")}>
-        <FText $color='white' font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.login}</FText>
-      </Button>
-
-      <Button onPress={() => navigation.navigate("register")}>
-        <FText $color='white' font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.register}</FText>
-      </Button>
-    </ContainerButton>
-    </>
+        <Button onPress={() => navigation.navigate("register")}>
+          <MTitleText $color='white'>{lang.register}</MTitleText>
+          <RightView>
+            <AntDesign size={24} color="white" name='arrowright' />
+          </RightView>
+        </Button>
+      </ContainerButton>
+    </KeyboardAvoidingView>
+  </BigGoldGradient>
 }

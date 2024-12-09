@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { trpc } from './src/utils/trpc';
 import { httpBatchLink } from '@trpc/client';
 import superjson from "superjson";
@@ -11,7 +11,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { store, useAppDispatch, useAppSelector } from './src/store/store';
 import { setLogin } from './src/store/slices/loginSlice';
 import { Provider, useDispatch } from 'react-redux';
-import { Platform } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { set } from './src/store/slices/meSlice';
 import jwtDecode from 'jwt-decode';
 import { LogBox } from 'react-native';
@@ -21,6 +21,13 @@ import AllRoute from './src/Routes/All';
 import { host, port } from './src/utils/host';
 import WSLayer from './src/WSLayer';
 import Loading from './src/Components/Loading';
+import * as SplashScreen from 'expo-splash-screen';
+import { SText } from './src/Components/FText';
+import { Container } from './src/Page/css/auth.css';
+import { BigGoldGradient } from './src/Page/css/gradient.css';
+import { Image } from 'expo-image';
+
+const splashLogo = require("./assets/splash.png")
 
 const IGNORED_LOGS = [
   "Node of type",
@@ -43,6 +50,8 @@ if (__DEV__) {
   console.warn = withoutIgnored(console.warn);
   console.error = withoutIgnored(console.error);
 }
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   return <GestureHandlerRootView style={{ flex: 1 }}>
@@ -87,6 +96,8 @@ function Base() {
           ...jwtDecode(token),
           token,
         }))
+      } else {
+        setIsReady(true)
       }
     })
 
@@ -96,7 +107,7 @@ function Base() {
       }
     })
   }, [login])
-  
+
   const [queryClient, setQueryClient] = useState(() => new QueryClient());
   const [trpcClient, setTrpcClient] = useState(() => createTrpcClient(''));
 
@@ -126,13 +137,27 @@ function Base() {
     });
   }
 
-  if (login === true && !isReady) return <Loading />
-  if (login === true && !token) return <Loading />
+  useEffect(() => {
+    if (isReady) {
+      // This tells the splash screen to hide immediately! If we call this after
+      // `setAppIsReady`, then we may see a blank screen while the app is
+      // loading its initial state and rendering its first pixels. So instead,
+      // we hide the splash screen once we know the root view has already
+      // performed layout.
+      SplashScreen.hideAsync();
+    }
+  }, [isReady]);
+
+  if (!isReady) return <BigGoldGradient colors={[]}>
+    <Image source={splashLogo} style={{ width: '50%', height: 146 }} contentFit="cover" />
+  </BigGoldGradient>
+
+  if (login && !token) return <Loading />
 
   return <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
       {login
-        ? token 
+        ? token
           ? (
             <WSLayer>
               <NavigationContainer theme={Theme} linking={linking}>
@@ -142,11 +167,11 @@ function Base() {
           ) : (
             <Loading />
           )
-        : <NavigationContainer theme={Theme} linking={linking}> 
+        : <NavigationContainer theme={Theme} linking={linking}>
           <Auth />
         </NavigationContainer>
       }
-      <StatusBar style={"light"} hidden={false} translucent={false}/>
+      <StatusBar backgroundColor='red' style={"light"} hidden={false} translucent={false} />
     </QueryClientProvider>
   </trpc.Provider>
 }

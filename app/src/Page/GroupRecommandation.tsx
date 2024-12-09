@@ -2,7 +2,7 @@ import { NavigationProp } from "@react-navigation/native";
 import { useState } from "react";
 import { Dimensions, View } from "react-native";
 import styled from "styled-components/native";
-import { FText } from "../Components/FText";
+import { TitleText } from "../Components/FText";
 import { trpc } from "../utils/trpc";
 import GroupItem from "../Components/GroupItem";
 import ChannelItem from "../Components/ChannelItem";
@@ -54,20 +54,20 @@ export default function GroupRecommandation({ navigation }: Props) {
   }
 
   const groups = trpc.channel.group.findNearestGroup.useQuery(undefined)
-// console.log(groups);
+  // console.log(groups);
 
   return <View>
     <TabWrapper>
       <TabContainer>
         <Tab onPress={onTabPress} $selected={tab === false}>
-          <FText $color="white">
+          <TitleText $color="white">
             Recommandations
-          </FText>
+          </TitleText>
         </Tab>
         <Tab onPress={onTabPress} $selected={tab}>
-          <FText $color="white">
+          <TitleText $color="white">
             Tendances
-          </FText>
+          </TitleText>
         </Tab>
       </TabContainer>
     </TabWrapper>
@@ -75,7 +75,7 @@ export default function GroupRecommandation({ navigation }: Props) {
       data={groups.data}
       renderItem={({ item }) => {
         console.log(item.users);
-        
+
         if (item?.id === undefined) return null;
 
         return (

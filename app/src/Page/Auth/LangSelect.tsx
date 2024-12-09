@@ -1,7 +1,5 @@
-import { FText } from "../../Components/FText";
+import { MTitleText, SText, TitleText } from "../../Components/FText";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { Container } from "../css/auth.css";
-import { StatusBar } from 'expo-status-bar';
 import { useMemo } from "react";
 import styled from "styled-components/native"
 import { FontAwesome } from "@expo/vector-icons"
@@ -9,8 +7,15 @@ import { View } from "react-native";
 import { Language, setLanguage } from "../../store/slices/languageSlice";
 import { NavigationProp } from "@react-navigation/native";
 import { langData } from "../../data/lang/lang";
+import { BigGoldGradient } from "../css/gradient.css";
+import { Image } from "expo-image";
+import color from "../css/color.css"
 
-const green = "#22c954"
+const langIcon = require("../../../assets/lang/lang-icon.svg")
+
+const fr = require("../../../assets/lang/fr.svg")
+const en = require("../../../assets/lang/en.svg")
+const flag = { fr, en }
 
 export const SpaceBetweenButton = styled.TouchableOpacity<{
   $borderColor?: boolean,
@@ -20,7 +25,7 @@ export const SpaceBetweenButton = styled.TouchableOpacity<{
   background: ${({ $background }) => $background ?? "white"};
   width: ${({ $width }) => $width ?? "65%"};
   padding: 10px;
-  border: 1px solid ${props => (props.$borderColor && green) || "#DADBDD"};
+  border: 3px solid ${props => (props.$borderColor && color.green) || "#DADBDD"};
   border-radius: 8px;
   color: black;
   box-shadow: 0px 1px 1.41px rgba(0, 0, 0, 0.2);
@@ -36,7 +41,7 @@ export const NextButton = styled.TouchableOpacity<{ $width?: string }>`
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
-  background: #333541;
+  background: #29282C;
   border-radius: 8px;
   margin-top: 8px;
   padding: 12px;
@@ -46,7 +51,7 @@ interface Props {
   navigation: NavigationProp<any>;
 }
 
-export default function LangSelect ({ navigation }: Props) {
+export default function LangSelect({ navigation }: Props) {
   const dispatch = useAppDispatch()
   const langCode = useAppSelector(state => state.language)
   const lang = useMemo(() => langData[langCode].langSelect, [langCode])
@@ -61,20 +66,24 @@ export default function LangSelect ({ navigation }: Props) {
     navigation.navigate("welcome")
   }
 
-  return <Container>
-    <View style={{ marginBottom: 36, display: 'flex', alignItems: 'center'}}>
-      <FText $size="50px" $color="#FFF">{lang.hello}</FText>
-      <FText $size="15px" $color="#FFF">{lang.sub}</FText>
+  return <BigGoldGradient colors={[]}>
+    <View style={{ marginBottom: 36, display: 'flex', alignItems: 'center', gap: 24 }}>
+      <TitleText $size="50px" $color="#FFF">{lang.hello}</TitleText>
+      <MTitleText $size="15px" $color="#FFF">{lang.sub}</MTitleText>
+      <Image source={langIcon} style={{ width: 60, height: 60 }} />
     </View>
     {(Object.keys(langData) as Language[]).map((lc) => {
       return <SpaceBetweenButton key={lc} onPress={() => onLangChoose(lc)} $borderColor={lc === langCode}>
-        <FText>{langData[lc].langSelect.lang}</FText>
-        {lc === langCode && <FontAwesome name="check-circle" size={20} color={green} />}
+        <SText>{langData[lc].langSelect.lang}</SText>
+        <Image
+          source={flag[lc]}
+          style={{ width: 24, height: 24 }}
+        />
       </SpaceBetweenButton>
     })}
     <NextButton onPress={onContinue} $width="65%">
-      <FText $color="white" >{lang.next}</FText>
+      <SText $color="white" >{lang.next}</SText>
       <FontAwesome name="arrow-right" size={16} color={"white"} />
     </NextButton>
-  </Container>
+  </BigGoldGradient>
 }

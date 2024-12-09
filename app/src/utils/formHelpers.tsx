@@ -1,48 +1,53 @@
 import { InputModeOptions } from "react-native"
 import { Action, InputsReducerState } from "../hooks/inputsReducer"
-import { FText } from "../Components/FText"
+import { MTitleText, SText } from "../Components/FText"
 import { styled } from "styled-components/native"
 import { TextInput as DefaultTextInput } from "react-native-gesture-handler"
+import colors from "../Page/css/color.css";
+import { Check, InputEye } from "../Page/css/auth.css"
 
 export const showError = (error: { error?: string | null } | undefined) => {
   return error?.error
-  ? <FText $color="white">{error.error}</FText>
-  : <></>
+    ? <SText $color="white" $size="14px">{error.error}</SText>
+    : <></>
 }
 
-export const TextInput = styled(DefaultTextInput)<{
+export const TextInput = styled(DefaultTextInput) <{
   $width?: string,
   $height?: string,
-  $borderColor?: string }>`
+}>`
   background: white;
-  width: ${props => props.$width || "100%"};
+  width: ${props => props.$width || "90%"};
   height: ${props => props.$height || "auto"};
-  padding: 12px;
-  /* border: 1px solid ${props => props.$borderColor || "#DADBDD"}; */
-  border-radius: 10px;
+  padding: 12px 0 12px 0;
   color: white;
   background-color:transparent;
-  border: solid 2px ${props => props.$borderColor || "#D4B216"};
   box-shadow: 0px 1px 1.41px rgba(0, 0, 0, 0.2);
 `
 
-const TextInputLabel = styled.View<{$length: number}>`
-  left: 10px;
+const TextInputLabel = styled.View<{ $length: number }>`
   width: ${props => props.$length ? `${35 + props.$length * 8}px` : 'auto'};
-  height: 18px;
-  transform: translate(0, 10px);
-  padding: 0 0 0 15px;
-  display:flex;
+  height: 24px;
+  display: flex;
   align-items: flex-start;
   justify-content: center;
-  background-color:#24252D;
+  background-color: #24252D;
   position: relative;
   z-index: 1;
 `;
 
 const Container = styled.View`
-  display:flex;
+  display: flex;
 `;
+
+const InputWrapper = styled.View<{ $borderColor?: string }>`
+  display: flex;
+  flex-direction: row;
+  border-bottom-width: 2px;
+  border-bottom-color: ${props => props.$borderColor || colors.gold};
+  justify-content: space-between;
+  align-items: center;
+`
 
 type set = (action: Action) => void;
 
@@ -55,6 +60,7 @@ interface Props {
   inputMode?: InputModeOptions,
   parser: any,
   label: string,
+  type?: "mail" | "password"
 }
 
 export const renderInput = ({
@@ -68,31 +74,46 @@ export const renderInput = ({
   onFocus,
   onChangeText,
   $width,
-  label
+  label,
+  type,
+
 }: Props & typeof TextInput.defaultProps) => {
+
+  function inputDecorationRender() {
+    if (type === "mail") {
+      return <Check />
+    } else if (type === "password") {
+      return <InputEye onPress={() => (secureTextEntry)} />
+    }
+
+    return <></>
+  }
+
   return <Container>
     <TextInputLabel $length={label.length}>
-      <FText $color="white" $size="16px">{label}</FText>
+      <MTitleText $color={colors.gold} $size="18px">{label}</MTitleText>
     </TextInputLabel>
-    <TextInput
-      onChangeText={(e) => {
-        if (onChangeText) onChangeText(e)
-        
-        setInputs({
-          key: state,
-          input: e,
-          parser
-        })
-      }}
-      value={inputs[state]?.input || ""}
-      maxLength={maxLength}
-      secureTextEntry={secureTextEntry}
-      inputMode={inputMode}
-      onFocus={onFocus}
-      {...{
-        $width,
-        $borderColor: inputs[state]?.error ? "red" : undefined
-      }}
-    />
+    <InputWrapper $borderColor={inputs[state]?.error ? "red" : undefined}>
+      <TextInput
+        onChangeText={(e) => {
+          if (onChangeText) onChangeText(e)
+
+          setInputs({
+            key: state,
+            input: e,
+            parser
+          })
+        }}
+        value={inputs[state]?.input || ""}
+        maxLength={maxLength}
+        secureTextEntry={secureTextEntry}
+        inputMode={inputMode}
+        onFocus={onFocus}
+        {...{
+          $width,
+        }}
+      />
+      {inputDecorationRender()}
+    </InputWrapper>
   </Container>
 }

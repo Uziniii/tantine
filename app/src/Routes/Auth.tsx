@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { FText } from "../Components/FText";
+import { TitleText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { langData } from "../data/lang/lang";
 import Register from "../Page/Auth/Register";
@@ -7,6 +7,7 @@ import Login from "../Page/Auth/Login";
 import LangSelect from "../Page/Auth/LangSelect";
 import { useAppSelector } from "../store/store";
 import Welcome from "../Page/Auth/Welcome";
+import PasswordRecover from "../Page/Auth/PasswordRecover";
 
 const Stack = createNativeStackNavigator();
 
@@ -44,13 +45,13 @@ export default function Auth() {
           backgroundColor: '#202E44'
         },
         headerTitle() {
-          return <FText
+          return <TitleText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"24px"}
             $color='#FFFF'
           >
             {lang.register}
-          </FText>
+          </TitleText>
         },
       }}
     />
@@ -73,6 +74,18 @@ export default function Auth() {
       name="login"
       key={"login"}
       component={Login}
+      options={{
+        headerBackTitleVisible: false,
+        headerShadowVisible: false,
+        headerTitleAlign: "center",
+        headerShown: false,
+      }}
+    />
+
+    <Stack.Screen
+      name="passwordRecover"
+      key={"passwordRecover"}
+      component={PasswordRecover}
       options={{
         headerBackTitleVisible: false,
         headerShadowVisible: false,

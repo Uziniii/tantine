@@ -7,7 +7,7 @@ import UserItem from "../../../../Components/UserItem";
 import { addUsers } from "../../../../store/slices/usersSlice";
 import { useAppDispatch, useAppSelector } from "../../../../store/store";
 import { NavigationProp, useRoute } from "@react-navigation/native";
-import { FText } from "../../../../Components/FText";
+import { TitleText } from "../../../../Components/FText";
 import { langData } from "../../../../data/lang/lang";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import styled from "styled-components/native";
@@ -68,8 +68,8 @@ export function AddMember({ navigation }: Props) {
     navigation.setOptions({
       headerRight: () => {
         return <TouchableOpacity onPress={onNextPress}>
-          <FText font={[Montserrat_700Bold, "Montserrat_700Bold"]} $color="#007aff">{lang.next}</FText>
-        </TouchableOpacity> 
+          <TitleText font={[Montserrat_700Bold, "Montserrat_700Bold"]} $color="#007aff">{lang.next}</TitleText>
+        </TouchableOpacity>
       }
     })
   })

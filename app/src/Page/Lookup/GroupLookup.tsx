@@ -2,7 +2,7 @@ import { NavigationProp, useRoute } from "@react-navigation/native";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { InfoContainer, ProfilePictureContainer, UserContainer } from "../css/user.css";
 import { FontAwesome, Feather } from "@expo/vector-icons"
-import { FText } from "../../Components/FText";
+import { TitleText } from "../../Components/FText";
 import { Container, Group } from "../css/lookup.css";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
@@ -50,7 +50,7 @@ export default function GroupLookup({ navigation }: Props) {
 
     if (group.authorId === me.id) return "author"
     if (group.admins.includes(me.id)) return "admin"
-    
+
     return "user"
   }, [group, me])
 
@@ -74,11 +74,11 @@ export default function GroupLookup({ navigation }: Props) {
 
   if (group === undefined) return null
   if (group.type !== "group" || me === null) return null
-  if (permission === null) return () => {}
+  if (permission === null) return () => { }
 
   const onUserPress = (id: number) => {
-    navigation.navigate("memberLookup", { 
-      id: id.toString(), 
+    navigation.navigate("memberLookup", {
+      id: id.toString(),
       channelId: route.params.id
     })
   }
@@ -111,15 +111,15 @@ export default function GroupLookup({ navigation }: Props) {
     />
     <Container $marginTop={100}>
       <ProfilePictureContainer $size="120px">
-        <GetUserPictureProfil size={46} id={+route.params.id} type="group"/>
+        <GetUserPictureProfil size={46} id={+route.params.id} type="group" />
       </ProfilePictureContainer>
       <Group>
-        <FText $color="white" $size="24px">{group.title}</FText>
-        <FText $color="white" $size="16px">{group.users.length} {group.users.length <= 1 ? lang.member : `${lang.member}s`}</FText>
+        <TitleText $color="white" $size="24px">{group.title}</TitleText>
+        <TitleText $color="white" $size="16px">{group.users.length} {group.users.length <= 1 ? lang.member : `${lang.member}s`}</TitleText>
       </Group>
     </Container>
     <ContainerAddTitle>
-      <FText $color="white" $size="18px">Utilisateur ajoutés</FText>
+      <TitleText $color="white" $size="18px">Utilisateur ajoutés</TitleText>
     </ContainerAddTitle>
     <FlatList
       style={{
@@ -128,8 +128,8 @@ export default function GroupLookup({ navigation }: Props) {
       data={group.users}
       renderItem={({ item }) => {
         return <TouchableOpacity onPress={() => onUserPress(item)}>
-          <User item={item}/>
-        </TouchableOpacity> 
+          <User item={item} />
+        </TouchableOpacity>
       }}
       keyExtractor={item => item.toString()}
     />
@@ -144,7 +144,7 @@ const ModifiedInfoContainer = styled(InfoContainer)`
   justify-content: space-between;
 `;
 
-function User ({ item }: UserProps) {
+function User({ item }: UserProps) {
   const user = useAppSelector(state => state.users[item])
 
   return <UserContainer style={{ flex: 1 }} disabled>
@@ -152,8 +152,8 @@ function User ({ item }: UserProps) {
       <GetUserPictureProfil id={item} type="user" />
     </ProfilePictureContainer>
     <ModifiedInfoContainer>
-      <FText $color="white" $size="18px" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{user.surname} {user.name}</FText>
-      <FText $color="white">{user.email}</FText>
+      <TitleText $color="white" $size="18px" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{user.surname} {user.name}</TitleText>
+      <TitleText $color="white">{user.email}</TitleText>
     </ModifiedInfoContainer>
   </UserContainer>
 }

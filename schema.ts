@@ -49,7 +49,7 @@ interface NewGroupDayTurn {
   channelId: number;
 }
 
-export type AllSchemaEvent = 
+export type AllSchemaEvent =
   | EventSchema<Message>
   | EventSchema<NewGroupTitle>
   | EventSchema<NewGroupDayTurn>

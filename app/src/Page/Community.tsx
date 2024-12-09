@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { useAppDispatch, useAppSelector } from "../store/store";
-import { FText } from "../Components/FText";
+import { TitleText } from "../Components/FText";
 import { ProfilePictureContainer } from "./css/user.css";
 import { FontAwesome } from "@expo/vector-icons"
 import { langData } from "../data/lang/lang";
@@ -83,7 +83,7 @@ interface Props {
   navigation: NavigationProp<any>
 }
 
-export default function Community ({ navigation }: Props) {
+export default function Community({ navigation }: Props) {
   const dispatch = useAppDispatch()
   const lang = useAppSelector(state => langData[state.language].community)
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
@@ -120,15 +120,15 @@ export default function Community ({ navigation }: Props) {
       if (variables !== undefined) return
 
       dispatch(initCommunityMessages(data.map(message => ({
-          id: message.id,
-          authorId: message.authorId,
-          content: message.content,
-          audioFile: message.audioFile,
-          createdAt: message.createdAt.toString(),
-          updatedAt: message.updatedAt.toString(),
-          system: message.system,
-          invite: message.invite,
-        })),
+        id: message.id,
+        authorId: message.authorId,
+        content: message.content,
+        audioFile: message.audioFile,
+        createdAt: message.createdAt.toString(),
+        updatedAt: message.updatedAt.toString(),
+        system: message.system,
+        invite: message.invite,
+      })),
       ))
     },
   })
@@ -144,13 +144,13 @@ export default function Community ({ navigation }: Props) {
         backgroundColor: "#24252D",
       },
       headerTitle() {
-        return <FText
+        return <TitleText
           font={[Montserrat_700Bold, "Montserrat_700Bold"]}
           $size={"20px"}
           $color="white"
         >
           {lang.title}
-        </FText>
+        </TitleText>
       },
     })
   }, [])

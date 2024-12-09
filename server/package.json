@@ -1,6 +1,5 @@
 {
   "name": "server",
-  "packageManager": "yarn@3.6.3",
   "dependencies": {
     "@fastify/cors": "^8.4.1",
     "@fastify/multipart": "^8.0.0",
@@ -32,6 +31,6 @@
     "zod": "^3.22.3"
   },
   "scripts": {
-    "dev:server": "tsx watch src/index"
+    "dev:server": "bun run --watch src/index.ts"
   }
 }

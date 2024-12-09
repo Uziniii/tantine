@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import { FText } from './FText';
+import { TitleText } from './FText';
 import { Feather } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ShowGroupInfo from './ShowGroupInfo';

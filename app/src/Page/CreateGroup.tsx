@@ -4,7 +4,7 @@ import { trpc } from "../utils/trpc"
 import { useState } from "react"
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler"
 import { Platform } from "react-native"
-import { FText } from "../Components/FText"
+import { TitleText } from "../Components/FText"
 import UserItem from "../Components/UserItem"
 import { FontAwesome } from "@expo/vector-icons";
 import { useAppSelector } from "../store/store"
@@ -50,7 +50,7 @@ const ValidateGroup = styled(TouchableOpacity)`
   color:white;
 `;
 
-export default function CreateGroup ({ navigation }: Props) {
+export default function CreateGroup({ navigation }: Props) {
   const lang = useAppSelector(state => langData[state.language].search)
   const [search, setSearch] = useState("")
   const [addedUsers, setAddedUsers] = useState<Record<number, boolean>>({})
@@ -60,7 +60,7 @@ export default function CreateGroup ({ navigation }: Props) {
   }, {
     enabled: search.length > 1
   })
-  
+
   const createGroup = trpc.channel.create.useMutation({
     onSuccess(data) {
       navigation.navigate("chat", {
@@ -85,7 +85,7 @@ export default function CreateGroup ({ navigation }: Props) {
 
   return <Wrapper>
     <SearchInput placeholderTextColor={"white"} onChangeText={setSearch} value={search} placeholder={`${lang.search}...`} />
-    
+
     <FlatList
       style={{ marginTop: 20 }}
       contentInsetAdjustmentBehavior="automatic"
@@ -95,6 +95,6 @@ export default function CreateGroup ({ navigation }: Props) {
     />
     <ValidateGroup onPress={onValidateGroupPress}>
       <FontAwesome name="angle-right" size={40} color="white" />
-    </ValidateGroup> 
+    </ValidateGroup>
   </Wrapper>
 }

@@ -1,7 +1,7 @@
 import { NavigationProp } from "@react-navigation/native";
 import { useEffect, useMemo, useState } from "react";
 import debounce from "lodash.debounce";
-import { FText } from "../Components/FText";
+import { TitleText } from "../Components/FText";
 import { useAppSelector } from "../store/store";
 import { Container } from "./css/search.css";
 import { langData } from "../data/lang/lang";
@@ -56,14 +56,14 @@ export default function Search({ navigation }: Props) {
   return <Container>
     <SearchInput placeholderTextColor={"white"} onChangeText={onTextChange} value={filter === "user" ? search[0] : search[1]} placeholder={`${lang.search}...`} />
     <ButtonGroupFilter>
-      <FText $color="white">Utilisateurs</FText>
+      <TitleText $color="white">Utilisateurs</TitleText>
       <Checkbox
         value={filter === "user"}
         onValueChange={() => setFilter("user")}
         color={filter ? '#333541' : undefined}
       />
 
-      <FText $color="white">Group</FText>
+      <TitleText $color="white">Group</TitleText>
       <Checkbox
         value={filter === "group"}
         onValueChange={() => setFilter("group")}
@@ -71,8 +71,8 @@ export default function Search({ navigation }: Props) {
       />
     </ButtonGroupFilter>
 
-    {filter === "user" 
-      ? <UserSearch isSearchEmpty={isSearchEmpty} search={search[0]}/> 
+    {filter === "user"
+      ? <UserSearch isSearchEmpty={isSearchEmpty} search={search[0]} />
       : <GroupSearch isSearchEmpty={isSearchEmpty} search={search[1]} />}
   </Container>
 }

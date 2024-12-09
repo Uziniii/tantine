@@ -1,7 +1,7 @@
 import { Radio, VerticalGroup } from "../Page/css/search.css";
 import { Group, InfoContainer, ProfilePictureContainer, UserContainer } from "../Page/css/user.css";
 import { FontAwesome } from '@expo/vector-icons'
-import { FText } from "./FText";
+import { TitleText } from "./FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import GetUserPictureProfil from "./GetUserPictureProfil";
 
@@ -41,9 +41,9 @@ export default function UserItem({ item, addedUsers, groupMode, userPress, theme
       </ProfilePictureContainer>
       <InfoContainer>
         <Group>
-          <FText font={strong ? [Montserrat_700Bold, "Montserrat_700Bold"] : undefined} $color={theme === "dark" ? "white" : "black"}>{item.surname} {item.name}</FText>
+          <TitleText font={strong ? [Montserrat_700Bold, "Montserrat_700Bold"] : undefined} $color={theme === "dark" ? "white" : "black"}>{item.surname} {item.name}</TitleText>
         </Group>
-        <FText $color={theme === "dark" ? "white" : "black"}>{item.email}</FText>
+        <TitleText $color={theme === "dark" ? "white" : "black"}>{item.email}</TitleText>
       </InfoContainer>
     </VerticalGroup>
     {groupMode && <VerticalGroup>

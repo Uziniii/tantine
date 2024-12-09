@@ -1,4 +1,4 @@
-import { FText } from "./FText";
+import { TitleText } from "./FText";
 import styled from "styled-components/native";
 import {
   MaterialIndicator

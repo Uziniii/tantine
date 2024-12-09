@@ -1,6 +1,6 @@
 import { Group, InfoContainer, UserContainer } from "../Page/css/user.css";
 import { FontAwesome } from "@expo/vector-icons";
-import { FText } from "./FText";
+import { TitleText } from "./FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { useAppSelector } from "../store/store";
 import { Channel as IChannel } from "../store/slices/channelsSlice";
@@ -46,23 +46,23 @@ export default function ChannelItem({ item, me }: ChannelProps) {
   });
 
   return (
-    <UserContainer style={{ flex: 1, alignItems: 'center'}} disabled>
+    <UserContainer style={{ flex: 1, alignItems: 'center' }} disabled>
       <ContainerPictureProfil>
         <GetUserPictureProfil id={item.type === "private" ? user.id : item.id} type={item.type === "private" ? "user" : "group"} />
       </ContainerPictureProfil>
       <InfoContainer>
         <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
-          <FText $size="15px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+          <TitleText $size="15px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
             {item.type === "group" ? item.title : `${user.surname} ${user.name}`}
-          </FText>
-          <FText $size="15px" $color="white">
+          </TitleText>
+          <TitleText $size="15px" $color="white">
             {item.type === "group" ? `${item.users.length} ${lang.member}` : user.email}
-          </FText>
+          </TitleText>
         </Group>
       </InfoContainer>
       {notification === 0 || isNaN(notification) ? null : (
         <Circle>
-          <FText $color="white">{notification > 9 ? "9+" : notification}</FText>
+          <TitleText $color="white">{notification > 9 ? "9+" : notification}</TitleText>
         </Circle>
       )}
     </UserContainer>

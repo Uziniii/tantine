@@ -1,7 +1,7 @@
 import { useRoute } from "@react-navigation/native"
 import { useAppDispatch, useAppSelector } from "../../../store/store"
 import { Container } from "../../css/lookup.css"
-import { FText } from "../../../Components/FText"
+import { TitleText } from "../../../Components/FText"
 import { ScrollView } from "react-native-gesture-handler"
 import { Dimensions } from "react-native"
 import z from "zod"
@@ -29,19 +29,21 @@ const nameInput = z
 const dayTurnInput = z
   .number()
   .int()
-  .min(1, { message: 'Le nombre doit être supérieur ou égal à 1',
+  .min(1, {
+    message: 'Le nombre doit être supérieur ou égal à 1',
   })
-  .max(31, { message: 'Le nombre doit être inférieur ou égal à 31', 
-})
+  .max(31, {
+    message: 'Le nombre doit être inférieur ou égal à 31',
+  })
 
-export default function EditGroup () {
+export default function EditGroup() {
   const lang = useAppSelector(state => langData[state.language].groupLookup.edit)
   const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const group = useAppSelector(state => state.channels[route.params.id])
   const [error, setError] = useState<string>("")
   const [input, setInput] = useState<string>("")
   const [inputDayTurn, setInputDayTurn] = useState<number>()
-  
+
   const editName = trpc.channel.group.editTitle.useMutation()
   const changeVisibility = trpc.channel.group.changeVisibility.useMutation()
   const editDayTurn = trpc.channel.group.editDayTurn.useMutation()
@@ -63,11 +65,11 @@ export default function EditGroup () {
 
   const onInputDayChange = (text: string) => {
     const int = parseInt(text);
-  
+
     const validationResult = dayTurnInput.safeParse(int);
     if (!validationResult.success) {
       setError(validationResult.error.errors[0].message);
-      setInputDayTurn(undefined); 
+      setInputDayTurn(undefined);
     } else {
       setError("");
       setInputDayTurn(int);
@@ -101,41 +103,41 @@ export default function EditGroup () {
   return <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
     <Container $marginTop={50}>
       <TextInput $height="43.7px" $width="90%" $borderColor={error ? "red" : undefined} onChangeText={onInputChange} placeholder="Title" defaultValue={group.title} />
-      {error && <FText $size="12px" $color="red">{error}</FText>}
+      {error && <TitleText $size="12px" $color="red">{error}</TitleText>}
       {/* {editName.status === "success" && <FText $size="12px" $color="green">Le nom du groupe a bien étais changé</FText>} */}
       <Button
         $width={`${width * 0.9}px`}
         disabled={!!error}
         onPress={onTitleSubmit}
       >
-        <FText $color='white'>{lang.changeName}</FText>
+        <TitleText $color='white'>{lang.changeName}</TitleText>
       </Button>
 
-      <TextInput   defaultValue={group.dayTurn ? group.dayTurn.toString() : ""} $height="43.7px" $width="90%" $borderColor={error ? "red" : undefined} onChangeText={onInputDayChange}  placeholder="Jour du mois" />
-      {error && <FText $size="12px" $color="red">{error}</FText>}
+      <TextInput defaultValue={group.dayTurn ? group.dayTurn.toString() : ""} $height="43.7px" $width="90%" $borderColor={error ? "red" : undefined} onChangeText={onInputDayChange} placeholder="Jour du mois" />
+      {error && <TitleText $size="12px" $color="red">{error}</TitleText>}
       <Button
         $width={`${width * 0.9}px`}
         disabled={!!error}
         onPress={onDayTurnSubmit}
       >
-        <FText $color='white'>Valider</FText>
+        <TitleText $color='white'>Valider</TitleText>
       </Button>
 
-      <FText $color="white">{lang.visibility}</FText>
+      <TitleText $color="white">{lang.visibility}</TitleText>
       <ButtonGroup>
-        <SpaceBetweenButton onPress={() => onChangeVisibility(0)} $width={`${width * 0.45}px`}  $background="#2A2F3E">
-          <FText $color="white">{lang.public}</FText>
+        <SpaceBetweenButton onPress={() => onChangeVisibility(0)} $width={`${width * 0.45}px`} $background="#2A2F3E">
+          <TitleText $color="white">{lang.public}</TitleText>
           {group.visibility === 0 && (
             <FontAwesome name="check" size={16} color={"green"} />
           )}
         </SpaceBetweenButton>
         <SpaceBetweenButton onPress={() => onChangeVisibility(1)} $width={`${width * 0.45}px`} $background="#2A2F3E">
-          <FText $color="white">{lang.private}</FText>
+          <TitleText $color="white">{lang.private}</TitleText>
           {group.visibility === 1 && (
             <FontAwesome name="check" size={16} color={"green"} />
           )}
         </SpaceBetweenButton>
       </ButtonGroup>
     </Container>
-  </ScrollView> 
+  </ScrollView>
 }

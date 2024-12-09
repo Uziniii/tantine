@@ -17,7 +17,7 @@ import styled from "styled-components/native";
 import { setPositions } from "../store/slices/notificationSlice";
 import ChannelItem from "../Components/ChannelItem";
 import Loading from "../Components/Loading";
-import { FText } from "../Components/FText";
+import { MTitleText, TitleText } from "../Components/FText";
 import { langData } from "../data/lang/lang";
 
 const Stack = createNativeStackNavigator();
@@ -149,13 +149,13 @@ function List() {
 
   return <Container>
     <ContainerTitle>
-      <FText $color="white" $size="18px">{lang.recentMessage}</FText>
+      <MTitleText $color="white" $size="18px">{lang.recentMessage}</MTitleText>
     </ContainerTitle>
     <FlatList
       data={channels}
       renderItem={({ item }) => {
         if (item?.id === undefined) return null;
-        
+
         return (
           <TouchableOpacity onPress={() => onChannelPress(item.id)}>
             <ChannelItem item={item} me={me} />
@@ -164,5 +164,5 @@ function List() {
       }}
       keyExtractor={(item) => item.id.toString()}
     />
-  </Container>
+  </Container >
 }

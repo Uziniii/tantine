@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { FText } from './FText';
+import { TitleText } from './FText';
 import { useAppDispatch, useAppSelector } from '../store/store';
 import { langData } from '../data/lang/lang';
 import { Alert } from 'react-native';
@@ -116,19 +116,19 @@ export default function ShowGroupInfo({ type, visibility, channelId }: Props) {
 
     if (type === "author" || type === "admin" || (type === "user" && visibility === 0)) stack.push(
       <Button key={"invite"} onPress={onInvitePress}>
-        <FText $color='white'>{lang.invite}</FText>
+        <TitleText $color='white'>{lang.invite}</TitleText>
       </Button>
     )
 
     if (type === "admin" || type === "user") stack.push(
       <Button key={"quit"} onPress={onQuitGroupPress}>
-        <FText $color='white'>{lang.quitGroup}</FText>
+        <TitleText $color='white'>{lang.quitGroup}</TitleText>
       </Button>
     )
 
     if (type === "author") stack.push(
       <Button key={"delete"} onPress={createDeleteConfirmAlert}>
-        <FText $color='white'>{lang.deleteGroupButton}</FText>
+        <TitleText $color='white'>{lang.deleteGroupButton}</TitleText>
       </Button>
     )
 

@@ -10,7 +10,7 @@ export type InputsReducerState = {
 
 const parseInput = (error: z.SafeParseReturnType<string, string>) => {
   if (error.success) return undefined;
-  
+
   return error.error.issues[0].message;
 };
 

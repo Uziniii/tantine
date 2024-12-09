@@ -2,7 +2,7 @@ import { NavigationProp, useRoute } from "@react-navigation/native"
 import { useAppSelector } from "../../../store/store"
 import { Container, Group } from "../../css/lookup.css"
 import { ProfilePictureContainer } from "../../css/user.css"
-import { FText } from "../../../Components/FText"
+import { TitleText } from "../../../Components/FText"
 import { FontAwesome } from '@expo/vector-icons'
 import { Button } from "../../css/auth.css"
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
@@ -18,7 +18,7 @@ interface Props {
   navigation: NavigationProp<any>
 }
 
-export default function MemberLookup ({ navigation }: Props) {
+export default function MemberLookup({ navigation }: Props) {
   const lang = useAppSelector(state => langData[state.language].memberLookup)
   const route = useRoute<{ params: { id: string, channelId: string }, key: string, name: string }>()
   const user = useAppSelector(state => state.users[+route.params.id])
@@ -55,43 +55,43 @@ export default function MemberLookup ({ navigation }: Props) {
   }
 
   const onRemoveAdminPress = () => {
-    
+
   }
 
   return <Container>
     <Group>
-      <FText $color="white" $size="24px">
-        {group.authorId === user.id 
-          ? lang.author 
+      <TitleText $color="white" $size="24px">
+        {group.authorId === user.id
+          ? lang.author
           : (
             isAdmin
-              ? lang.admin 
+              ? lang.admin
               : lang.member
           )}
-      </FText>
+      </TitleText>
     </Group>
     <ProfilePictureContainer $margin="0px" $size="200px">
       <GetUserPictureProfil id={user.id} type="user" />
     </ProfilePictureContainer>
     <Group>
-      <FText $color="white" $size="24px">{user.surname} {user.name}</FText>
-      <FText $color="white" $size="16px">{user.email}</FText>
+      <TitleText $color="white" $size="24px">{user.surname} {user.name}</TitleText>
+      <TitleText $color="white" $size="16px">{user.email}</TitleText>
     </Group>
     {user.id !== me.id && (
       <Button $width={`${width * 0.8}px`}>
-        <FText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.sendMessage}</FText>
+        <TitleText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.sendMessage}</TitleText>
       </Button>
     )}
     {(group.authorId === me.id && user.id !== me.id) && (
       <Button onPress={isAdmin ? onRemoveAdminPress : onPutAdminPress} $width={`${width * 0.8}px`}>
-        <FText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+        <TitleText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
           {isAdmin ? lang.removeAdmin : lang.putAdmin}
-        </FText>
+        </TitleText>
       </Button>
     )}
     {(group.authorId !== user.id && user.id !== me.id && group.admins.includes(me.id)) && (
       <Button onPress={onRemovePress} $background="red" $width={`${width * 0.8}px`}>
-        <FText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.remove}</FText>
+        <TitleText $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>{lang.remove}</TitleText>
       </Button>
     )}
   </Container>

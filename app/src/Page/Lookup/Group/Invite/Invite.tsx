@@ -2,7 +2,7 @@ import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
 import { NavigationProp, useRoute } from "@react-navigation/native"
 import { useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler"
-import { FText } from "../../../../Components/FText"
+import { TitleText } from "../../../../Components/FText"
 import { useAppSelector } from "../../../../store/store"
 import { langData } from "../../../../data/lang/lang"
 import { View } from "react-native"
@@ -85,7 +85,7 @@ export default function Invite({ navigation }: Props) {
     navigation.setOptions({
       headerRight: () => {
         return <TouchableOpacity onPress={onNextPress}>
-          <FText font={[Montserrat_700Bold, "Montserrat_700Bold"]} $color="#007aff">{lang.next}</FText>
+          <TitleText font={[Montserrat_700Bold, "Montserrat_700Bold"]} $color="#007aff">{lang.next}</TitleText>
         </TouchableOpacity>
       }
     })

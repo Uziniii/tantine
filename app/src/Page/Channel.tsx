@@ -2,9 +2,9 @@ import { NavigationProp, useRoute } from "@react-navigation/native";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Alert, View } from "react-native";
 import { ProfilePictureContainer } from "./css/user.css";
-import { FText } from "../Components/FText";
+import { TitleText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
-import { FontAwesome } from '@expo/vector-icons'; 
+import { FontAwesome } from '@expo/vector-icons';
 import styled from "styled-components/native"
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { trpc } from "../utils/trpc";
@@ -87,13 +87,13 @@ function isMessageSystem(message: Message): message is Message & { system: true 
   return Boolean(message.system)
 }
 
-export default function Channel ({ navigation }: Props) {  
+export default function Channel({ navigation }: Props) {
   const dispatch = useAppDispatch()
   const lang = useAppSelector(state => langData[state.language].channel)
-  const route = useRoute<{params: { id: string }, key: string, name: string}>()
+  const route = useRoute<{ params: { id: string }, key: string, name: string }>()
   const [title, lookupId] = useAppSelector(state => {
     const channel = state.channels[route.params.id]
-    
+
     if (channel === undefined) return [undefined, undefined]
     if (channel.type === "group") {
       return [channel.title, channel.id]
@@ -131,7 +131,7 @@ export default function Channel ({ navigation }: Props) {
 
         if (toFetch.size > 0) {
           let fetchedUsers = await retrieveUsers.mutateAsync([...toFetch.values()])
-  
+
           dispatch(addUsers(fetchedUsers))
         }
       }
@@ -200,13 +200,13 @@ export default function Channel ({ navigation }: Props) {
           <ProfilePictureContainer $size="36px">
             <GetUserPictureProfil size={16} id={lookupId || -1} type={type === "private" ? "user" : "group"} />
           </ProfilePictureContainer>
-          <FText
+          <TitleText
             font={[Montserrat_700Bold, "Montserrat_700Bold"]}
             $size={"20px"}
             $color="white"
           >
             {title}
-          </FText>
+          </TitleText>
         </TitleContainer>
       },
     })
@@ -298,7 +298,7 @@ export default function Channel ({ navigation }: Props) {
             sumChars += username.charCodeAt(i);
           }
         }
-        
+
         const colors = [
           '#DFF0D8',
           '#E6E6E6',
@@ -312,7 +312,7 @@ export default function Channel ({ navigation }: Props) {
 
         (props as any).onJoinPress = (groupInfo: GroupInfo | null) => {
           console.log(groupInfo);
-          
+
           if (groupInfo === null) return;
 
           if (channels[groupInfo.id] !== undefined) {
@@ -345,25 +345,25 @@ export default function Channel ({ navigation }: Props) {
           })
         }
 
-        return <Bubble color={colors[sumChars % colors.length]} {...props}/>
+        return <Bubble color={colors[sumChars % colors.length]} {...props} />
       }}
       renderInputToolbar={(props) => {
         return <InputContainer>
           <SendChatContainer>
             <SearchInput
-              multiline 
+              multiline
               $width="76%"
-              style={{height:40}} 
-              placeholderTextColor={"white"} 
+              style={{ height: 40 }}
+              placeholderTextColor={"white"}
               placeholder="Envoyer un message"
               value={input}
               onChangeText={setInput}
             />
             <ContainerButtonSend onPress={() => onSend(input)}>
-              <FontAwesome size={20} color="#707179" name="send"/>
+              <FontAwesome size={20} color="#707179" name="send" />
             </ContainerButtonSend>
           </SendChatContainer>
-          <RecordVoiceMessage channelId={route.params.id}/>
+          <RecordVoiceMessage channelId={route.params.id} />
         </InputContainer>
       }}
       messages={msgState?.map(message => {
@@ -410,7 +410,7 @@ export default function Channel ({ navigation }: Props) {
         })
 
         if (messages.length === 0) return setCanLoad(false)
-        
+
         dispatch(addManyMessages({
           channelId: +route.params.id,
           messages: messages.map(message => ({

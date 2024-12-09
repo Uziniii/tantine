@@ -5,7 +5,7 @@ import { FlatList, TouchableOpacity } from "react-native-gesture-handler"
 import { useLayoutEffect, useState } from "react"
 import { SearchInput } from "../Add/AddMember"
 import { langData } from "../../../../data/lang/lang"
-import { FText } from "../../../../Components/FText"
+import { TitleText } from "../../../../Components/FText"
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
 import { trpc } from "../../../../utils/trpc"
 import Loading from "../../../../Components/Loading"
@@ -37,8 +37,8 @@ export default function InviteConfirm({ navigation }: Props) {
       .map(([key, _]) => state.channels[key])
 
     const addedUsers = []//Object.entries(route.params.addedUsers)
-      // .filter(([_, val]) => val)
-      // .map(([key, _]) => state.users[key])
+    // .filter(([_, val]) => val)
+    // .map(([key, _]) => state.users[key])
 
     return [...channelsToAdd, ...addedUsers]
   })
@@ -54,7 +54,7 @@ export default function InviteConfirm({ navigation }: Props) {
     for (const channel of channels) {
       if (Array.isArray(channel)) {
         const newChannel = await createMessage.mutateAsync(channel[0].id)
-        
+
         dispatch(addChannel(newChannel))
 
         sendMessage.mutate({
@@ -85,10 +85,10 @@ export default function InviteConfirm({ navigation }: Props) {
     navigation.setOptions({
       headerRight: () => {
         return <TouchableOpacity onPress={onSendPress}>
-          <FText font={[Montserrat_700Bold, "Montserrat_700Bold"]} $color="#007aff">
+          <TitleText font={[Montserrat_700Bold, "Montserrat_700Bold"]} $color="#007aff">
             {lang.send}
-          </FText>
-        </TouchableOpacity> 
+          </TitleText>
+        </TouchableOpacity>
       }
     })
   })

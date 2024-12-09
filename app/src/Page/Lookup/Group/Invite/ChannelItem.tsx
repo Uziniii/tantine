@@ -1,5 +1,5 @@
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat"
-import { FText } from "../../../../Components/FText"
+import { TitleText } from "../../../../Components/FText"
 import { langData } from "../../../../data/lang/lang"
 import { Channel } from "../../../../store/slices/channelsSlice"
 import { useAppSelector } from "../../../../store/store"
@@ -47,12 +47,12 @@ export function ChannelItem({ viewMode, item, addedChannels, setAddedChannels, g
             <GetUserPictureProfil id={item.id} type="group" />
           </ProfilePictureContainer>
           <Group style={{ height: "100%", flexDirection: "column", alignItems: "flex-start" }}>
-            <FText $size="18px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
+            <TitleText $size="18px" $color="white" font={[Montserrat_700Bold, "Montserrat_700Bold"]}>
               {item.title}
-            </FText>
-            <FText $size="15px" $color="white">
+            </TitleText>
+            <TitleText $size="15px" $color="white">
               {`${item.users.length} ${item.users.length <= 1 ? lang.member : `${lang.member}s`}`}
-            </FText>
+            </TitleText>
           </Group>
         </VerticalGroup>
         {groupMode && (
