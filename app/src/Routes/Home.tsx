@@ -25,17 +25,26 @@ interface Props {
 
 const Tab = createBottomTabNavigator();
 
-const ButtonSearch = styled(TouchableOpacity)`
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
-  background-color: #333541;
-  display: flex;
-  align-items: center;
-  justify-content:center;
-`
 
 const logo = require("../../assets/logo.png")
+
+interface HeaderProps {
+  text: string
+}
+
+function Header({ text }: HeaderProps) {
+  return <View style={{ height: 100 }}>
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <TitleText
+        font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+        $size={"25px"}
+        $color={colorCss.gold}
+      >
+        {text}
+      </TitleText>
+    </View>
+  </View>
+}
 
 export function Home() {
   const me = useAppSelector(state => state.me)
@@ -62,12 +71,12 @@ export function Home() {
       <Tab.Navigator screenOptions={{
         headerShadowVisible: false,
         tabBarStyle: {
-          height: '10%',
+          height: '12%',
           width: '100%',
           alignSelf: 'center',
           // marginTop: 20,
           // paddingBottom: 16,
-          backgroundColor: '#24252D',
+          backgroundColor: '#484857',
           borderTopWidth: 0,
           // borderRadius: 99990,
           // borderWidth: 1,
@@ -93,18 +102,8 @@ export function Home() {
             },
             headerTitleAlign: "center",
             header() {
-              return <View style={{ height: 100 }}>
-                <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                  <TitleText
-                    font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-                    $size={"25px"}
-                    $color={colorCss.gold}
-                  >
-                    {lang.chat}
-                  </TitleText>
-                </View>
-              </View>
-            },
+              return <Header text={lang.chat}></Header>
+            }
             // headerRight() {
             //   const navigation = useNavigation()
             //
@@ -138,17 +137,9 @@ export function Home() {
             tabBarLabel(props) {
               return <TitleText $color='#FFFF' $size='12px'>Groupe</TitleText>
             },
-            headerTitle() {
-              return <View>
-                <TitleText
-                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-                  $size={"25px"}
-                  $color='#FFF'
-                >
-                  Groupe
-                </TitleText>
-              </View>
-            },
+            header() {
+              return <Header text={lang.group}></Header>
+            }
           }}
         />
         <Tab.Screen
@@ -215,17 +206,9 @@ export function Home() {
             tabBarLabel(props) {
               return <TitleText $color='#FFFF' $size='12px'>{lang.settings}</TitleText>
             },
-            headerTitle() {
-              return <View>
-                <TitleText
-                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-                  $size={"25px"}
-                  $color='#FFF'
-                >
-                  {lang.settings}
-                </TitleText>
-              </View>
-            },
+            header() {
+              return <Header text={lang.settings}></Header>
+            }
           }}
         />
       </Tab.Navigator>

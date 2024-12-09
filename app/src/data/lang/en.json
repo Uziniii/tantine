@@ -54,6 +54,7 @@
   },
   "tab": {
     "chat": "Chat",
+    "group": "Group",
     "settings": "Settings"
   },
   "route": {
@@ -142,6 +143,10 @@
     "language": "Language"
   },
   "channelList": {
+    "noChannel": [
+      "Your message box is empty.",
+      "Add groups to exchange with new friends."
+    ],
     "recentMessage": "Recent message"
   },
   "community": {

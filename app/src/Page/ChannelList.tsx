@@ -17,8 +17,14 @@ import styled from "styled-components/native";
 import { setPositions } from "../store/slices/notificationSlice";
 import ChannelItem from "../Components/ChannelItem";
 import Loading from "../Components/Loading";
-import { MTitleText, TitleText } from "../Components/FText";
+import { MTitleText, SText } from "../Components/FText";
 import { langData } from "../data/lang/lang";
+import { GrayGradientFull } from "./css/gradient.css";
+import colorCss from "./css/color.css";
+import Feather from '@expo/vector-icons/Feather';
+import { Image, View } from "react-native";
+
+const noMessagesImage = require("../../assets/no-messages.png")
 
 const Stack = createNativeStackNavigator();
 
@@ -27,17 +33,24 @@ interface Props {
 }
 
 const ContainerTitle = styled.View`
-  padding: 10px 0 20px 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px 20px 30px;
+  border-color: ${colorCss.lightGray};
+  border-bottom-width: 1px;
 `;
 
-const Container = styled.View`
+export const TabContentContainer = styled.View`
+  width: 100%;
   height: 100%;
-  background-color: #333541;
+  background-color: none;
+  border: 1px ${colorCss.lightGray};
   border-top-right-radius: 50px;
   border-top-left-radius: 50px;
   position: fixed;
   bottom: 0;
-  padding: 20px 10px 0 10px;
 `
 
 const ContainerPictureProfil = styled.View`
@@ -45,6 +58,16 @@ const ContainerPictureProfil = styled.View`
   height: 200px;
   background-color:white;
   border-radius: 99999px;
+`
+
+const ButtonSearch = styled(TouchableOpacity)`
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
+  background-color: ${colorCss.gold};
+  display: flex;
+  align-items: center;
+  justify-content:center;
 `
 
 export default function ChannelList({ navigation }: Props) {
@@ -147,22 +170,37 @@ function List() {
     });
   };
 
-  return <Container>
-    <ContainerTitle>
-      <MTitleText $color="white" $size="18px">{lang.recentMessage}</MTitleText>
-    </ContainerTitle>
-    <FlatList
-      data={channels}
-      renderItem={({ item }) => {
-        if (item?.id === undefined) return null;
+  return <GrayGradientFull colors={[""]}>
+    <TabContentContainer>
+      <ContainerTitle>
+        <MTitleText $color="white" $size="18px">{lang.recentMessage}</MTitleText>
+        <ButtonSearch>
+          <Feather name="search" size={25} color={colorCss.primaryBg} />
+        </ButtonSearch>
+      </ContainerTitle>
+      {channels.length === 0
+        ? <View style={{ flex: 1, alignItems: "center", alignContent: "center", justifyContent: "space-evenly" }}>
+          <Image source={noMessagesImage} style={{ width: 200, height: 150 }} />
+          <View>
+            <SText $color="#E5E5E5" style={{ textAlign: "center" }}>{lang.noChannel[0]}</SText>
+            <SText $color="#E5E5E5" style={{ textAlign: "center" }}>{lang.noChannel[1]}</SText>
+          </View>
+        </View>
+        : <FlatList
+          style={{ paddingHorizontal: 20 }}
+          data={channels}
+          renderItem={({ item }) => {
+            if (item?.id === undefined) return null;
 
-        return (
-          <TouchableOpacity onPress={() => onChannelPress(item.id)}>
-            <ChannelItem item={item} me={me} />
-          </TouchableOpacity>
-        );
-      }}
-      keyExtractor={(item) => item.id.toString()}
-    />
-  </Container >
+            return (
+              <TouchableOpacity onPress={() => onChannelPress(item.id)}>
+                <ChannelItem item={item} me={me} />
+              </TouchableOpacity>
+            );
+          }}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      }
+    </TabContentContainer >
+  </GrayGradientFull>
 }

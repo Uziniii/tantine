@@ -1,9 +1,11 @@
 import { useFonts as fredokaUseFonts, FredokaOne_400Regular } from "@expo-google-fonts/fredoka-one";
 import { useFonts as poppinsUseFonts, Poppins_500Medium, Poppins_400Regular } from "@expo-google-fonts/poppins";
+import { StyleProp, TextStyle } from "react-native";
 import styled from "styled-components/native"
 
 interface Props extends React.PropsWithChildren {
   font?: [number, string];
+  style?: StyleProp<TextStyle>;
 }
 
 const CustomText = styled.Text<{ $color?: string, $size?: string }>`
@@ -60,7 +62,8 @@ export function SText({
   children,
   font: fontProps,
   $color,
-  $size = "18px"
+  $size = "18px",
+  style = {}
 }: Props & typeof CustomText.defaultProps) {
   const font: [number, string] = [
     fontProps?.[0] || Poppins_400Regular,
@@ -73,7 +76,7 @@ export function SText({
 
   if (!fontsLoaded && !fontError) return null
 
-  return <CustomText {...{ $color, $size }} style={{ fontFamily: font[1] }}>
+  return <CustomText {...{ $color, $size }} style={{ fontFamily: font[1], ...style }}>
     {children}
   </CustomText>
 }

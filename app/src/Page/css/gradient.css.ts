@@ -28,3 +28,13 @@ export const GrayGradient = styled(LinearGradient).attrs({
   height: 100%;
 `
 
+export const GrayGradientFull = styled(LinearGradient).attrs({
+  colors: [color.primaryBg, color.lightGray],
+  start: { y: 0.1, x: 1 },
+  end: { x: 1, y: 1 }
+})`
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`
+

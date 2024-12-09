@@ -2,12 +2,15 @@ import { NavigationProp } from "@react-navigation/native";
 import { useState } from "react";
 import { Dimensions, View } from "react-native";
 import styled from "styled-components/native";
-import { TitleText } from "../Components/FText";
+import { MTitleText, TitleText } from "../Components/FText";
 import { trpc } from "../utils/trpc";
 import GroupItem from "../Components/GroupItem";
 import ChannelItem from "../Components/ChannelItem";
 import { useAppSelector } from "../store/store";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
+import { TabContentContainer } from "./ChannelList";
+import { GrayGradientFull } from "./css/gradient.css";
+import colorCss from "./css/color.css";
 
 const width = Dimensions.get('window').width;
 
@@ -20,28 +23,37 @@ const TabWrapper = styled.View`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 50px;
+  height: 100px;
 `
+
+const ContainerTitle = styled.View`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  gap: 20px;
+  align-items: center;
+  padding: 20px 0px 20px 0px;
+  border-color: ${colorCss.lightGray};
+  border-bottom-width: 1px;
+`;
 
 const TabContainer = styled.View`
   width: 90%;
   height: 100%;
-  background-color: #333541;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  border-radius: 9999px;
 `
 
 const Tab = styled.Pressable<{ $selected: boolean }>`
-  width: ${(width / 2 - width * 0.05) - 8}px;
-  height: 80%;
-  border-radius: 9999px;
+  width: ${(width / 2 - width * 0.08) - 8}px;
+  height: 50px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${(props) => props.$selected ? "#6969e7" : "transparent"};
+  background: ${(props) => props.$selected ? colorCss.gold : "transparent"};
 `
 
 export default function GroupRecommandation({ navigation }: Props) {
@@ -54,37 +66,38 @@ export default function GroupRecommandation({ navigation }: Props) {
   }
 
   const groups = trpc.channel.group.findNearestGroup.useQuery(undefined)
-  // console.log(groups);
 
-  return <View>
-    <TabWrapper>
-      <TabContainer>
-        <Tab onPress={onTabPress} $selected={tab === false}>
-          <TitleText $color="white">
-            Recommandations
-          </TitleText>
-        </Tab>
-        <Tab onPress={onTabPress} $selected={tab}>
-          <TitleText $color="white">
-            Tendances
-          </TitleText>
-        </Tab>
-      </TabContainer>
-    </TabWrapper>
-    <FlatList
-      data={groups.data}
-      renderItem={({ item }) => {
-        console.log(item.users);
+  return <GrayGradientFull colors={[""]}>
+    <TabContentContainer>
+      <ContainerTitle>
+        <TabContainer>
+          <Tab onPress={onTabPress} $selected={tab === false}>
+            <MTitleText $color="white" $size="14">
+              Recommandations
+            </MTitleText>
+          </Tab>
+          <Tab onPress={onTabPress} $selected={tab}>
+            <MTitleText $color="white" $size="14">
+              Tendances
+            </MTitleText>
+          </Tab>
+        </TabContainer>
+      </ContainerTitle>
+      <FlatList
+        data={groups.data}
+        renderItem={({ item }) => {
+          console.log(item.users);
 
-        if (item?.id === undefined) return null;
+          if (item?.id === undefined) return null;
 
-        return (
-          <TouchableOpacity>
-            <ChannelItem item={{ ...item, type: "group", users: [...Array(parseInt(item.users))] }} me={me} />
-          </TouchableOpacity>
-        );
-      }}
-      keyExtractor={(item) => item.id.toString()}
-    />
-  </View>
+          return (
+            <TouchableOpacity>
+              <ChannelItem item={{ ...item, type: "group", users: [...Array(parseInt(item.users))] }} me={me} />
+            </TouchableOpacity>
+          );
+        }}
+        keyExtractor={(item) => item.id.toString()}
+      />
+    </TabContentContainer>
+  </GrayGradientFull >
 }
