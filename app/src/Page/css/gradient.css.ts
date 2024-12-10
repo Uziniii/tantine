@@ -30,7 +30,7 @@ export const GrayGradient = styled(LinearGradient).attrs({
 
 export const GrayGradientFull = styled(LinearGradient).attrs({
   colors: [color.primaryBg, color.lightGray],
-  start: { y: 0.1, x: 1 },
+  start: { y: 0.01, x: 1 },
   end: { x: 1, y: 1 }
 })`
   align-items: center;

@@ -13,6 +13,8 @@ import UploadPictureProfil from "../Components/UploadPictureProfil";
 import { useEffect, useState } from "react";
 import ky from "ky";
 import { host, port } from "../utils/host";
+import { GrayGradientFull } from "./css/gradient.css";
+import { TabContentContainer } from "./ChannelList";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -79,8 +81,8 @@ export default function Settings({ navigation }: Props) {
     setImage(uri)
   }
 
-  return <View>
-    <Container>
+  return <GrayGradientFull colors={[""]}>
+    <TabContentContainer>
       <ContainerPictureProfil>
         <UploadPictureProfil setImage={onImageChange} image={image} />
       </ContainerPictureProfil>
@@ -92,7 +94,7 @@ export default function Settings({ navigation }: Props) {
         dispatch({ type: "RESET" })
         AsyncStorage.removeItem("token")
       }} />
-    </Container>
-    <SettingsButton text={lang.language} onPress={() => navigation.navigate("chooseLanguage")} />
-  </View>
+      <SettingsButton text={lang.language} onPress={() => navigation.navigate("chooseLanguage")} />
+    </TabContentContainer>
+  </GrayGradientFull>
 }

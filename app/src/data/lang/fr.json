@@ -156,5 +156,9 @@
   "welcome": {
     "title": "Laissez Tantine vous guidez !",
     "sub": "Tantine est notre assistante vocal"
+  },
+  "groupTab": {
+    "recommandations": "Recommandations",
+    "trend": "Tendance"
   }
 }

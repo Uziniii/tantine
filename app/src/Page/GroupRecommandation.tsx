@@ -11,6 +11,7 @@ import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { TabContentContainer } from "./ChannelList";
 import { GrayGradientFull } from "./css/gradient.css";
 import colorCss from "./css/color.css";
+import { langData } from "../data/lang/lang";
 
 const width = Dimensions.get('window').width;
 
@@ -53,12 +54,14 @@ const Tab = styled.Pressable<{ $selected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${(props) => props.$selected ? colorCss.gold : "transparent"};
+  background: ${(props) => props.$selected ? colorCss.gold : "#25252D"};
+  border: ${(props) => props.$selected ? "" : `1px ${colorCss.gold}`};
 `
 
 export default function GroupRecommandation({ navigation }: Props) {
   const [tab, setTab] = useState(false);
 
+  const lang = useAppSelector((state) => langData[state.language].groupTab);
   const me = useAppSelector(state => state.me)
 
   const onTabPress = () => {
@@ -73,12 +76,12 @@ export default function GroupRecommandation({ navigation }: Props) {
         <TabContainer>
           <Tab onPress={onTabPress} $selected={tab === false}>
             <MTitleText $color="white" $size="14">
-              Recommandations
+              {lang.recommandations}
             </MTitleText>
           </Tab>
           <Tab onPress={onTabPress} $selected={tab}>
             <MTitleText $color="white" $size="14">
-              Tendances
+              {lang.trend}
             </MTitleText>
           </Tab>
         </TabContainer>

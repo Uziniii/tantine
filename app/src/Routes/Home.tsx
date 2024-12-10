@@ -18,6 +18,8 @@ import GetUserPictureProfil from "../Components/GetUserPictureProfil";
 import Constants from 'expo-constants';
 import colorCss from "../Page/css/color.css";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { WaveBackground } from "../Components/WaveBackground";
+import { TabIcon } from "../Components/TabIcon";
 
 interface Props {
   navigation: NavigationProp<any>
@@ -68,151 +70,178 @@ export function Home() {
           <MaterialCommunityIcons name="bell" size={42} color={colorCss.gold} />
         </View>
       </View>
-      <Tab.Navigator screenOptions={{
-        headerShadowVisible: false,
-        tabBarStyle: {
-          height: '12%',
-          width: '100%',
-          alignSelf: 'center',
-          // marginTop: 20,
-          // paddingBottom: 16,
-          backgroundColor: '#484857',
-          borderTopWidth: 0,
-          // borderRadius: 99990,
-          // borderWidth: 1,
-          // borderTopWidth: 1,
-          // borderTopColor: "#D4B216",
-          // borderColor: "#D4B216",
-        },
-        headerStyle: {
-          backgroundColor: "#24252D",
-        },
-      }}>
-        <Tab.Screen
-          name="chat"
-          key={"chat"}
-          component={ChannelList}
-          options={{
-            tabBarActiveTintColor: '#D4B216',
-            tabBarIcon(props) {
-              return <FontAwesome name="comments" size={30} color={props.color} />
+      <View style={{ flex: 1, backgroundColor: "#797993" }}>
+        <WaveBackground></WaveBackground>
+        <View style={{ flex: 1, zIndex: 2 }}>
+          <Tab.Navigator screenOptions={{
+            headerShadowVisible: false,
+            tabBarStyle: {
+              height: '12%',
+              width: '100%',
+              alignSelf: 'center',
+              backgroundColor: "transparent",
+              borderTopWidth: 0,
             },
-            tabBarLabel() {
-              return <TitleText $color='#FFFF' $size='12px'>{lang.chat}</TitleText>
+            headerStyle: {
+              backgroundColor: "#24252D",
             },
-            headerTitleAlign: "center",
-            header() {
-              return <Header text={lang.chat}></Header>
-            }
-            // headerRight() {
-            //   const navigation = useNavigation()
-            //
-            //   return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginRight: 16 }}>
-            //     <ButtonSearch onPress={() => navigation.navigate("search" as never)}>
-            //       <Feather name="search" size={25} color={"#fff"} />
-            //     </ButtonSearch>
-            //   </View>
-            // },
-            //
-            // headerLeft() {
-            //   const navigation = useNavigation()
-            //
-            //   return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginLeft: 16 }}>
-            //     <ButtonSearch onPress={() => navigation.navigate("createGroup" as never)}>
-            //       <Feather name="plus" size={25} color={"#fff"} />
-            //     </ButtonSearch>
-            //   </View>
-            // }
-          }}
-        />
-        <Tab.Screen
-          name='groupRecommandation'
-          key={"groupRecommandation"}
-          component={GroupRecommandation}
-          options={{
-            tabBarActiveTintColor: '#D4B216',
-            tabBarIcon(props) {
-              return <MaterialIcons name="groups" size={30} color={props.color} />
-            },
-            tabBarLabel(props) {
-              return <TitleText $color='#FFFF' $size='12px'>Groupe</TitleText>
-            },
-            header() {
-              return <Header text={lang.group}></Header>
-            }
-          }}
-        />
-        <Tab.Screen
-          name='community'
-          key={"community"}
-          component={({ navigation }: Props) => {
-            console.log("render")
+          }}>
+            <Tab.Screen
+              name="chat"
+              key={"chat"}
+              component={ChannelList}
+              options={{
+                tabBarActiveTintColor: colorCss.lightGold,
+                tabBarIcon(props) {
+                  return <TabIcon name="message" width="30" height="30" color={props.color} />
+                },
+                tabBarLabel() {
+                  return <TitleText $color='#FFFF' $size='12px'>{lang.chat}</TitleText>
+                },
+                headerTitleAlign: "center",
+                header() {
+                  return <Header text={lang.chat}></Header>
+                },
+                // headerRight() {
+                //   const navigation = useNavigation()
+                //
+                //   return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginRight: 16 }}>
+                //     <ButtonSearch onPress={() => navigation.navigate("search" as never)}>
+                //       <Feather name="search" size={25} color={"#fff"} />
+                //     </ButtonSearch>
+                //   </View>
+                // },
+                //
+                // headerLeft() {
+                //   const navigation = useNavigation()
+                //
+                //   return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginLeft: 16 }}>
+                //     <ButtonSearch onPress={() => navigation.navigate("createGroup" as never)}>
+                //       <Feather name="plus" size={25} color={"#fff"} />
+                //     </ButtonSearch>
+                //   </View>
+                // }
+              }}
+            />
+            <Tab.Screen
+              name='groupRecommandation'
+              key={"groupRecommandation"}
+              component={GroupRecommandation}
+              options={{
+                tabBarActiveTintColor: colorCss.lightGold,
+                tabBarIcon(props) {
+                  return <TabIcon name="group" width="30" height="30" color={props.color} />
+                },
+                tabBarLabel(props) {
+                  return <TitleText $color='#FFFF' $size='12px'>Groupe</TitleText>
+                },
+                header() {
+                  return <Header text={lang.group}></Header>
+                }
+              }}
+            />
+            <Tab.Screen
+              name="createGroup"
+              key="createGroup"
+              component={function A() { return <></> }}
+              options={{
+                tabBarLabel() {
+                  return <></>
+                },
+                tabBarIcon() {
+                  return <View
+                    style={{
+                      width: 44,
+                      height: 44,
+                      backgroundColor: colorCss.lightGold,
+                      justifyContent: "center",
+                      borderRadius: 100,
+                      shadowColor: colorCss.lightGold,
+                      shadowOpacity: 10,
+                      shadowOffset: {
+                        width: 0,
+                        height: 0
+                      }
+                    }}
+                  >
+                    <Feather name="plus" size={28} color={colorCss.primaryBg} style={{ alignSelf: "center" }} />
+                  </View>
+                }
+              }}
+            />
+            <Tab.Screen
+              name='community'
+              key={"community"}
+              component={({ navigation }: Props) => {
+                console.log("render")
 
-            useEffect(() => {
-              console.log("useEffect")
+                useEffect(() => {
+                  console.log("useEffect")
 
-              if (navigation.isFocused()) {
-                navigation.reset({
-                  index: 1,
-                  key: "stack-1",
-                  routes: [
-                    {
-                      name: "home"
-                    },
-                    {
-                      name: "communityScreen"
-                    },
-                  ],
-                  type: "stack"
-                })
-                // console.log(navigation.getState());
-                // navigation.navigate("communityScreen")
-              }
-            }, [])
+                  if (navigation.isFocused()) {
+                    navigation.reset({
+                      index: 1,
+                      key: "stack-1",
+                      routes: [
+                        {
+                          name: "home"
+                        },
+                        {
+                          name: "communityScreen"
+                        },
+                      ],
+                      type: "stack"
+                    })
+                    // console.log(navigation.getState());
+                    // navigation.navigate("communityScreen")
+                  }
+                }, [])
 
-            return null
-          }}
-          options={{
-            unmountOnBlur: true,
-            tabBarActiveTintColor: '#D4B216',
-            tabBarIcon(props) {
-              return <MaterialIcons name="groups" size={30} color={props.color} />
-            },
-            tabBarLabel(props) {
-              return <TitleText $color='#FFFF' $size='12px'>Communauté</TitleText>
-            },
-            headerTitle() {
-              return <View>
-                <TitleText
-                  font={[Montserrat_700Bold, "Montserrat_700Bold"]}
-                  $size={"25px"}
-                  $color='#FFF'
-                >
-                  Communauté
-                </TitleText>
-              </View>
-            },
-          }}
-        />
-        <Tab.Screen
-          name='settings'
-          key={"settings"}
-          component={Settings}
-          options={{
-            tabBarActiveTintColor: '#D4B216',
-            tabBarIcon(props) {
-              return <FontAwesome name="gear" size={30} color={props.color} />
-            },
-            tabBarLabel(props) {
-              return <TitleText $color='#FFFF' $size='12px'>{lang.settings}</TitleText>
-            },
-            header() {
-              return <Header text={lang.settings}></Header>
-            }
-          }}
-        />
-      </Tab.Navigator>
-      {/* <View style={{ height: 40 }} /> */}
+                return null
+              }}
+              options={{
+                unmountOnBlur: true,
+                tabBarActiveTintColor: colorCss.lightGold,
+                tabBarIcon(props) {
+                  return <TabIcon name="community" width="30" height="30" color={props.color} />
+                },
+                tabBarLabel(props) {
+                  return <TitleText $color='#FFFF' $size='12px'>Communauté</TitleText>
+                },
+                headerTitle() {
+                  return <View>
+                    <TitleText
+                      font={[Montserrat_700Bold, "Montserrat_700Bold"]}
+                      $size={"25px"}
+                      $color='#FFF'
+                    >
+                      Communauté
+                    </TitleText>
+                  </View>
+                },
+              }}
+            />
+            <Tab.Screen
+              name='settings'
+              key={"settings"}
+              component={Settings}
+              options={{
+                tabBarActiveTintColor: colorCss.lightGold,
+                tabBarIcon(props) {
+                  return <TabIcon name="settings" width="30" height="30" color={props.color} />
+                },
+                tabBarLabel(props) {
+                  return <TitleText $color='#FFFF' $size='12px'>{lang.settings}</TitleText>
+                },
+                header() {
+                  return <Header text={lang.settings}></Header>
+                }
+              }}
+            />
+          </Tab.Navigator>
+        </View>
+        {/* <View style={{ height: 40 }} /> */}
+      </View>
     </View>
   );
 }
