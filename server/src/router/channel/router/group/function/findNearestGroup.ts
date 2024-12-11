@@ -2,10 +2,10 @@ import { protectedProcedure } from "@/trpc";
 
 export const findNearestGroup = protectedProcedure
   .query(async ({ ctx }) => {
-    const user =  await ctx.prisma.$queryRaw<[{ point: string }]>`SELECT AsText(IF(originLocation is null, \`location\`, originLocation)) as point FROM User WHERE id = ${ctx.user.id}`;
+    const user = await ctx.prisma.$queryRaw<[{ point: string }]>`SELECT ST_AsText(IF(originLocation is null, \`location\`, originLocation)) as point FROM User WHERE id = ${ctx.user.id}`;
 
     const groups = await ctx.prisma.$queryRawUnsafe(
-`SELECT 
+      `SELECT 
   g.*,
   count(users.B) as users
 FROM
@@ -16,6 +16,7 @@ FROM
 WHERE
   g.authorId != ${ctx.user.id} AND
   ST_Distance_Sphere(${user[0].point.replace(" ", ",")}, IF(u.originLocation is null, u.\`location\`, u.originLocation)) < 1000000
+GROUP BY g.id, g.title, g.description, g.createdAt, g.updatedAt, g.authorId, g.visibility, g.profilePicture, g.dayTurn, g.updatedDayTurn WITH ROLLUP
 LIMIT 100`
     );
 

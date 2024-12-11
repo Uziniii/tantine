@@ -28,7 +28,7 @@ export type AppRouter = typeof appRouter;
 
 const server = fastify({
   maxParamLength: 5000,
-  logger: true,
+  // logger: true,
 });
 
 server.register(fastifyTRPCPlugin, {
@@ -36,6 +36,10 @@ server.register(fastifyTRPCPlugin, {
   trpcOptions: {
     router: appRouter,
     createContext,
+    onError({ path, error }: { path: any; error: any }) {
+      // report to error monitoring
+      console.error(`Error in tRPC handler on path '${path}':`, error);
+    },
   },
 });
 
@@ -71,7 +75,7 @@ server.register(postProfilePicture);
 // get profile picture
 server.register(getProfilePicture);
 
-;(async () => {
+; (async () => {
   try {
     await server.listen({ port: 3000, host: "0.0.0.0" });
     console.log("Server started");
@@ -141,7 +145,7 @@ server.register(getProfilePicture);
         winnerId: channel.users[randomInt(0, channel.users.length)].id,
         users: channel.users.map((user) => user.id),
       }))
-    
+
     for (const channel of winnersByChannel) {
       if (channel.groupId === null) continue;
 
@@ -196,5 +200,5 @@ server.register(getProfilePicture);
         }
       })
     }
-  }, {runOnInit: true})
+  }, { runOnInit: true })
 })();
