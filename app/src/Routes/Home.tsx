@@ -1,5 +1,5 @@
 import { Image, View } from "react-native";
-import { TitleText } from "../Components/FText";
+import { MTitleText, TitleText } from "../Components/FText";
 import { Montserrat_700Bold } from "@expo-google-fonts/montserrat";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useAppSelector } from "../store/store";
@@ -81,6 +81,7 @@ export function Home() {
               alignSelf: 'center',
               backgroundColor: "transparent",
               borderTopWidth: 0,
+              bottom: -10
             },
             headerStyle: {
               backgroundColor: "#24252D",
@@ -96,7 +97,7 @@ export function Home() {
                   return <TabIcon name="message" width="30" height="30" color={props.color} />
                 },
                 tabBarLabel() {
-                  return <TitleText $color='#FFFF' $size='12px'>{lang.chat}</TitleText>
+                  return <MTitleText $color='#FFFF' $size='12px' > {lang.chat}</MTitleText>
                 },
                 headerTitleAlign: "center",
                 header() {
@@ -133,7 +134,7 @@ export function Home() {
                   return <TabIcon name="group" width="30" height="30" color={props.color} />
                 },
                 tabBarLabel(props) {
-                  return <TitleText $color='#FFFF' $size='12px'>Groupe</TitleText>
+                  return <MTitleText $color='#FFFF' $size='12px'>Groupe</MTitleText>
                 },
                 header() {
                   return <Header text={lang.group}></Header>
@@ -151,6 +152,7 @@ export function Home() {
                 tabBarIcon() {
                   return <View
                     style={{
+                      bottom: 10,
                       width: 44,
                       height: 44,
                       backgroundColor: colorCss.lightGold,
@@ -206,7 +208,7 @@ export function Home() {
                   return <TabIcon name="community" width="30" height="30" color={props.color} />
                 },
                 tabBarLabel(props) {
-                  return <TitleText $color='#FFFF' $size='12px'>Communauté</TitleText>
+                  return <MTitleText $color='#FFFF' $size='12px'>Communauté</MTitleText>
                 },
                 headerTitle() {
                   return <View>
@@ -231,7 +233,7 @@ export function Home() {
                   return <TabIcon name="settings" width="30" height="30" color={props.color} />
                 },
                 tabBarLabel(props) {
-                  return <TitleText $color='#FFFF' $size='12px'>{lang.settings}</TitleText>
+                  return <MTitleText $color='#FFFF' $size='12px'>{lang.settings}</MTitleText>
                 },
                 header() {
                   return <Header text={lang.settings}></Header>
@@ -242,6 +244,6 @@ export function Home() {
         </View>
         {/* <View style={{ height: 40 }} /> */}
       </View>
-    </View>
+    </View >
   );
 }
