@@ -14,9 +14,9 @@ Install Bun and setup a MySQL server
 ```
 cd server
 bun install
-bun prisma db push
 cp .env.example .env
 # modify the mysql url in the .env file
+bun prisma db push
 bun dev:server
 ```
 
